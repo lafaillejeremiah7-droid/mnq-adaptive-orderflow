@@ -1,5 +1,7 @@
 # MNQ Adaptive Order-Flow Research
 
+**For your current 25K evaluation:** start with [EVALUATION_25K.md](EVALUATION_25K.md). That plan shows a $1,500 target, $1,000 EOD trailing drawdown, $600 daily loss limit, and **no consistency rule**. The prior 50K configurations are not your selected account.
+
 A **Python research and replay engine** for Micro E-mini Nasdaq-100 futures (MNQ) prints. It computes **1m / 5m / 15m** volume-at-price (VAP), volume POC, 70% value area (VAH/VAL), aggressive buy/sell volume, delta, RTH cumulative volume delta (CVD), and a history-calibrated *trade-print absorption proxy*.
 
 **Current status: functional research prototype, not a live trading bot or validated profitable strategy. No brokerage connection and no order placement.**
