@@ -59,6 +59,16 @@ Record one closed trade, with net **realized P&L after all fees**:
 
 The status command reports the $1,500 profit target and **no consistency condition**. It always reports evaluation payout eligibility as false.
 
+## Recommended: use the small local browser interface
+
+Instead of repeatedly typing long commands, after copying the example to account.json run:
+
+    python3 -m mnq_flow.coach_ui
+
+Open http://127.0.0.1:8766 in Chrome. The page has three parts: evaluation progress, manual setup and risk review, and a closed-trade P&L journal. It does not use screen sharing, camera, OCR, charts, a cloud service or a broker API. It only receives information that you enter. It runs on the Linux environment bound to 127.0.0.1, and requires you to keep the Terminal running. Stop with Ctrl+C. It has not been tested on your exact Chromebook.
+
+Enter **current broker equity, trailing floor, trade count and net daily P&L** correctly; incorrect manual inputs can invalidate the risk decision. The local journal must match the broker's daily trade count and realized P&L or the coach blocks new candidates. The browser UI has no authentication because it is explicitly loopback-only; do not expose the port to a network or port-forward it.
+
 ## Analyze a setup you can already see on your platform
 
 Since you see value area, POC, delta, cumulative delta and absorption on your existing charts, you can supply your observations directly. No feed integration is needed for this manual check. Example only (NOT live market prices or a recommendation):
