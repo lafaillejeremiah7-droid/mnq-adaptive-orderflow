@@ -57,7 +57,8 @@ test("No candidate until a complete RTH history exists", function () {
     const c = new indicator.calculator();
     c.contractInfo = {product:"MNQ"};
     c.init();
-    assert.equal(c.map(mockBar(45,{isLast:true}),0),undefined);
+    c.map(mockBar(45,{isLast:false}),0);
+    assert.equal(c.map(mockBar(46,{isLast:true}),1),undefined);
     assert.equal(c.last.valid,false);
     assert.equal(c.last.reason,"INCOMPLETE_RTH_HISTORY");
 });
