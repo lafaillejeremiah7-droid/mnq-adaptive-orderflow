@@ -43,6 +43,12 @@ progress{width:100%;height:18px;accent-color:#78aefb}
 <body>
 <h1>MNQ Evaluation Coach</h1>
 <p>25K evaluation • Risk first • No brokerage connection • Never submits orders</p>
+<section class="panel">
+<h2>Automatic live MNQ feed</h2>
+<div id="liveFeed" class="status">Waiting for a licensed live market-data connection...</div>
+<pre id="liveDetails">No live data received. This does not read your existing chart subscription.</pre>
+<p class="muted">This section updates automatically. Market signals are experimental, not trading orders or verified evidence of a profitable strategy. A separate licensed data connection is required.</p>
+</section>
 <section class="panel"><h2>Evaluation progress</h2>
 <div id="progressText">Loading local journal...</div><progress id="progress" max="1500" value="0"></progress>
 <p class="muted">Progress is calculated from your manually recorded net trade P&L, not official account data.</p>
@@ -99,6 +105,40 @@ async function callApi(endpoint,payload){
   if(!response.ok)throw Error(data.error||"Request failed");
   return data;
 }
+async function refreshLive(){
+  const label=document.getElementById("liveFeed");
+  const details=document.getElementById("liveDetails");
+  try{
+    const response=await fetch("/api/live",{cache:"no-store"});
+    const state=await response.json();
+    if (!response.ok) throw Error(state.error || "Feed unavailable");
+    if(!state.connected){
+      label.textContent="NO LIVE FEED — "+state.status;
+      label.className="status no";
+      details.textContent=state.reason || "No recent complete MNQ minute received.";
+      return;
+    }
+    label.textContent=state.actionable_live_candidate ?
+      "EXPERIMENTAL SETUP: "+state.signal : "LIVE MNQ — NO CONFIRMED CANDIDATE";
+    label.className=state.actionable_live_candidate?"status ok":"status";
+    const profile=state.developing_rth_profile || {};
+    details.textContent=
+      "Contract: "+(state.contract || "unknown")+
+      "\nCompleted minute: "+state.asof+
+      "\n15m bias: "+state.fifteen_minute_bias+
+      "\n5m delta: "+(state.five_minute_closed?.delta ?? "warming up")+
+      "\n1m delta: "+(state.one_minute?.delta ?? "warming up")+
+      "\nRTH CVD: "+state.rth_cvd+
+      "\nPOC / VAH / VAL: "+[profile.poc,profile.vah,profile.val].map(v=>v??"n/a").join(" / ")+
+      "\nAbsorption proxy: "+JSON.stringify(state.absorption_proxy)+
+      "\nData healthy: "+state.data_healthy+
+      "\n\nNo automated order placement. Broker risk limits are not monitored.";
+  }catch(error){
+    label.textContent="FEED ERROR";
+    label.className="status no";
+    details.textContent=String(error);
+  }
+}
 async function refresh(){
   try{
     const response=await fetch("/api/status");
@@ -149,6 +189,8 @@ document.getElementById("recordForm").addEventListener("submit",async event=>{
   }catch(error){out.textContent=String(error);}
 });
 refresh();
+refreshLive();
+setInterval(refreshLive,5000);
 </script>
 </body>
 </html>
@@ -238,6 +280,35 @@ def handler_class(config_path: str, journal_path: str):
                 self.send_header("Content-Length", str(len(raw)))
                 self.end_headers()
                 self.wfile.write(raw)
+            elif self.path == "/api/live":
+                try:
+                    path = Path("live_status.json")
+                    if not path.exists():
+                        self._json({
+                            "connected": False, "status": "NOT CONNECTED",
+                            "reason": "Start a licensed feed with python3 -m mnq_flow.live_stream. "
+                                      "No synthetic or delayed prices will be shown as live."
+                        })
+                    else:
+                        latest = json.loads(path.read_text(encoding="utf-8"))
+                        observed = datetime.fromisoformat(latest["asof"])
+                        age = (datetime.now(ET) - observed.astimezone(ET)).total_seconds()
+                        if age < 0 or age > 120 or not latest.get("data_healthy"):
+                            self._json({
+                                "connected": False, "status": "STALE OR DEGRADED",
+                                "reason": "Latest minute is stale or has incomplete source data. "
+                                          "Do not use it for an entry.",
+                                "age_seconds": round(age, 2),
+                            })
+                        else:
+                            latest["connected"] = True
+                            latest["actionable_live_candidate"] = bool(
+                                latest.get("signal") != "none"
+                                and latest.get("actionable_live_candidate")
+                            )
+                            self._json(latest)
+                except (OSError, KeyError, ValueError, json.JSONDecodeError) as err:
+                    self._json({"error": str(err)}, 400)
             elif self.path == "/api/status":
                 try:
                     self._json(summary(config_read(config_path), journal_read(journal_path)))
