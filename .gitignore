@@ -5,3 +5,6 @@ __pycache__/
 .env
 account.json
 account_*.json
+
+live_status.json
+live_status.json.tmp
