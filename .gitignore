@@ -3,3 +3,5 @@ __pycache__/
 .venv/
 *.jsonl
 .env
+account.json
+account_*.json

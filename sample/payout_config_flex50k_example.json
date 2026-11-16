@@ -1,0 +1,22 @@
+{
+  "_warning": "EXAMPLE ONLY: replace with your exact account agreement, actual stage, and real fees. Payout terms can change.",
+  "_source": "https://intercom.help/aquafutures-help-center/en/articles/16941660-payout-policy",
+  "stage": "funded",
+  "starting_balance": 50000,
+  "risk_per_trade": 125,
+  "personal_daily_stop": 250,
+  "max_trades_per_day": 2,
+  "max_mnq_contracts": 2,
+  "max_consecutive_losses": 2,
+  "roundtrip_cost_per_contract": 2.5,
+  "slippage_ticks_per_contract": 2,
+  "drawdown_reserve_usd": 100,
+  "winning_days_required": 5,
+  "winning_day_minimum": 200,
+  "minimum_payout": 500,
+  "maximum_payout": 2000,
+  "payout_fraction": 0.5,
+  "trader_share": 0.9,
+  "evaluation_target": null,
+  "evaluation_consistency": null
+}
