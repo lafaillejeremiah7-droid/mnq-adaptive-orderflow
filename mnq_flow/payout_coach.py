@@ -47,6 +47,14 @@ def config_read(path):
     for key in ("max_trades_per_day", "max_mnq_contracts", "max_consecutive_losses", "winning_days_required"):
         if int(config[key]) < 1:
             raise ValueError(key + " must be positive")
+    # Official ceilings are optional for older configurations, but validated when provided.
+    for key in ("firm_daily_loss_limit", "firm_max_mnq_contracts"):
+        if key in config and number(config[key]) <= 0:
+            raise ValueError(key + " must be positive")
+    if "firm_max_mnq_contracts" in config and (
+        int(config["max_mnq_contracts"]) > int(config["firm_max_mnq_contracts"])
+    ):
+        raise ValueError("Personal max_mnq_contracts must not exceed firm limit")
     for key in ("payout_fraction", "trader_share"):
         if number(config[key]) > 1:
             raise ValueError(key + " cannot exceed 1")
@@ -145,8 +153,9 @@ def risk_check(config, rows, *, side, entry, stop, contracts, equity, floor,
     reasons = []
     if now.weekday() not in (0, 1, 2, 3) or not time(10, 0) <= now.time() < time(15, 0):
         reasons.append("Outside personal Mon-Thu 10:00-15:00 ET trading window")
-    if not 1 <= contracts <= int(config["max_mnq_contracts"]):
-        reasons.append("Contract count exceeds configured limit")
+    firm_contract_limit = int(config.get("firm_max_mnq_contracts", config["max_mnq_contracts"]))
+    if not 1 <= contracts <= min(int(config["max_mnq_contracts"]), firm_contract_limit):
+        reasons.append("Contract count exceeds personal or firm MNQ limit")
     if open_contracts != 0:
         reasons.append("Open position exists")
     if broker_trades >= int(config["max_trades_per_day"]):
@@ -154,7 +163,17 @@ def risk_check(config, rows, *, side, entry, stop, contracts, equity, floor,
     if broker_losses >= int(config["max_consecutive_losses"]):
         reasons.append("Consecutive-loss stop reached")
     if broker_day_net <= -number(config["personal_daily_stop"]):
-        reasons.append("Daily dollar stop reached")
+        reasons.append("Personal daily dollar stop reached")
+    firm_daily = (
+        number(config["firm_daily_loss_limit"]) if "firm_daily_loss_limit" in config
+        else None
+    )
+    if firm_daily is not None and broker_day_net <= -firm_daily:
+        reasons.append("Firm daily loss limit reached")
+    if (config["stage"] == "evaluation" and config["evaluation_target"] is not None
+            and sum((row["net_pnl"] for row in rows), Decimal(0))
+            >= number(config["evaluation_target"])):
+        reasons.append("Recorded evaluation target reached; stop and verify firm results")
     if equity <= floor:
         reasons.append("At or below broker drawdown floor")
     if entry % TICK != 0 or stop % TICK != 0:
@@ -168,6 +187,7 @@ def risk_check(config, rows, *, side, entry, stop, contracts, equity, floor,
         number(config["risk_per_trade"]),
         number(config["personal_daily_stop"]) + broker_day_net,
         equity - floor - number(config["drawdown_reserve_usd"]),
+        (firm_daily + broker_day_net) if firm_daily is not None else Decimal("1E12"),
     )
     if expected > allowable:
         reasons.append("Planned loss plus cost/slippage buffer exceeds available risk budget")
@@ -186,6 +206,10 @@ def risk_check(config, rows, *, side, entry, stop, contracts, equity, floor,
         "available_risk_budget_usd": usd(max(Decimal(0), allowable)),
         "broker_equity": usd(equity),
         "broker_drawdown_floor": usd(floor),
+        "firm_daily_loss_limit_usd": None if firm_daily is None else usd(firm_daily),
+        "personal_daily_stop_usd": usd(number(config["personal_daily_stop"])),
+        "firm_max_mnq_contracts": firm_contract_limit,
+        "personal_max_mnq_contracts": int(config["max_mnq_contracts"]),
         "setup_candidate": setup,
         "warning": (
             "REVIEW_ONLY does not mean BUY or SELL. No edge verified. "
