@@ -1,5 +1,7 @@
 # MNQ Adaptive Order-Flow Research
 
+**Three-to-five-year historical testing:** [Historical MNQ audit and backtest instructions](HISTORICAL_3_5_YEAR_TEST.md). This runner requires real executed MNQ trade prints with aggressor side and will BLOCK performance claims unless genuine historical coverage qualifies. Your Tradovate live charts alone do not supply a bulk 3–5-year archive. **No 3–5-year real-data backtest has yet been run.**
+
 **Your actual Tradovate Chrome charts:** Start with the [native Tradovate setup coach](tradovate/README.md). It uses the existing chart's supported live bar and volume-profile data directly, without an extra data subscription, manual inputs or an external API key. It is an on-chart advisory indicator, not an account-connected Python trading bot.
 
 **Automatic live MNQ:** [Live feed setup](LIVE_FEED.md) streams licensed CME trade prints and calculates POC, VAH/VAL, CVD, delta and 1m/5m/15m candidates without typing chart observations. This requires a separate authorized market-data entitlement and is not activated by default.
