@@ -1,5 +1,7 @@
 # MNQ Adaptive Order-Flow Research
 
+**Your actual Tradovate Chrome charts:** Start with the [native Tradovate setup coach](tradovate/README.md). It uses the existing chart's supported live bar and volume-profile data directly, without an extra data subscription, manual inputs or an external API key. It is an on-chart advisory indicator, not an account-connected Python trading bot.
+
 **Automatic live MNQ:** [Live feed setup](LIVE_FEED.md) streams licensed CME trade prints and calculates POC, VAH/VAL, CVD, delta and 1m/5m/15m candidates without typing chart observations. This requires a separate authorized market-data entitlement and is not activated by default.
 
 **For your current 25K evaluation:** start with [EVALUATION_25K.md](EVALUATION_25K.md). That plan shows a $1,500 target, $1,000 EOD trailing drawdown, $600 daily loss limit, and **no consistency rule**. The prior 50K configurations are not your selected account.
