@@ -16,3 +16,5 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Sample smoke test
         run: python -m mnq_flow sample/trades.csv --out /tmp/mnq-snapshots.jsonl
+      - name: Tradovate native indicator unit tests (Node.js)
+        run: node --test tradovate/test_indicator.cjs
