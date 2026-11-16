@@ -53,7 +53,8 @@ class EngineTests(unittest.TestCase):
             trade("2026-11-13", 0, 80000, 4, "S"),
             trade("2026-11-13", 1, 80000, 1, "S"),
         ])
-        self.assertEqual([s["rth_cvd"] for s in snapshots], [3, -4])
+        self.assertEqual([s["rth_cvd"] for s in snapshots], [3, 4, -4])
+        self.assertEqual([s["rth_date"] for s in snapshots], ["2026-11-12", "2026-11-12", "2026-11-13"])
 
     def test_no_future_leak(self):
         base = [trade("2026-11-12", i, 80000 + i, 2, "B") for i in range(35)]
