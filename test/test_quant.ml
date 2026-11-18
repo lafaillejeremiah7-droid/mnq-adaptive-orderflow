@@ -1,5 +1,7 @@
 open Mnq_core
 
+let now = 10_000_000L
+
 let expect condition message = if not condition then failwith message
 
 let make_bar minute close range =
@@ -25,7 +27,7 @@ let trend_measurement () =
       | Some result -> result
       | None -> failwith "Expected a measurement after warmup"
     else
-      let next, result = update state (make_bar n (80000 + (2 * n)) 1) in
+      let next, result = update state (make_bar (141 + n) (80000 + (2 * n)) 1) in
       if n < 20 then
         expect (result = None) "Quant model must require 21 closed bars";
       run (n + 1) next result
@@ -77,8 +79,6 @@ let test_regimes () =
     | Some m -> m.regime = Quant.Ranging
     | None -> false)
     "Oscillating closes should classify as range"
-
-let now = 10_000_000L
 
 let account =
   {
@@ -184,6 +184,16 @@ let test_evidence () =
     | Quant.Wait _ -> true
     | _ -> false)
     "Missing regime must abstain";
+  let stale =
+    match Some (trend_measurement ()) with
+    | Some m -> { m with closed_minute_start_ms = 0L }
+    | None -> failwith "Unreachable"
+  in
+  expect
+    (match review ~measurement:(Some stale) ~examples:history () with
+    | Quant.Wait _ -> true
+    | _ -> false)
+    "Stale regime measurements must abstain";
   expect
     (match
        review
