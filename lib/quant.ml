@@ -128,6 +128,8 @@ type resolved_example = {
   resolved_at_ms : int64;
   regime : regime;
   direction : Risk.direction;
+  target_distance_ticks : int;
+  stop_distance_ticks : int;
   outcome : outcome;
 }
 
@@ -138,20 +140,24 @@ type estimate = {
   conservative_rate : float;
 }
 
-let estimate ~as_of_ms ~min_samples ~regime ~direction examples =
-  if min_samples < 1 || Int64.compare as_of_ms 0L < 0 then None
+let estimate ~as_of_ms ~min_samples ~regime ~direction
+    ~target_distance_ticks ~stop_distance_ticks examples =
+  if min_samples < 1 || target_distance_ticks < 1
+     || stop_distance_ticks < 1 || Int64.compare as_of_ms 0L < 0 then None
   else
     let samples, targets =
       List.fold_left
         (fun (n, wins) example ->
           if example.regime <> regime || example.direction <> direction
+             || example.target_distance_ticks <> target_distance_ticks
+             || example.stop_distance_ticks <> stop_distance_ticks
              || Int64.compare example.detected_at_ms 0L < 0
              || Int64.compare example.resolved_at_ms example.detected_at_ms < 0
              || Int64.compare example.resolved_at_ms as_of_ms >= 0 then
             (n, wins)
           else
             ( n + 1,
-              wins + if example.outcome = Target_first then 1 else 0 ))
+              wins + (if example.outcome = Target_first then 1 else 0) ))
         (0, 0) examples
     in
     if samples < min_samples then None
@@ -206,16 +212,22 @@ let review ~now_ms ~session_open ~feed_healthy ~signal ~account ~proposal
             let target_valid =
               target_ticks > 0 && target_ticks <= 1_000_000
               &&
-              match proposal.Risk.direction with
+              (match proposal.Risk.direction with
               | Risk.Long -> target_ticks > proposal.entry_ticks
-              | Risk.Short -> target_ticks < proposal.entry_ticks
+              | Risk.Short -> target_ticks < proposal.entry_ticks)
             in
             if not target_valid then Wait [ "Target must be beyond entry in trade direction" ]
             else
+              let target_distance_ticks =
+                abs (target_ticks - proposal.entry_ticks)
+              in
+              let stop_distance_ticks =
+                abs (proposal.stop_ticks - proposal.entry_ticks)
+              in
               match
                 estimate ~as_of_ms:now_ms ~min_samples
                   ~regime:observed.regime ~direction:proposal.direction
-                  examples
+                  ~target_distance_ticks ~stop_distance_ticks examples
               with
               | None ->
                   Wait
