@@ -40,13 +40,6 @@ let test_regimes () =
   expect
     (trend.efficiency_ratio > 0.99)
     "Directional efficiency calculation is wrong";
-  let _, spike_base =
-    List.fold_left
-      (fun (state, _) i ->
-        update state (make_bar i 80000 1))
-      (Quant.empty, None) (List.init 21 Fun.id)
-  in
-  ignore spike_base;
   let stable_state, _ =
     List.fold_left
       (fun (state, _) i ->
@@ -76,7 +69,7 @@ let test_regimes () =
   let alternating =
     List.fold_left
       (fun (state, _) i ->
-        update state (make_bar i (80000 + if i mod 2 = 0 then 1 else -1) 2))
+        update state (make_bar i (80000 + (if i mod 2 = 0 then 1 else -1)) 2))
       (Quant.empty, None) (List.init 25 Fun.id)
   in
   expect
@@ -115,6 +108,8 @@ let example i outcome =
       Int64.add (Int64.mul (Int64.of_int i) 60_000L) 10_000L;
     regime = Quant.Trending_up;
     direction = Risk.Long;
+    target_distance_ticks = 80;
+    stop_distance_ticks = 40;
     outcome;
   }
 
@@ -135,7 +130,8 @@ let test_evidence () =
   let estimate =
     match
       Quant.estimate ~as_of_ms:now ~min_samples:100
-        ~regime:measurement.regime ~direction:Risk.Long history
+        ~regime:measurement.regime ~direction:Risk.Long
+        ~target_distance_ticks:80 ~stop_distance_ticks:40 history
     with
     | None -> failwith "Expected historical estimate"
     | Some value -> value
@@ -151,9 +147,15 @@ let test_evidence () =
   expect
     (Quant.estimate ~as_of_ms:now ~min_samples:100
        ~regime:Quant.Trending_up ~direction:Risk.Long
+       ~target_distance_ticks:80 ~stop_distance_ticks:40
        (future :: List.init 99 (fun i -> example i Quant.Target_first))
      = None)
     "Outcomes resolved at/after decision time must not leak";
+  expect
+    (Quant.estimate ~as_of_ms:now ~min_samples:100
+       ~regime:Quant.Trending_up ~direction:Risk.Long
+       ~target_distance_ticks:100 ~stop_distance_ticks:40 history = None)
+    "Historical examples with different target geometry must be excluded";
   expect
     (match review () with Quant.Wait _ -> true | _ -> false)
     "No training evidence must abstain";
