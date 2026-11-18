@@ -53,9 +53,17 @@ class PriceOnlyTests(unittest.TestCase):
             printer(record(minute=6))
             with self.assertRaises(RuntimeError):
                 printer(record(minute=8))
+            # Even if the SDK swallows a callback exception, the stream stays halted.
             with self.assertRaises(RuntimeError):
-                printer(record(minute=6))
+                printer(record(minute=7))
         self.assertEqual(buffer.getvalue().count("\n"), 2)
+        self.assertTrue(printer.halted)
+
+    def test_reject_provider_error(self):
+        printer = BarPrinter()
+        with self.assertRaises(RuntimeError):
+            printer(SimpleNamespace(err="symbol resolution failed"))
+        self.assertTrue(printer.halted)
 
 
 if __name__ == "__main__":
