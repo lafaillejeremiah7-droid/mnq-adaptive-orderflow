@@ -38,3 +38,15 @@ These are **starter defaults**, not verification of your actual funded-account r
 ## Next milestone
 
 Add a permissioned, contract-aware market-data adapter and independently validated account-state adapter; reconcile timestamps, RTH session resets, rollovers, and exchange holidays; then test order-flow hypotheses with fees and slippage on genuine out-of-sample data. Do not use experimental signals as automatic trading orders.
+
+## Quant research gates (experimental)
+
+`lib/quant.ml` adds an advisory-only calculation pipeline:
+
+1. **Contiguous closed-minute bars only.** After 21 consecutive one-minute bars, a 20-move efficiency ratio and two smoothed true-range measures (5 and 20 minutes) classify a provisional regime: uptrend, downtrend, range, or volatility spike. A missing/duplicate bar fails closed; features are not calculated on the first trade of the next minute.
+2. **Historical target-before-stop outcomes.** The research estimator selects only resolved prior examples from the *same regime and direction*. It requires at least 100 labeled examples by default in `test/test_quant.ml` (callers explicitly provide `min_samples`). Any example resolving at or after the evaluation timestamp is excluded to reduce look-ahead leakage.
+3. **Conservative expectancy.** The lower one-sided 95% Wilson bound on the observed target-first fraction is used to calculate estimated net expectancy after assumed fees and slippage. The pre-existing broker account/risk gate must pass first. Missing historical labels, insufficient sample count, volatility spikes, or non-positive expectancy produce `Wait`, not permission to trade.
+
+These are **research heuristics**, not trained/calibrated predictive probabilities, statistically independent samples, or demonstrated profitability. The 100-example minimum and regime thresholds are initial software defaults, not optimized or validated against MNQ. Labeling must use historical trade prints with an explicit first-touch rule for the same fixed target/stop horizon, and must avoid leakage from simultaneous or overlapping observations. The raw historical examples and broker snapshots are **not** present in this repository.
+
+**No live orders, no Tradovate integration, and no live trade suggestions** are enabled by this change. Next, obtain permissioned data and run chronological train/validation/test evaluation with walk-forward splits, fees, spread, realistic slippage, and calibration and drawdown diagnostics before considering the model for live decision support.
