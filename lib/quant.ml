@@ -123,7 +123,7 @@ let on_closed_bar state (bar : Market.bar) =
 (** An outcome must have actually resolved BEFORE the decision timestamp.
     Out-of-order future results are excluded, never backfilled into a prior
     forecast. All records must correspond to one predeclared stop/target rule. *)
-type outcome = Target_first | Stop_first
+type outcome = Target_first | Stop_first | Time_limit
 
 type resolved_example = {
   detected_at_ms : int64;
@@ -132,6 +132,7 @@ type resolved_example = {
   direction : Risk.direction;
   target_distance_ticks : int;
   stop_distance_ticks : int;
+  horizon_bars : int;
   outcome : outcome;
 }
 
@@ -143,9 +144,9 @@ type estimate = {
 }
 
 let estimate ~as_of_ms ~min_samples ~regime ~direction
-    ~target_distance_ticks ~stop_distance_ticks examples =
+    ~target_distance_ticks ~stop_distance_ticks ~horizon_bars examples =
   if min_samples < 1 || target_distance_ticks < 1
-     || stop_distance_ticks < 1 || Int64.compare as_of_ms 0L < 0 then None
+     || stop_distance_ticks < 1 || horizon_bars < 1 || Int64.compare as_of_ms 0L < 0 then None
   else
     let samples, targets =
       List.fold_left
@@ -153,6 +154,7 @@ let estimate ~as_of_ms ~min_samples ~regime ~direction
           if example.regime <> regime || example.direction <> direction
              || example.target_distance_ticks <> target_distance_ticks
              || example.stop_distance_ticks <> stop_distance_ticks
+             || example.horizon_bars <> horizon_bars
              || Int64.compare example.detected_at_ms 0L < 0
              || Int64.compare example.resolved_at_ms example.detected_at_ms < 0
              || Int64.compare example.resolved_at_ms as_of_ms >= 0 then
@@ -198,7 +200,7 @@ type verdict =
 (** Combines the existing broker-state risk gate with conservative historical
     evidence. A positive result is advisory, NOT an executable order. *)
 let review ~now_ms ~session_open ~feed_healthy ~signal ~account ~proposal
-    ~limits ~measurement ~examples ~min_samples ~target_ticks =
+    ~limits ~measurement ~examples ~min_samples ~target_ticks ~horizon_bars =
   match
     Risk.check ~now_ms ~session_open ~feed_healthy ~signal ~account
       ~proposal ~limits
@@ -236,7 +238,7 @@ let review ~now_ms ~session_open ~feed_healthy ~signal ~account ~proposal
               match
                 estimate ~as_of_ms:now_ms ~min_samples
                   ~regime:observed.regime ~direction:proposal.direction
-                  ~target_distance_ticks ~stop_distance_ticks examples
+                  ~target_distance_ticks ~stop_distance_ticks ~horizon_bars examples
               with
               | None ->
                   Wait
