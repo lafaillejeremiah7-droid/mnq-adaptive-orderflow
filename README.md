@@ -50,3 +50,23 @@ Add a permissioned, contract-aware market-data adapter and independently validat
 These are **research heuristics**, not trained/calibrated predictive probabilities, statistically independent samples, or demonstrated profitability. The 100-example minimum and regime thresholds are initial software defaults, not optimized or validated against MNQ. Labeling must use historical trade prints with an explicit first-touch rule for the same fixed target/stop horizon, and must avoid leakage from simultaneous or overlapping observations. The raw historical examples and broker snapshots are **not** present in this repository.
 
 **No live orders, no Tradovate integration, and no live trade suggestions** are enabled by this change. Next, obtain permissioned data and run chronological train/validation/test evaluation with walk-forward splits, fees, spread, realistic slippage, and calibration and drawdown diagnostics before considering the model for live decision support.
+
+### First-touch labeling (research-only)
+
+`lib/labeling.ml` labels completed 1-minute future bars after a hypothetical entry as target-first, stop-first, or time-limit. It deliberately **rejects** candles that hit both stop and target in the same minute, because OHLC cannot reconstruct which traded first. It also fails closed on missing, duplicate, or invalid bars. Incomplete horizons are excluded rather than mislabeled. It does **not** establish that an order at the assumed entry price would have filled.
+
+Quant evidence now requires the same **direction, regime, target distance, stop distance, and vertical horizon** for every historical example. A time-limit is counted as a non-target; this conservative shortcut does not estimate the actual time-exit P/L, which would require a fill-aware simulator and separate dataset.
+
+## External methodology references (ideas only; code not copied)
+
+- [quantowl](https://github.com/landtml/quantowl): triple-barrier event labeling, purging/embargo to address overlapping look-ahead windows, and backtest overfitting tests. The first-touch labeler follows this general methodology, not its implementation.
+- [hftbacktest](https://github.com/nkaz001/hftbacktest): event-driven fill simulation with spread, queue position and transport/order latency. It is a useful model for backtest realism, but its crypto-specific data adapters cannot be assumed to work with MNQ or Tradovate.
+- [River](https://github.com/online-ml/river): streaming prediction, delayed supervision, and concept drift monitoring. Add only after historical probability calibration is demonstrated.
+- [Owl](https://github.com/owlbarn/owl): OCaml-native numerical computing, useful if a larger ML or regression model is later justified. No new dependency added now.
+- [arch](https://github.com/bashtage/arch): conditional volatility estimation and backtests for more advanced volatility baselines.
+- [ruptures](https://github.com/deepcharles/ruptures): offline structural-break detection, a research baseline rather than a live look-ahead-free detector.
+- [vectorbt](https://github.com/polakowo/vectorbt): large batch strategy experiments, useful for an optional offline Python research pipeline.
+- [QuantStats](https://github.com/ranaroussi/quantstats): performance, drawdown and Monte Carlo reporting after replay data and trade histories exist.
+- [NautilusTrader](https://github.com/nautechsystems/nautilus_trader): event-driven parity between offline simulation and live code paths; substantial integration complexity, not needed in Phase 1.
+
+**Next validation milestone:** obtain appropriately licensed MNQ tick/quote data and broker order records, reproduce observed real stop/limit/market fill behavior, then run strict chronological walk-forward tests with purge windows for overlapping labels. Until then all quant signals remain research-only and no observed forecast reliability is claimed.
