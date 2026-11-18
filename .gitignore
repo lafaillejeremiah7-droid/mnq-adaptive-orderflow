@@ -1,0 +1,10 @@
+_build/
+*.exe
+.env
+*.key
+account.json
+trades.jsonl
+data/
+*.csv
+*.parquet
+*.log

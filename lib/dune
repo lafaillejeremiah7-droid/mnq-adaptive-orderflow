@@ -1,0 +1,3 @@
+(library
+ (name mnq_core)
+ (wrapped true))

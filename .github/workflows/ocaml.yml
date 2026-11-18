@@ -1,0 +1,19 @@
+name: OCaml core checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install OCaml and Dune
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ocaml-nox dune
+      - name: Build
+        run: dune build
+      - name: Test
+        run: dune runtest
