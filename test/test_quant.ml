@@ -110,6 +110,7 @@ let example i outcome =
     direction = Risk.Long;
     target_distance_ticks = 80;
     stop_distance_ticks = 40;
+    horizon_bars = 10;
     outcome;
   }
 
@@ -122,7 +123,7 @@ let review ?(account = account) ?(proposal = proposal)
     ?(measurement = Some (trend_measurement ())) ?(examples = []) () =
   Quant.review ~now_ms:now ~session_open:true ~feed_healthy:true
     ~signal ~account ~proposal ~limits:Risk.default_limits ~measurement
-    ~examples ~min_samples:100 ~target_ticks:80130
+    ~examples ~min_samples:100 ~target_ticks:80130 ~horizon_bars:10
 
 let test_evidence () =
   let measurement = trend_measurement () in
@@ -131,7 +132,7 @@ let test_evidence () =
     match
       Quant.estimate ~as_of_ms:now ~min_samples:100
         ~regime:measurement.regime ~direction:Risk.Long
-        ~target_distance_ticks:80 ~stop_distance_ticks:40 history
+        ~target_distance_ticks:80 ~stop_distance_ticks:40 ~horizon_bars:10 history
     with
     | None -> failwith "Expected historical estimate"
     | Some value -> value
@@ -147,15 +148,21 @@ let test_evidence () =
   expect
     (Quant.estimate ~as_of_ms:now ~min_samples:100
        ~regime:Quant.Trending_up ~direction:Risk.Long
-       ~target_distance_ticks:80 ~stop_distance_ticks:40
+       ~target_distance_ticks:80 ~stop_distance_ticks:40 ~horizon_bars:10
        (future :: List.init 99 (fun i -> example i Quant.Target_first))
      = None)
     "Outcomes resolved at/after decision time must not leak";
   expect
     (Quant.estimate ~as_of_ms:now ~min_samples:100
        ~regime:Quant.Trending_up ~direction:Risk.Long
-       ~target_distance_ticks:100 ~stop_distance_ticks:40 history = None)
+       ~target_distance_ticks:100 ~stop_distance_ticks:40 ~horizon_bars:10 history = None)
     "Historical examples with different target geometry must be excluded";
+  expect
+    (Quant.estimate ~as_of_ms:now ~min_samples:100
+       ~regime:Quant.Trending_up ~direction:Risk.Long
+       ~target_distance_ticks:80 ~stop_distance_ticks:40 ~horizon_bars:20
+       history = None)
+    "Different vertical horizons must be excluded";
   expect
     (match review () with Quant.Wait _ -> true | _ -> false)
     "No training evidence must abstain";
