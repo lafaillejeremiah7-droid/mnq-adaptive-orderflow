@@ -1,3 +1,7 @@
 (test
  (name test_core)
  (libraries mnq_core))
+
+(test
+ (name test_quant)
+ (libraries mnq_core))
