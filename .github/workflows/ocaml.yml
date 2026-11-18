@@ -1,4 +1,4 @@
-name: OCaml core checks
+name: OCaml 5 core checks
 
 on:
   push:
@@ -9,11 +9,13 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Install OCaml and Dune
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ocaml-nox ocaml-dune
+      - name: Set up OCaml 5.2
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: '5.2'
+      - name: Install Dune
+        run: opam install dune -y
       - name: Build
-        run: dune build
+        run: opam exec -- dune build
       - name: Test
-        run: dune runtest
+        run: opam exec -- dune runtest
