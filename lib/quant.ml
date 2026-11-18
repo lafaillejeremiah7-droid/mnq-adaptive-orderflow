@@ -4,6 +4,7 @@
 type regime = Trending_up | Trending_down | Ranging | Volatility_spike
 
 type measurement = {
+  closed_minute_start_ms : int64;
   regime : regime;
   fast_true_range_ticks : float;
   slow_true_range_ticks : float;
@@ -111,6 +112,7 @@ let on_closed_bar state (bar : Market.bar) =
             ( next,
               Some
                 {
+                  closed_minute_start_ms = bar.minute_start_ms;
                   regime;
                   fast_true_range_ticks = fast;
                   slow_true_range_ticks = slow;
@@ -206,7 +208,14 @@ let review ~now_ms ~session_open ~feed_healthy ~signal ~account ~proposal
       match measurement with
       | None -> Wait [ "Insufficient completed bars for regime classification" ]
       | Some observed ->
-          if observed.regime = Volatility_spike then
+          let closed_at_ms =
+            Int64.add observed.closed_minute_start_ms 60_000L
+          in
+          let age_ms = Int64.sub now_ms closed_at_ms in
+          if Int64.compare age_ms 0L < 0
+             || Int64.compare age_ms 120_000L > 0 then
+            Wait [ "Quant regime is future-dated or older than 120 seconds" ]
+          else if observed.regime = Volatility_spike then
             Wait [ "Volatility spike: experimental model abstains" ]
           else
             let target_valid =
