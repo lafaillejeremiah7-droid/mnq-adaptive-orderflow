@@ -57,8 +57,8 @@ let default_limits =
 
 let min3 a b c = Int64.min a (Int64.min b c)
 
-let check ~now_ms ~session_open ~feed_healthy ~signal ~account ~proposal
-    ~limits =
+let check ~now_ms ~session_open ~feed_healthy ~(signal : signal option)
+    ~(account : account) ~(proposal : proposal) ~(limits : limits) =
   let failures = ref [] in
   let reject reason = failures := reason :: !failures in
   if not session_open then reject "Outside approved trading session";
