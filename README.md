@@ -70,3 +70,23 @@ Quant evidence now requires the same **direction, regime, target distance, stop 
 - [NautilusTrader](https://github.com/nautechsystems/nautilus_trader): event-driven parity between offline simulation and live code paths; substantial integration complexity, not needed in Phase 1.
 
 **Next validation milestone:** obtain appropriately licensed MNQ tick/quote data and broker order records, reproduce observed real stop/limit/market fill behavior, then run strict chronological walk-forward tests with purge windows for overlapping labels. Until then all quant signals remain research-only and no observed forecast reliability is claimed.
+
+## Independent price-only Nasdaq futures feed (experimental)
+
+**Input is CME MNQ (or NQ) futures prices, not the Nasdaq-100 NDX cash index.** These are different markets. This optional adapter does **not** request or analyze volume profile, cumulative delta, order-flow buying/selling pressure, absorption, or market depth. The user performs those analyses independently. The agent calculates only price-derived market regimes, volatility, historical price behavior and risk when appropriate.
+
+`scripts/databento_price_only.py` uses Databento's `GLBX.MDP3` with **`ohlcv-1m`** and the continuous symbol `MNQ.c.0`. It prints timestamp plus four OHLC prices as 0.25-point integer ticks. `bin/main.ml --price-stream` consumes that narrow format and runs `Quant.on_closed_bar`, printing research-only regime and volatility readings after 21 contiguous bars. There is no Tradovate integration. Prices are **not** streamed into the older aggressor-trade/volume-profile feature pipeline. Price-only records carry *unknown* buy/sell quantities; the adapter uses zero placeholder fields solely to match the existing OHLC record type, and the quant path never uses them.
+
+Requires **a Databento account with licensed CME live-data access**, an API key, and Python 3.10+ plus the Databento SDK. Subscription and exchange entitlements may cost money. The connector is not live until you configure these yourself; we cannot provide the key. Do not commit keys to GitHub.
+
+```sh
+python3 -m pip install databento
+export DATABENTO_API_KEY='YOUR_PRIVATE_KEY'
+python3 scripts/databento_price_only.py --symbol MNQ.c.0 | dune exec ./bin/main.exe -- --price-stream
+```
+
+Run from the cloned repository after installing OCaml 5 and Dune 3. Use `--symbol NQ.c.0` instead if you explicitly want E-mini prices. A rolling contract mapping will **not** automatically update a live subscription when the front month changes; restart/reconcile it and rebuild the warmup after rollovers. The current strict contiguous-minute policy stops on a gap (such as a session break or an interval without a bar) rather than silently bridging or fabricating missing prices. The monitor is not yet a resilient unattended live service. Market sessions, holidays, and auto-backfill still need implementing.
+
+This feature outputs regime/volatility observations, not trading signals or verified probabilities. Real-time feed access, authenticated entitlement, and price freshness have not been demonstrated in this repository. The price-based model has not been validated on unseen MNQ data, and this path does not interact with the broker account or fix stop-loss execution.
+
+Sources: [Databento live quickstart](https://databento.com/docs/quickstart/live), [Live subscription/symbology](https://databento.com/docs/api-live/client/subscribe), [Continuous futures caveat](https://databento.com/docs/api-live/basics).
