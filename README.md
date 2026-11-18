@@ -4,7 +4,7 @@ A clean-slate, functional-first foundation for an MNQ futures trading **research
 
 ## Status
 
-The repository contains a deterministic market-print aggregator, volume-at-price profile calculations, cumulative signed trade volume, and a strict **advisory-only** risk gate. It does **not** connect to Tradovate, ingest a licensed live feed, recognize real order-book absorption, implement a validated entry strategy, or submit orders. No positive expectancy or payout probability has been established.
+The repository contains a deterministic market-print aggregator, volume-at-price profile calculations, cumulative signed trade volume, and a strict **advisory-only** risk gate. It does **not** connect to Tradovate, independently verify a licensed live feed, recognize real order-book absorption, implement a validated entry strategy, or submit orders. An optional Databento **price-only** bridge is available below, but has not been authenticated or exercised against live CME market data here. No positive expectancy or payout probability has been established.
 
 The core accepts **actual aggressor-side trade prints**; ordinary OHLCV bars cannot reliably reconstruct bid/ask delta or footprint data. Cumulative delta and profile are labeled **since stream start**, not RTH-session values, until a validated session calendar and warmup mechanism are added.
 
@@ -24,6 +24,8 @@ dune exec ./bin/main.exe
 - `lib/profile.ml`: volume-at-price and deterministic 70% value area.
 - `lib/features.ml`: market-derived features and a snapshot that excludes the next minute's first print.
 - `lib/risk.ml`: trade count, loss, drawdown-floor, position, freshness, and signal gates. **REVIEW_ONLY is not permission to execute.**
+- `lib/price_stream.ml`: independent OHLC-only bar input; excludes delta, volume profile, and order book.
+- `bin/main.ml --price-stream`: standalone price-derived regime monitor; no broker or order-flow integration.
 - `test/test_core.ml`: deterministic tests; GitHub Actions runs them.
 
 ## Risk defaults (personal, not firm rules)
@@ -37,7 +39,7 @@ These are **starter defaults**, not verification of your actual funded-account r
 
 ## Next milestone
 
-Add a permissioned, contract-aware market-data adapter and independently validated account-state adapter; reconcile timestamps, RTH session resets, rollovers, and exchange holidays; then test order-flow hypotheses with fees and slippage on genuine out-of-sample data. Do not use experimental signals as automatic trading orders.
+Authenticate and validate the optional independent CME price feed and an account-state adapter; reconcile timestamps, session resets, rollovers, and exchange holidays; then validate price-based statistical hypotheses with fees and slippage on genuine out-of-sample data. Order-flow analysis remains with the user and is not consumed by the price-only monitor. Do not use experimental signals as automatic trading orders.
 
 ## Quant research gates (experimental)
 
