@@ -52,19 +52,32 @@ class BarPrinter:
 
     def __init__(self) -> None:
         self.last_start_ms: int | None = None
+        self.halted = False
 
     def __call__(self, record) -> None:
-        line = format_ohlcv(record)
-        if line is None:
-            return
-        ts_ms = int(line.split(",", 1)[0])
-        if self.last_start_ms is not None and ts_ms != self.last_start_ms + 60_000:
-            raise RuntimeError(
-                "Missing, duplicate or out-of-order minute: stop and backfill; "
-                "do not reuse stale quantitative state"
-            )
-        self.last_start_ms = ts_ms
-        print(line, flush=True)
+        if self.halted:
+            raise RuntimeError("Price feed is halted; restart and backfill")
+        try:
+            if hasattr(record, "err"):
+                raise RuntimeError("Provider data error: " + str(record.err))
+            # Code 2 is a slow-reader warning: don't risk losing price bars.
+            if hasattr(record, "msg") and getattr(record, "code", None) == 2:
+                raise RuntimeError("Provider reports a slow reader; data unsafe")
+            line = format_ohlcv(record)
+            if line is None:
+                return
+            ts_ms = int(line.split(",", 1)[0])
+            if self.last_start_ms is not None and ts_ms != self.last_start_ms + 60_000:
+                raise RuntimeError(
+                    "Missing, duplicate or out-of-order minute: stop and backfill; "
+                    "do not reuse stale quantitative state"
+                )
+            self.last_start_ms = ts_ms
+            print(line, flush=True)
+        except Exception:
+            # An SDK callback exception must never allow a later bar through.
+            self.halted = True
+            raise
 
 
 def main() -> int:
