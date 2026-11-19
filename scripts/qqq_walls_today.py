@@ -69,16 +69,16 @@ def parse_response(
         asof = parse_utc(raw["updated"])
     except (KeyError, TypeError, AttributeError, ValueError) as exc:
         raise DataUnavailable("Provider lacks a valid UTC 'updated' timestamp") from exc
-    age_seconds = (current - asof).total_seconds()
-    if age_seconds < -30 or age_seconds > max_age_hours * 3600:
-        raise DataUnavailable(
-            f"Provider QQQ snapshot is future-dated or too old: {age_seconds / 3600:.1f} hours"
-        )
     observed_date = asof.astimezone(US_EASTERN).date()
     today = current.astimezone(US_EASTERN).date()
     if observed_date != today:
         raise DataUnavailable(
             f"Not today's QQQ options data: snapshot {observed_date}, ET today {today}"
+        )
+    age_seconds = (current - asof).total_seconds()
+    if age_seconds < -30 or age_seconds > max_age_hours * 3600:
+        raise DataUnavailable(
+            f"Provider QQQ snapshot is future-dated or too old: {age_seconds / 3600:.1f} hours"
         )
     if isinstance(raw.get("spot"), bool) or isinstance(raw.get("callWall"), bool) or isinstance(raw.get("putWall"), bool):
         raise DataUnavailable("Provider price fields cannot be boolean")
