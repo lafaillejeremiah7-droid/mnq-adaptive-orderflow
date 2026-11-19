@@ -138,26 +138,51 @@ def parse_response(
 def add_nq_equivalents(
     report: dict,
     *,
+    qqq_price: str,
+    qqq_asof: str,
     nq_price: str,
     nq_asof: str,
+    now: datetime | None = None,
     max_time_gap_seconds: int = 300,
+    max_quote_age_hours: int = 12,
 ) -> dict:
-    """Use user-supplied NQ contract price near the provider's QQQ snapshot."""
+    """Convert using TWO independently timestamped observed quotes, not vendor spot.
+
+    A provider update timestamp after QQQ stops trading is not evidence of a
+    fresh QQQ trade. Avoid mixing a stale ETF reference with new NQ prices.
+    """
     try:
+        qqq = positive_decimal(qqq_price, "QQQ reference price")
         nq = positive_decimal(nq_price, "NQ reference price")
+        qqq_when = parse_utc(qqq_asof)
         nq_when = parse_utc(nq_asof)
         source_when = parse_utc(report["as_of_utc"])
     except (TypeError, ValueError, KeyError) as exc:
-        raise DataUnavailable(f"Invalid NQ reference: {exc}") from exc
-    gap = abs((nq_when - source_when).total_seconds())
+        raise DataUnavailable(f"Invalid QQQ/NQ price reference: {exc}") from exc
+    current = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+    gap = abs((nq_when - qqq_when).total_seconds())
     if gap > max_time_gap_seconds:
         raise DataUnavailable(
-            f"NQ reference is {gap:.0f} seconds from QQQ snapshot "
-            f"(max {max_time_gap_seconds}s). No equivalence calculated."
+            f"QQQ and NQ reference quotes are {gap:.0f}s apart "
+            f"(max {max_time_gap_seconds}s)"
         )
-    spot = Decimal(report["qqq_spot"])
-    ratio = nq / spot
+    provider_day = source_when.astimezone(US_EASTERN).date()
+    for symbol, stamp in (("QQQ", qqq_when), ("NQ", nq_when)):
+        age_hours = (current - stamp).total_seconds() / 3600
+        if age_hours < -(30 / 3600) or age_hours > max_quote_age_hours:
+            raise DataUnavailable(
+                f"{symbol} reference timestamp is future-dated or >"
+                f"{max_quote_age_hours}h old"
+            )
+        if stamp.astimezone(US_EASTERN).date() != provider_day:
+            raise DataUnavailable(
+                f"{symbol} reference is not from vendor's QQQ session date "
+                f"{provider_day}"
+            )
+    ratio = nq / qqq
     updated = dict(report)
+    updated["qqq_reference_price"] = str(qqq)
+    updated["qqq_reference_asof_utc"] = qqq_when.isoformat()
     updated["nq_reference_price"] = str(nq)
     updated["nq_reference_asof_utc"] = nq_when.isoformat()
     updated["nq_futures_contract"] = "USER_MUST_VERIFY_SELECTED_CONTRACT"
@@ -169,12 +194,12 @@ def add_nq_equivalents(
         nq_tick_round(Decimal(report["qqq_put_wall"]) * ratio)
     )
     updated["nq_conversion_warning"] = (
-        "Approximate QQQ-to-NQ ratio, not native NQ options GEX. "
-        "NQ price was supplied by the user, not downloaded by the agent. "
-        "QQQ spot may have a different last-trade time than the provider snapshot."
+        "Approximate projection of vendor QQQ options walls, NOT native NQ "
+        "options GEX. Conversion uses user-supplied QQQ and NQ market quotes "
+        "observed within 5 minutes of each other, NOT the vendor's snapshot "
+        "update time (which may occur after QQQ trading ends)."
     )
     return updated
-
 
 def fetch_provider(timeout_seconds: int = 12) -> dict:
     req = request.Request(
@@ -237,10 +262,16 @@ def main() -> int:
         description="Fetch today's free QQQ gamma walls; optional user-supplied NQ mapping"
     )
     parser.add_argument(
-        "--nq-price", help="Optional NQ futures reference in index points, from YOUR chart"
+        "--qqq-price", help="Optional actual QQQ ETF reference price from YOUR chart"
     )
     parser.add_argument(
-        "--nq-asof", help="Required with --nq-price: NQ reference timestamp UTC ISO-8601"
+        "--qqq-asof", help="Required with --qqq-price: actual UTC observation time"
+    )
+    parser.add_argument(
+        "--nq-price", help="Optional actual NQ futures reference from YOUR chart"
+    )
+    parser.add_argument(
+        "--nq-asof", help="Required with --nq-price: actual UTC observation time"
     )
     parser.add_argument(
         "--max-age-hours", type=float, default=DEFAULT_MAX_AGE_HOURS,
@@ -252,8 +283,14 @@ def main() -> int:
         help="Local 15-minute provider response cache"
     )
     args = parser.parse_args()
-    if bool(args.nq_price) != bool(args.nq_asof):
-        parser.error("--nq-price and --nq-asof must be provided together")
+    conversion_args = [args.qqq_price, args.qqq_asof, args.nq_price, args.nq_asof]
+    if any(item is not None for item in conversion_args) and not all(
+        item is not None for item in conversion_args
+    ):
+        parser.error(
+            "QQQ/NQ mapping requires --qqq-price, --qqq-asof, "
+            "--nq-price, and --nq-asof together"
+        )
     if not 0.25 <= args.max_age_hours <= 24:
         parser.error("--max-age-hours must be between 0.25 and 24")
     try:
@@ -263,10 +300,11 @@ def main() -> int:
         report["retrieval_method"] = fetch_method
         if args.nq_price is not None:
             report = add_nq_equivalents(
-                report, nq_price=args.nq_price, nq_asof=args.nq_asof
+                report, qqq_price=args.qqq_price, qqq_asof=args.qqq_asof,
+                nq_price=args.nq_price, nq_asof=args.nq_asof, now=now
             )
         else:
-            report["nq_equivalents"] = "NOT_CALCULATED: no matched NQ reference supplied"
+            report["nq_equivalents"] = "NOT_CALCULATED: matched QQQ and NQ chart references not supplied"
     except DataUnavailable as exc:
         print(f"QQQ WALLS UNAVAILABLE: {exc}", file=sys.stderr)
         return 2
