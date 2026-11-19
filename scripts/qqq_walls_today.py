@@ -168,16 +168,16 @@ def add_nq_equivalents(
         )
     provider_day = source_when.astimezone(US_EASTERN).date()
     for symbol, stamp in (("QQQ", qqq_when), ("NQ", nq_when)):
+        if stamp.astimezone(US_EASTERN).date() != provider_day:
+            raise DataUnavailable(
+                f"{symbol} reference is not from vendor's QQQ session date "
+                f"{provider_day}"
+            )
         age_hours = (current - stamp).total_seconds() / 3600
         if age_hours < -(30 / 3600) or age_hours > max_quote_age_hours:
             raise DataUnavailable(
                 f"{symbol} reference timestamp is future-dated or >"
                 f"{max_quote_age_hours}h old"
-            )
-        if stamp.astimezone(US_EASTERN).date() != provider_day:
-            raise DataUnavailable(
-                f"{symbol} reference is not from vendor's QQQ session date "
-                f"{provider_day}"
             )
     ratio = nq / qqq
     updated = dict(report)
