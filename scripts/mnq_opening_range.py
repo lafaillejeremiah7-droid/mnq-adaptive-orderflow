@@ -61,8 +61,8 @@ def simulate(bars):
     return None
 
 
-def simulate_exit(bars, entry_minute, side, entry, stop_ticks, target_ticks):
-    for j in range(entry_minute, MINUTES):
+def simulate_exit(bars, entry_minute, side, entry, stop_ticks, target_ticks, last=MINUTES-1):
+    for j in range(entry_minute, last+1):
         o,h,l,_,_ = bars[j]
         gap = side*(o-entry)
         adverse, favorable = sorted((side*(l-entry), side*(h-entry)))
@@ -70,7 +70,7 @@ def simulate_exit(bars, entry_minute, side, entry, stop_ticks, target_ticks):
             ticks, reason = gap, "stop_at_open"
         elif gap >= target_ticks:
             ticks, reason = target_ticks, "target_at_open"
-        elif j == MINUTES-1:
+        elif j == last:
             ticks, reason = gap, "time_exit"
         elif adverse <= -stop_ticks:
             ticks, reason = -stop_ticks, "ambiguous_stop" if favorable >= target_ticks else "stop"
@@ -82,11 +82,14 @@ def simulate_exit(bars, entry_minute, side, entry, stop_ticks, target_ticks):
                 "gross_ticks": ticks, "exit_reason": reason}
 
 
-def replay(root, policy=simulate):
+def contract_files(root):
     files = sorted((m[1], m[2], p) for p in root.glob("*.csv") if (m := FILE.fullmatch(p.name)))
     if not files:
         raise ValueError("No dated MNQ outright CSVs found")
-    sessions, skips = [], Counter()
+    return files
+
+
+def eligible_sessions(files, skips):
     for day_text, group in groupby(files, key=lambda row: row[0]):
         day = date.fromisoformat(day_text)
         if day.weekday() >= 4:
@@ -107,7 +110,13 @@ def replay(root, policy=simulate):
         if len(bars) != MINUTES:
             skips["incomplete_selected_session"] += 1
             continue
-        sessions.append((day.isoformat(), symbol, policy(bars)))
+        yield day.isoformat(), symbol, bars
+
+
+def replay(root, policy=simulate):
+    files = contract_files(root)
+    skips = Counter()
+    sessions = [(day, symbol, policy(bars)) for day, symbol, bars in eligible_sessions(files, skips)]
     return sessions, skips, len(files)
 
 
