@@ -6,7 +6,7 @@ A clean-slate, functional-first foundation for an MNQ futures trading **research
 
 **Offline research only.** All real-time and delayed-price polling scripts, stream commands, and associated tests were deliberately removed. This repository does not fetch or display the current NQ/MNQ market price. Historical replay and a separate, opt-in historical-data importer remain available.
 
-The repository contains a deterministic market-print aggregator, volume-at-price profile calculations, cumulative signed trade volume, and a strict **advisory-only** risk gate. It does **not** connect to Tradovate, independently verify a licensed live feed, recognize real order-book absorption, implement a validated entry strategy, or submit orders. Historical OHLC research and offline replay are supported. No live or delayed price feed is installed. No positive expectancy or payout probability has been established.
+The repository contains a deterministic market-print aggregator, volume-at-price profile calculations, cumulative signed trade volume, and a strict **advisory-only** risk gate. It does **not** connect to Tradovate, independently verify a licensed live feed, recognize real order-book absorption, implement a validated entry strategy, or submit orders. Historical OHLC research and offline replay are supported. No live or delayed NQ futures price feed is installed; the optional QQQ gamma snapshot adapter is on-demand. No positive expectancy or payout probability has been established.
 
 The core accepts **actual aggressor-side trade prints**; ordinary OHLCV bars cannot reliably reconstruct bid/ask delta or footprint data. Cumulative delta and profile are labeled **since stream start**, not RTH-session values, until a validated session calendar and warmup mechanism are added.
 
@@ -162,3 +162,72 @@ The result is rounded to the nearest legal NQ futures tick (0.25 index points). 
 The output is JSON, with the selected QQQ strike, mapped NQ price, chosen wall weight, and the complete source timestamps. The command is **offline**: historical replay and QQQ options processing remain separate; neither restores the Yahoo or Databento live-price feeds that were removed.
 
 Methodological references: [OCC standard 100-share equity options](https://www.theocc.com/clearance-and-settlement/clearing/equity-options-product-specifications), [QQQ gamma levels explained](https://quantwheel.com/tools/gex/qqq), [NQ/QQQ ratio mapping](https://quantwheel.com/tools/futures-gex/nq).
+
+
+## Today's QQQ call/put gamma walls — automatic on-demand fetch (free, no key)
+
+Run **python3 -m scripts.qqq_walls_today** from the repository root. This makes a
+single, on-demand QQQ-only API request to AlgoX Flow's documented free API.
+It retrieves provider-modeled QQQ **call wall, put wall, IV, gamma flip (when supplied),**
+and the exact vendor snapshot timestamp. It is not a full raw option-chain
+download, does not independently recompute dealer exposures, and does not
+claim these levels are live. The provider states nearest-expiration and
+partial-chain limitations. It may block or change access; failure is reported.
+
+```bash
+cd ~/mnq-adaptive-orderflow
+git pull
+python3 -m scripts.qqq_walls_today
+```
+
+No subscription, broker login, API key, Yahoo feed, NQ futures quote reader,
+continuous polling, or execution path is added. It checks the market
+snapshot's **US/Eastern calendar date** against today's date, refuses
+explicitly stale/future-dated snapshots, and defaults to a maximum 10-hour
+snapshot age to accommodate the day's post-close research. It locally caches
+a provider response for at least 15 minutes, consistent with the vendor's
+recommended request cadence. On weekends and before new same-day data is
+available, it reports **UNAVAILABLE** rather than disguising yesterday's
+levels as today's.
+
+### Optional QQQ wall to NQ/MNQ-equivalent conversion
+
+The data source does **not** supply a verified NQ futures price and **its
+QQQ spot field has no separately verified last-trade time**. The provider
+can recalculate gamma after QQQ stops trading. Therefore the converter
+never assumes that the provider snapshot update time is the QQQ trade time.
+
+To map QQQ walls without restoring an NQ feed, enter **two independently
+observed chart prices**: QQQ ETF and the selected NQ futures contract.
+Record their actual UTC observation times. They must be within five
+minutes of each other, be from the same US/Eastern date as the provider
+snapshot, and be no more than 12 hours old. Fake or missing timestamps
+are rejected.
+
+```bash
+# ILLUSTRATIVE VALUES ONLY: replace ALL quotes/times with your own observations
+python3 -m scripts.qqq_walls_today \
+  --qqq-price 668.65 \
+  --qqq-asof 2026-11-18T20:55:00Z \
+  --nq-price 26700 \
+  --nq-asof 2026-11-18T20:56:00Z
+```
+
+The conversion is
+`NQ-equivalent = QQQ wall strike × (same-time NQ reference / same-time QQQ reference)`,
+rounded to the nearest 0.25-point futures tick. No futures data is fetched.
+Without both reference quotes, the agent automatically returns the real
+QQQ walls but correctly marks NQ levels **NOT_CALCULATED**. The fact that
+two quotes are close in time does not prove they track perfectly: ETF
+premium/discount and futures basis are additional limitations. NQ and MNQ
+have the same index-points scale but different dollars per contract.
+
+**Provider scope:** This on-demand API supplies vendor-derived wall estimates
+and is separate from the more granular, offline
+`scripts/qqq_option_walls.py` CSV calculator. We do not
+claim fresh full-chain option positions, or that put/call walls must hold.
+Before using a historical signal, distinguish the provider's cache time
+from the source option data's true observation time.
+
+**Required attribution:** [Options gamma data by AlgoX Flow](https://algoxflow.com).
+Free API documentation and usage terms: https://algoxflow.com/api-docs .
