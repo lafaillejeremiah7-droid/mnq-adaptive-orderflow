@@ -1,0 +1,13 @@
+name: QQQ gamma API on-demand connectivity check
+on:
+  push:
+    branches:
+      - feature/qqq-auto-gamma-snapshot
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch QQQ public gamma snapshot once
+        run: python3 -m scripts.qqq_walls_today
