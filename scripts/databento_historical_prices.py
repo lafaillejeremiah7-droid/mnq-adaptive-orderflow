@@ -71,12 +71,9 @@ def write_price_rows(data, output_path: Path) -> int:
                 count += 1
         if count == 0:
             raise ValueError("No OHLCV minute bars returned for this interval")
-        # Prevent unintended overwrite even if the destination appeared
-        # between the original check and the completed provider download.
-        with output_path.open("x", encoding="utf-8") as dest:
-            with tmp_path.open("r", encoding="utf-8") as src:
-                for line in src:
-                    dest.write(line)
+        # Atomic same-directory hard-link: never expose a partially
+        # written CSV and never overwrite an existing destination file.
+        os.link(tmp_path, output_path)
         return count
     finally:
         if tmp_path is not None:
