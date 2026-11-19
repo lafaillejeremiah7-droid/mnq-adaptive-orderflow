@@ -69,7 +69,8 @@ def candidates(rows, stage, now):
             and row.get("initialized") is True
             and all(row.get(k) is False for k in ("hidden", "is_banned", "nsfw"))
             and row.get("base_decimals") == 6
-            and row.get("token_program") in TOKEN_PROGRAMS
+            and isinstance(row.get("token_program"), str)
+            and row["token_program"] in TOKEN_PROGRAMS
             and row.get("transfer_fee_bps") == 0
             and not row.get("transfer_hook_program")
             and all(
