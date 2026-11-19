@@ -29,6 +29,7 @@ class PumpTests(unittest.TestCase):
         self.assertIn(row["mint"], p.candidates([row], "launch", now))
         for changes in (
             {"program": "other"},
+            {"token_program": []},
             {"complete": True},
             {"transfer_hook_program": "hook"},
             {"created_timestamp": 0},
