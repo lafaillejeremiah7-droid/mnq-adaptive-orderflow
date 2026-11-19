@@ -1,0 +1,30 @@
+name: Pump.fun live paper trial
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '13,43 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: pump-paper-ledger
+  cancel-in-progress: false
+jobs:
+  scan:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: pump-paper-results
+          path: pump-results
+      - name: Scan both Pump venues and record simulated trades
+        run: |
+          set -eu
+          test -s pump-results/started.json
+          test -s pump-results/launch/ledger.sqlite
+          test -s pump-results/graduated/ledger.sqlite
+          git -C pump-results config user.name 'paper-desk[bot]'
+          git -C pump-results config user.email 'paper-desk@users.noreply.github.com'
+          python3 -u pump_scanner.py --directory pump-results --seconds 3900 --publish

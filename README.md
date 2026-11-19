@@ -29,3 +29,11 @@ python3 live_paper.py --directory forward
 ```
 
 The example is synthetic. The last command runs a local live paper loop until interrupted or the trial ends. Reuse the same directory to resume. The fixed mint pairs, parameters and run mode are bound to that ledger. Starting another trial requires a separate database. For another quote source, `company.py` consumes newline-delimited bid/ask quotes on standard input with UTC epoch seconds, token quantities and USDC prices. Quote arrival times must advance for each asset. Omit `--replay` for current quotes.
+
+### Pump.fun live paper trial
+
+The scanner requests up to 30 recent Solana Pump.fun launches and up to 30 recently active graduated tokens per minute. It follows up to three mints per group on a target 20-second polling cycle. Launches must be at most 15 minutes old when admitted. Each group starts with its own simulated 1,000 USDC and can hold one position of up to 10 USDC. The trial runs for 30 days. GitHub Actions scheduling and provider availability can leave gaps.
+
+A 1% rise in the quoted midpoint over two minutes for a launch or ten minutes for a graduate creates a buy intent. The next fresh quote must arrive within 60 seconds with a spread of at most 5%. Jupiter must quote both directions through the mint’s listed Pump.fun bonding curve or its PumpSwap pool. Prices use minimum quoted output at 30 basis points of slippage per direction, plus a modeled 30 basis point fee per fill. A 3% stop, 5% target or 5 USDC daily loss triggers a sell intent. Its fill requires a subsequent quote for the position size. A launch position may exit through its verified graduated pool. Missing exits leave inventory open at its last mark. No wallet or signing key is used.
+
+[Launch report](../../blob/pump-paper-results/launch/report.json) · [Graduated report](../../blob/pump-paper-results/graduated/report.json) · [Scan state and archived observations](../../tree/pump-paper-results)
