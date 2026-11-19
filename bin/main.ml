@@ -69,9 +69,40 @@ let price_replay () =
   in
   consume ()
 
+(** Live NQ futures price-only reader. No order-flow data or trades. *)
+let live_nq_price () =
+  let latest = ref None in
+  let rec consume () =
+    match input_line stdin with
+    | line ->
+        let quote =
+          match Mnq_core.Latest_quote.parse line with
+          | Ok quote -> quote
+          | Error reason ->
+              Printf.eprintf "STOP invalid NQ quote: %s\n%!" reason;
+              exit 2
+        in
+        (match Mnq_core.Latest_quote.accept !latest quote with
+        | Error reason ->
+            Printf.eprintf "STOP NQ quote stream: %s\n%!" reason;
+            exit 2
+        | Ok next ->
+            latest := next;
+            Printf.printf
+              "NQ_FUTURES LAST_PRICE=%.2f USD_INDEX_POINTS as_of_utc_ms=%Ld (PRICE_ONLY)\n%!"
+              (Mnq_core.Latest_quote.points quote) quote.as_of_ms);
+        consume ()
+    | exception End_of_file ->
+        Printf.eprintf
+          "NQ price feed ended; prices are no longer updating.\n%!"
+  in
+  consume ()
+
 let () =
   if Array.length Sys.argv = 2 && Sys.argv.(1) = "--price-stream" then
     price_stream ()
+  else if Array.length Sys.argv = 2 && Sys.argv.(1) = "--live-nq-price" then
+    live_nq_price ()
   else if Array.length Sys.argv = 2 && Sys.argv.(1) = "--price-replay" then
     price_replay ()
   else (

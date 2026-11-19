@@ -135,3 +135,25 @@ The historical importer writes the CSV only after successful completion, refuses
 **Remaining work before the quantitative engine is useful for decisions:** genuine backtest data, rollover-aware mapping, realistic fills, purged chronological validation for overlapping labels, calibration checks, and an independently verified broker-state adapter. The historical replay does not attempt these claims or place orders.
 
 API references: [Databento historical timeseries](https://databento.com/docs/api-historical/timeseries/timeseries-get-range?lang=python), [iterating DBN records](https://databento.com/docs/api-historical/helpers/dbn-store-iter?lang=python), [continuous futures mapping](https://databento.com/docs/examples/symbology/continuous).
+
+## Live NQ futures last-price monitor (price-only)
+
+Use this mode when you only need the agent to **see the latest NQ futures price**. It reads a single **completed one-second OHLC close** through Databento's `GLBX.MDP3` `ohlcv-1s` stream. It completely ignores the bar's volume: no cumulative delta, absorption, buying/selling pressure, or volume profile is used.
+
+**NQ futures (`NQ.c.0`) are not the Nasdaq-100 cash index (`NDX`).** NQ is the futures contract underlying your MNQ trading; NDX itself is a separately licensed index value. An exact real-time NDX feed would require a provider entitled to Nasdaq's index data service.
+
+The feed does **not** work without a valid Databento key and real-time CME data entitlement. You cannot create a genuine real-time exchange data feed from this repository alone.
+
+From a cloned repository on Linux, after installing OCaml 5, Dune 3, Python 3.10+ and the Databento SDK:
+
+```bash
+python3 -m pip install databento
+export DATABENTO_API_KEY='YOUR_PRIVATE_DATABENTO_KEY'
+python3 scripts/databento_nq_last_price.py | opam exec -- dune exec ./bin/main.exe -- --live-nq-price
+```
+
+The output identifies the instrument as `NQ_FUTURES`, prints a price in index points and the UTC end-of-interval timestamp in milliseconds. The program never places or modifies orders.
+
+**Important limitations:** This is a one-second *completed bar close*, not every intrasecond tick. There may be no updates outside CME market hours or when no trades occur. The live code has not been tested against an authenticated account in this repository; the tests use synthetic input. Because Databento's live continuous instrument mappings do not automatically switch to a different contract after rollover, restart and verify your mapping at contract rollover. No guaranteed price freshness, no automatic reconnect and no trade signal capability is claimed.
+
+Provider references: [Databento live quickstart](https://databento.com/docs/quickstart/live), [one-second OHLCV schema](https://databento.com/docs/schemas/ohlcv), [Nasdaq GIDS real-time index data](https://www.nasdaq.com/products/global-indexes/data/gids).
