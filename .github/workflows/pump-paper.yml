@@ -15,6 +15,7 @@ jobs:
     timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
+      - run: python3 -m pip install -r requirements-pump.txt
       - uses: actions/checkout@v4
         with:
           ref: pump-paper-results

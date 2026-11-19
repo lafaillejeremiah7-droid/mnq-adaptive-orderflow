@@ -39,6 +39,33 @@ class PumpTests(unittest.TestCase):
             row["mint"], p.candidates([{**row, "complete": True}], "graduated", now)
         )
 
+    def test_alternate_feed_derives_pump_curve_and_checks_graduation(self):
+        mint = "ryBYEgsEQLypy8WuyS5feoxnLCQEgX5gUwwENmUpump"
+        curve = "FXhKHkZaWASMJ28ojtQT8ARG9AsqfppnCZfVVujFQTK6"
+        row = {
+            "id": mint,
+            "launchpad": "pump.fun",
+            "decimals": 6,
+            "tokenProgram": next(iter(p.TOKEN_PROGRAMS)),
+            "audit": {"freezeAuthorityDisabled": True},
+            "createdAt": "1970-01-01T00:00:10Z",
+        }
+        with patch.object(
+            p, "fetch", side_effect=[ValueError("primary unavailable"), ([row], 12)]
+        ):
+            found, count, source = p.discover("launch", 12)
+        self.assertEqual(
+            (found[mint]["bonding_curve"], count, source),
+            (curve, 1, "Jupiter Tokens V2"),
+        )
+        self.assertFalse(p.jupiter_candidates([row], "graduated", 12))
+        self.assertFalse(
+            p.jupiter_candidates([{**row, "launchpad": "other"}], "launch", 12)
+        )
+        grad = {**row, "graduatedPool": "1" * 32, "graduatedAt": "1970-01-01T00:00:12Z"}
+        self.assertIn(mint, p.jupiter_candidates([grad], "graduated", 13))
+        self.assertFalse(p.jupiter_candidates([grad], "launch", 13))
+
     def test_reject_wrong_pool_and_split(self):
         meta = {"pool_address": "pool", "bonding_curve": "curve"}
         step = {

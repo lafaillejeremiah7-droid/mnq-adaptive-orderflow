@@ -6,12 +6,15 @@ import re
 import subprocess
 import time
 from contextlib import closing
+from datetime import datetime
 from decimal import ROUND_DOWN, Decimal
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
+
+from solders.pubkey import Pubkey
 
 from company import config_digest, ingest, open_ledger
 from live_paper import checkpoint
@@ -83,6 +86,70 @@ def candidates(rows, stage, now):
     return found
 
 
+TOKENS = "https://api.jup.ag/tokens/v2/"
+PUMP_PROGRAM = Pubkey.from_string("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P")
+
+
+def jupiter_candidates(rows, stage, now):
+    found = {}
+    for row in rows:
+        mint = row.get("id", "")
+        if (
+            row.get("launchpad") != "pump.fun"
+            or row.get("decimals") != 6
+            or row.get("tokenProgram") not in TOKEN_PROGRAMS
+            or not ADDRESS.fullmatch(mint)
+            or row.get("audit", {}).get("freezeAuthorityDisabled") is not True
+        ):
+            continue
+        pool = row.get("graduatedPool") or ""
+        if stage == "graduated":
+            if not row.get("graduatedAt") or not ADDRESS.fullmatch(pool):
+                continue
+        else:
+            if pool or row.get("graduatedAt") or not row.get("createdAt"):
+                continue
+            if (
+                not -2
+                <= now
+                - datetime.fromisoformat(
+                    row["createdAt"].replace("Z", "+00:00")
+                ).timestamp()
+                <= 900
+            ):
+                continue
+        try:
+            key = Pubkey.from_string(mint)
+        except ValueError:
+            continue
+        curve, _ = Pubkey.find_program_address(
+            [b"bonding-curve", bytes(key)], PUMP_PROGRAM
+        )
+        found[mint] = {"bonding_curve": str(curve), "pool_address": pool}
+    return found
+
+
+def discover(stage, now):
+    params = {
+        "offset": 0,
+        "limit": 30,
+        "sort": "created_timestamp" if stage == "launch" else "last_trade_timestamp",
+        "order": "DESC",
+        "includeNsfw": "false",
+    }
+    if stage == "graduated":
+        params["complete"] = "true"
+    try:
+        rows, _ = fetch(FEED, params, 90)
+        if not isinstance(rows, list):
+            raise TypeError("invalid listings")
+        return candidates(rows, stage, now), len(rows), "Pump.fun"
+    except ERRORS:
+        path = "recent" if stage == "launch" else "toptrending/5m"
+        rows, _ = fetch(TOKENS + path, {"limit": 30}, 90)
+        return jupiter_candidates(rows, stage, now), len(rows), "Jupiter Tokens V2"
+
+
 def leg(src, dst, amount, mint, meta, allowed):
     r, stamp = fetch(
         ROUTER,
@@ -132,14 +199,18 @@ def quote(mint, meta, stage, held):
     if held:
         # Only the exit side is actionable. Keep the launch book responsible after migration.
         size = int(Decimal(held["qty"]) * 10**6)
-        proceeds, slot2, stamp = leg(
-            mint,
-            USDC,
-            size,
-            mint,
-            meta,
-            ("launch", "graduated") if stage == "launch" else (stage,),
-        )
+        allowed = ("launch", "graduated") if stage == "launch" else (stage,)
+        try:
+            proceeds, slot2, stamp = leg(mint, USDC, size, mint, meta, allowed)
+        except ERRORS:
+            if stage != "launch" or meta.get("pool_address"):
+                raise
+            rows, _ = fetch(TOKENS + "search", {"query": mint}, 90)
+            graduate = jupiter_candidates(rows, "graduated", int(time.time())).get(mint)
+            if not graduate:
+                raise
+            meta.update(graduate)
+            proceeds, slot2, stamp = leg(mint, USDC, size, mint, meta, allowed)
         slot = slot2
         bid = ask = Decimal(proceeds) / size
         available = 0
@@ -206,23 +277,12 @@ def scan(folder, stage, now):
         if now - scan["last_scan"] >= 60:
             scan["last_scan"] = now
             try:
-                params = {
-                    "offset": 0,
-                    "limit": 30,
-                    "sort": "created_timestamp"
-                    if stage == "launch"
-                    else "last_trade_timestamp",
-                    "order": "DESC",
-                    "includeNsfw": "false",
-                }
-                if stage == "graduated":
-                    params["complete"] = "true"
-                rows, _ = fetch(FEED, params, 90)
-                if not isinstance(rows, list):
-                    raise TypeError("invalid listings")
-                eligible = candidates(rows, stage, now)
+                eligible, count, source = discover(stage, now)
                 scan.update(
-                    feed_rows=len(rows), eligible_rows=len(eligible), feed_error=None
+                    feed_rows=count,
+                    eligible_rows=len(eligible),
+                    feed_source=source,
+                    feed_error=None,
                 )
                 retiring = {
                     m
