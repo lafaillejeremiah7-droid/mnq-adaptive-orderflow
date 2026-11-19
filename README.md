@@ -157,3 +157,40 @@ The output identifies the instrument as `NQ_FUTURES`, prints a price in index po
 **Important limitations:** This is a one-second *completed bar close*, not every intrasecond tick. There may be no updates outside CME market hours or when no trades occur. The live code has not been tested against an authenticated account in this repository; the tests use synthetic input. Because Databento's live continuous instrument mappings do not automatically switch to a different contract after rollover, restart and verify your mapping at contract rollover. No guaranteed price freshness, no automatic reconnect and no trade signal capability is claimed.
 
 Provider references: [Databento live quickstart](https://databento.com/docs/quickstart/live), [one-second OHLCV schema](https://databento.com/docs/schemas/ohlcv), [Nasdaq GIDS real-time index data](https://www.nasdaq.com/products/global-indexes/data/gids).
+
+## Free independent delayed NQ futures price monitor (NO API KEY)
+
+**Recommended for zero market-data budget:** use Yahoo Finance's `NQ=F` futures quote via an **unofficial, unauthenticated** chart interface. It reads the E-mini Nasdaq-100 **futures** price, not `^NDX`, `QQQ`, or MNQ order flow. Yahoo explicitly labels this CME quote as **delayed**. You do not need Tradovate, Databento, IBKR, CME live-data entitlement, or an account API key. The Python poller uses only the Python standard library.
+
+Clone/update the repository, then use these commands from its root directory on your Chromebook Linux terminal:
+
+```bash
+git pull
+opam exec -- dune build
+set -o pipefail
+python3 scripts/yahoo_nq_delayed.py | opam exec -- dune exec ./bin/main.exe -- --delayed-nq-price
+```
+
+A successful print resembles:
+
+```text
+NQ_FUTURES DELAYED_PRICE=25000.25 INDEX_POINTS as_of_utc_ms=... SOURCE=YAHOO_NQ=F (NOT_LIVE)
+```
+
+That price is an **illustrative example**, not a current market quote. The `as_of_utc_ms` is the timestamp reported by Yahoo, never a fabricated present timestamp. The poller fetches every 60 seconds, reports Yahoo's quote age to stderr, and emits a fresh CSV quote only when the provider timestamp advances. It rejects mismatched symbols, invalid prices, quotes older than 60 minutes by default, and provider errors. When the market is closed or Yahoo blocks requests, it reports **UNAVAILABLE** rather than claiming current data.
+
+For a one-shot connectivity test:
+
+```bash
+python3 scripts/yahoo_nq_delayed.py --once
+```
+
+For more detailed settings:
+
+```bash
+python3 scripts/yahoo_nq_delayed.py --help
+```
+
+**Reliability limitation:** Yahoo does not provide an official/publicly supported market-data API for this interface; it may rate-limit, change, block, or cease access at any time. Yahoo's terms govern use. Data is delayed (often by at least 10 minutes), not suitable for intraday execution decisions, and is not guaranteed to update at any fixed rate. The current code has offline mocked tests, but a real authenticated/unauthenticated live request still must be tested on the machine that runs the agent. Do not mistake an example or passing unit test for confirmed connectivity. For a production-grade real-time NQ feed you still need a licensed market-data source.
+
+Data page: [Yahoo Finance delayed NQ=F futures quote](https://finance.yahoo.com/quote/NQ%3DF/). See the [unofficial yfinance library disclaimer](https://github.com/ranaroussi/yfinance) for Yahoo personal-use limits.
