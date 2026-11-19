@@ -39,8 +39,8 @@ let rec take n values =
     | first :: rest -> first :: take (n - 1) rest
 
 let rec total_path = function
-  | a :: (b :: _ as tail) -> abs (a - b) + total_path tail
-  | _ -> 0
+  | a :: (b :: _ as tail) -> float_of_int (abs (a - b)) +. total_path tail
+  | _ -> 0.0
 
 let smoothed ~period previous observed =
   match previous with
@@ -53,6 +53,7 @@ let smoothed ~period previous observed =
     21 closes are needed for a 20-move efficiency ratio. *)
 let on_closed_bar state (bar : Market.bar) =
   if Int64.compare bar.minute_start_ms 0L < 0
+     || Int64.rem bar.minute_start_ms 60_000L <> 0L
      || bar.open_ticks <= 0 || bar.high_ticks <= 0
      || bar.low_ticks <= 0 || bar.close_ticks <= 0
      || bar.low_ticks > bar.high_ticks
@@ -99,8 +100,8 @@ let on_closed_bar state (bar : Market.bar) =
           let oldest = List.nth closes 20 in
           let path = total_path closes in
           let efficiency =
-            if path = 0 then 0.0
-            else float_of_int (abs (newest - oldest)) /. float_of_int path
+            if path = 0.0 then 0.0
+            else float_of_int (abs (newest - oldest)) /. path
           in
           let regime =
             if slow > 0.0 && fast /. slow >= 1.8 then Volatility_spike
@@ -139,33 +140,49 @@ type resolved_example = {
 type estimate = {
   samples : int;
   targets_first : int;
+  time_limits : int;
   historical_rate : float;
   conservative_rate : float;
 }
 
 let estimate ~as_of_ms ~min_samples ~regime ~direction
     ~target_distance_ticks ~stop_distance_ticks ~horizon_bars examples =
-  if min_samples < 1 || target_distance_ticks < 1
-     || stop_distance_ticks < 1 || horizon_bars < 1 || Int64.compare as_of_ms 0L < 0 then None
+  if min_samples < 1 || target_distance_ticks < 1 || target_distance_ticks > 1_000_000
+     || stop_distance_ticks < 1 || stop_distance_ticks > 1_000_000
+     || horizon_bars < 1 || horizon_bars > 500 || as_of_ms < 0L then None
   else
-    let samples, targets =
-      List.fold_left
-        (fun (n, wins) example ->
-          if example.regime <> regime || example.direction <> direction
-             || example.target_distance_ticks <> target_distance_ticks
-             || example.stop_distance_ticks <> stop_distance_ticks
-             || example.horizon_bars <> horizon_bars
-             || Int64.compare example.detected_at_ms 0L < 0
-             || Int64.compare example.resolved_at_ms example.detected_at_ms < 0
-             || Int64.compare example.resolved_at_ms as_of_ms >= 0 then
-            (n, wins)
-          else
-            ( n + 1,
-              wins + (if example.outcome = Target_first then 1 else 0) ))
-        (0, 0) examples
+    let in_cohort example =
+      example.direction = direction
+      && example.target_distance_ticks = target_distance_ticks
+      && example.stop_distance_ticks = stop_distance_ticks
+      && example.horizon_bars = horizon_bars
+      && example.resolved_at_ms < as_of_ms
     in
-    if samples < min_samples then None
-    else
+    let eligible = List.filter in_cohort examples
+      |> List.sort (fun a b -> Int64.compare a.detected_at_ms b.detected_at_ms) in
+    let horizon_ms = Int64.mul (Int64.of_int horizon_bars) 60_000L in
+    let rec count last_detection last_end samples targets time_limits = function
+      | [] -> Some (samples, targets, time_limits)
+      | e :: rest ->
+          let duration = Int64.sub e.resolved_at_ms e.detected_at_ms in
+          if e.detected_at_ms < 0L || e.resolved_at_ms <= e.detected_at_ms
+             || Int64.rem e.detected_at_ms 60_000L <> 0L
+             || Int64.rem e.resolved_at_ms 60_000L <> 0L
+             || duration > horizon_ms
+             || (e.outcome = Time_limit && duration <> horizon_ms)
+             || Some e.detected_at_ms = last_detection then None
+          else if e.regime <> regime then
+            count (Some e.detected_at_ms) last_end samples targets time_limits rest
+          else if e.detected_at_ms < last_end then None
+          else
+            count (Some e.detected_at_ms) e.resolved_at_ms (samples + 1)
+              (targets + Bool.to_int (e.outcome = Target_first))
+              (time_limits + Bool.to_int (e.outcome = Time_limit)) rest
+    in
+    match count None 0L 0 0 0 eligible with
+    | None -> None
+    | Some (samples, _, _) when samples < min_samples -> None
+    | Some (samples, targets, time_limits) ->
       let n = float_of_int samples in
       let p = float_of_int targets /. n in
       (* One-sided 95% Wilson lower confidence bound. This is NOT proof
@@ -181,6 +198,7 @@ let estimate ~as_of_ms ~min_samples ~regime ~direction
         {
           samples;
           targets_first = targets;
+          time_limits;
           historical_rate = p;
           conservative_rate = max 0.0 ((center -. margin) /. denominator);
         }
@@ -245,42 +263,47 @@ let review ~now_ms ~session_open ~feed_healthy ~signal ~account ~proposal
                     [
                       "Insufficient resolved, prior, same-regime/side historical examples";
                     ]
+              | Some evidence when evidence.time_limits > 0 ->
+                  Wait [ "Time-exit payoffs unknown in binary reward model" ]
               | Some evidence ->
-                  let contracts = Int64.of_int proposal.contracts in
-                  let ticks =
-                    Int64.abs
-                      (Int64.sub (Int64.of_int target_ticks)
-                         (Int64.of_int proposal.entry_ticks))
-                  in
-                  let gross_win =
-                    Int64.mul ticks (Int64.mul contracts 50L)
-                  in
-                  let assumed_cost =
-                    Int64.mul contracts
-                      (Int64.add limits.round_trip_cost_cents_per_contract
-                         (Int64.mul
-                            (Int64.of_int limits.slippage_ticks)
-                            50L))
-                  in
-                  let net_win = Int64.sub gross_win assumed_cost in
-                  if Int64.compare net_win 0L <= 0 then
-                    Wait [ "Target reward does not exceed assumed trading costs" ]
-                  else
-                    let p = evidence.conservative_rate in
-                    let ev =
-                      (p *. Int64.to_float net_win)
-                      -. ((1.0 -. p) *. Int64.to_float estimated_loss_cents)
+                  try
+                    let contracts = Int64.of_int proposal.contracts in
+                    let ticks =
+                      Int64.abs
+                        (Int64.sub (Int64.of_int target_ticks)
+                           (Int64.of_int proposal.entry_ticks))
                     in
-                    if ev <= 0.0 then
-                      Wait [ "Conservative estimated expected value is not positive" ]
+                    let gross_win =
+                      Checked_int64.mul_nonnegative ticks
+                        (Checked_int64.mul_nonnegative contracts 50L)
+                    in
+                    let assumed_cost =
+                      Int64.mul contracts
+                        (Int64.add limits.round_trip_cost_cents_per_contract
+                           (Int64.mul
+                              (Int64.of_int limits.slippage_ticks)
+                              50L))
+                    in
+                    let net_win = Int64.sub gross_win assumed_cost in
+                    if Int64.compare net_win 0L <= 0 then
+                      Wait [ "Target reward does not exceed assumed trading costs" ]
                     else
-                      Review_only
-                        {
-                          regime = observed.regime;
-                          sample_count = evidence.samples;
-                          historical_target_rate = evidence.historical_rate;
-                          wilson_lower_rate = p;
-                          estimated_win_cents = net_win;
-                          estimated_loss_cents;
-                          conservative_expected_value_cents = ev;
-                        })
+                      let p = evidence.conservative_rate in
+                      let ev =
+                        (p *. Int64.to_float net_win)
+                        -. ((1.0 -. p) *. Int64.to_float estimated_loss_cents)
+                      in
+                      if ev <= 0.0 then
+                        Wait [ "Conservative estimated expected value is not positive" ]
+                      else
+                        Review_only
+                          {
+                            regime = observed.regime;
+                            sample_count = evidence.samples;
+                            historical_target_rate = evidence.historical_rate;
+                            wilson_lower_rate = p;
+                            estimated_win_cents = net_win;
+                            estimated_loss_cents;
+                            conservative_expected_value_cents = ev;
+                          }
+                  with Checked_int64.Overflow -> Wait [ "Reward arithmetic out of range" ])

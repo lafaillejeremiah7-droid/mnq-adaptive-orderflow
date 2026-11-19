@@ -105,7 +105,7 @@ let example i outcome =
   {
     Quant.detected_at_ms = Int64.mul (Int64.of_int i) 60_000L;
     resolved_at_ms =
-      Int64.add (Int64.mul (Int64.of_int i) 60_000L) 10_000L;
+      Int64.add (Int64.mul (Int64.of_int i) 60_000L) 60_000L;
     regime = Quant.Trending_up;
     direction = Risk.Long;
     target_distance_ticks = 80;
@@ -142,6 +142,22 @@ let test_evidence () =
   expect
     (estimate.conservative_rate < estimate.historical_rate)
     "Lower confidence bound must be below observed hit rate";
+  let estimate rows =
+    Quant.estimate ~as_of_ms:now ~min_samples:1 ~regime:measurement.regime
+      ~direction:Risk.Long ~target_distance_ticks:80 ~stop_distance_ticks:40
+      ~horizon_bars:10 rows in
+  let first = example 0 Quant.Target_first in
+  expect (estimate [first; first] = None) "Duplicated outcomes inflate precision";
+  expect (estimate [first; {first with regime = Quant.Ranging}] = None)
+    "Conflicting regimes on the same setup must be rejected";
+  expect (estimate [{first with resolved_at_ms = 120_000L}; example 1 Quant.Stop_first] = None)
+    "Overlapping labels cannot support the binomial interval";
+  expect (estimate [{first with resolved_at_ms = 0L}] = None) "Same-time label";
+  expect (estimate [{first with resolved_at_ms = 660_000L}] = None) "Late label";
+  expect (estimate [{first with outcome = Quant.Time_limit}] = None) "Early timeout";
+  let timeout = { (example 100 Quant.Time_limit) with resolved_at_ms = 6_600_000L } in
+  expect (match review ~examples:(timeout :: history) () with
+    | Quant.Wait _ -> true | _ -> false) "Unknown time-exit payoff must block binary EV";
   let future =
     { (example 99 Quant.Target_first) with resolved_at_ms = now }
   in

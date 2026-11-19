@@ -64,22 +64,21 @@ let check ~now_ms ~session_open ~feed_healthy ~(signal : signal option)
   if not session_open then reject "Outside approved trading session";
   if not feed_healthy then reject "Market feed not verified healthy";
   if Int64.compare now_ms 0L < 0 then reject "Invalid current timestamp";
-  let account_age = Int64.sub now_ms account.observed_at_ms in
-  if Int64.compare account_age 0L < 0
-     || Int64.compare account_age 30_000L > 0 then
+  let stale timestamp limit =
+    timestamp < 0L || timestamp > now_ms || Int64.sub now_ms timestamp > limit
+  in
+  if stale account.observed_at_ms 30_000L then
     reject "Broker account snapshot missing, future-dated, or older than 30s";
   (match signal with
   | None -> reject "No validated matching setup candidate"
   | Some candidate ->
-      let age = Int64.sub now_ms candidate.observed_at_ms in
       if candidate.direction <> proposal.direction
-         || Int64.compare age 0L < 0
-         || Int64.compare age 120_000L > 0 then
+         || stale candidate.observed_at_ms 120_000L then
         reject "Signal direction mismatch or candidate is stale");
   if account.trades_today < 0 || account.consecutive_losses < 0
      || account.open_contracts < 0 then
     reject "Invalid broker trade counts";
-  if account.trades_today >= limits.max_trades_per_day then
+  if account.trades_today >= min 2 limits.max_trades_per_day then
     reject "Maximum daily trade count reached";
   if account.consecutive_losses >= limits.max_consecutive_losses then
     reject "Consecutive-loss stop reached";
@@ -104,31 +103,30 @@ let check ~now_ms ~session_open ~feed_healthy ~(signal : signal option)
      || Int64.compare limits.round_trip_cost_cents_per_contract 0L < 0
      || Int64.compare limits.drawdown_reserve_cents 0L < 0 then
     reject "Invalid risk limits";
+  if account.drawdown_floor_cents < 0L then reject "Invalid broker drawdown floor";
   if Int64.compare account.equity_cents account.drawdown_floor_cents <= 0 then
     reject "Account at or below official drawdown floor";
-  let contracts = Int64.of_int (max 0 (min 100 proposal.contracts)) in
-  let distance =
-    Int64.abs
-      (Int64.sub (Int64.of_int proposal.entry_ticks)
-         (Int64.of_int proposal.stop_ticks))
-  in
-  let estimated_loss_cents =
-    Int64.add
-      (Int64.mul distance (Int64.mul 50L contracts))
-      (Int64.mul contracts
-         (Int64.add limits.round_trip_cost_cents_per_contract
-            (Int64.mul (Int64.of_int limits.slippage_ticks) 50L)))
-  in
-  let available_risk_cents =
-    min3 limits.risk_per_trade_cents
-      (Int64.add limits.daily_stop_cents account.day_net_cents)
-      (Int64.sub
-         (Int64.sub account.equity_cents account.drawdown_floor_cents)
-         limits.drawdown_reserve_cents)
-  in
-  if Int64.compare available_risk_cents 0L <= 0 then
-    reject "No remaining daily/drawdown risk budget";
-  if Int64.compare estimated_loss_cents available_risk_cents > 0 then
-    reject "Estimated stop loss including costs exceeds risk budget";
   if !failures <> [] then Blocked (List.rev !failures)
-  else Review_only { estimated_loss_cents; available_risk_cents }
+  else
+    try
+      let open Checked_int64 in
+      let contracts = Int64.of_int proposal.contracts in
+      let distance = Int64.of_int (abs (proposal.entry_ticks - proposal.stop_ticks)) in
+      let estimated_loss_cents =
+        mul_nonnegative contracts
+          (add (mul_nonnegative distance 50L)
+             (add limits.round_trip_cost_cents_per_contract
+                (mul_nonnegative (Int64.of_int limits.slippage_ticks) 50L)))
+      in
+      let available_risk_cents =
+        min3 (Int64.min 10_000L limits.risk_per_trade_cents)
+          (sub (add limits.daily_stop_cents account.day_net_cents) 1L)
+          (sub (sub account.equity_cents account.drawdown_floor_cents)
+             (Int64.max 1L limits.drawdown_reserve_cents))
+      in
+      if available_risk_cents <= 0L then
+        Blocked [ "No remaining daily/drawdown risk budget" ]
+      else if estimated_loss_cents > available_risk_cents then
+        Blocked [ "Estimated stop loss including costs exceeds risk budget" ]
+      else Review_only { estimated_loss_cents; available_risk_cents }
+    with Checked_int64.Overflow -> Blocked [ "Risk arithmetic out of range" ]

@@ -10,6 +10,28 @@ The repository contains a deterministic market-print aggregator, volume-at-price
 
 The core accepts **actual aggressor-side trade prints**; ordinary OHLCV bars cannot reliably reconstruct bid/ask delta or footprint data. Cumulative delta and profile are labeled **since stream start**, not RTH-session values, until a validated session calendar and warmup mechanism are added.
 
+## Account survival and research review
+
+Run the offline decision report from the repository root. With no inputs, it reports unknown account state, zero live contracts and `DATA_UNVERIFIED`. For an illustrative replay of $62 headroom with a $25 reserve, the gate computes $37 available against $40 of MNQ price risk plus costs.
+
+```sh
+python3 -m scripts.research_report
+dune build bin/risk_review.exe
+python3 -m scripts.research_report --as-of-ms 1760000000000 --snapshot examples/ILLUSTRATIVE_risk_snapshot.txt --history examples/ILLUSTRATIVE_mnq_labeled_setups.csv
+mkdir -p data
+python3 -m scripts.research_cycle demo data/illustrative.sqlite
+python3 -m scripts.survival_stress examples/ILLUSTRATIVE_survival.json
+```
+
+The demo needs a new registry path and a committed checkout. It registers the exact dataset, source revision, time windows, candidate policies and scoring parameters, then records the synthetic trial's rejection. To run a fresh registered comparison use `python3 -m scripts.research_cycle run DB EXPERIMENT_ID HISTORY.csv`. Use the demo specification as its schema. Run `python3 -m scripts.experiment_registry DB show EXPERIMENT_ID` to inspect it. For the combined report use `--registry DB --experiment-id ID` with the matching input file to read its recorded decision, or `--ledger FILE` for net-fill diagnostics. Keep private account and licensed market data outside Git.
+
+- [Verified inputs, supported firm rules and contract sizing](docs/risk-input.md)
+- [Forecast tournament, feature availability and holdout protocol](docs/tournament.md)
+- [Net policy performance and statistical assumptions](docs/policy_validation.md)
+- [Registry and immutable research decisions](docs/experiment-registry.md)
+- [Survival stress paths and uncertainty](docs/survival_stress.md)
+- [Exchange, scientific, institutional and data-source evidence](docs/research-evidence.md)
+
 ## Build
 
 Requires OCaml 5.x and Dune 3.x:
@@ -49,7 +71,7 @@ Obtain properly licensed historical price bars and validate price-based statisti
 
 1. **Contiguous closed-minute bars only.** After 21 consecutive one-minute bars, a 20-move efficiency ratio and two smoothed true-range measures (5 and 20 minutes) classify a provisional regime: uptrend, downtrend, range, or volatility spike. A missing/duplicate bar fails closed; features are not calculated on the first trade of the next minute. A regime older than 120 seconds or future-dated at review time fails closed.
 2. **Historical target-before-stop outcomes.** The research estimator selects only resolved prior examples from the *same regime, direction, target distance, and stop distance*. It requires at least 100 labeled examples by default in `test/test_quant.ml` (callers explicitly provide `min_samples`). Any example resolving at or after the evaluation timestamp is excluded to reduce look-ahead leakage.
-3. **Conservative expectancy.** The lower one-sided 95% Wilson bound on the observed target-first fraction is used to calculate estimated net expectancy after assumed fees and slippage. The pre-existing broker account/risk gate must pass first. Missing historical labels, insufficient sample count, volatility spikes, or non-positive expectancy produce `Wait`, not permission to trade.
+3. **Conservative expectancy.** For binary outcomes only, the lower one-sided 95% Wilson bound on the observed target-first fraction is used to calculate estimated net expectancy after assumed fees and slippage. The pre-existing broker account/risk gate must pass first. Missing historical labels, insufficient sample count, volatility spikes, or non-positive expectancy produce `Wait`, not permission to trade.
 
 These are **research heuristics**, not trained/calibrated predictive probabilities, statistically independent samples, or demonstrated profitability. The 100-example minimum and regime thresholds are initial software defaults, not optimized or validated against MNQ. Labeling must use historical trade prints with an explicit first-touch rule for the same fixed target/stop horizon, and must avoid leakage from simultaneous or overlapping observations. The raw historical examples and broker snapshots are **not** present in this repository.
 
@@ -59,7 +81,7 @@ These are **research heuristics**, not trained/calibrated predictive probabiliti
 
 `lib/labeling.ml` labels completed 1-minute future bars after a hypothetical entry as target-first, stop-first, or time-limit. It deliberately **rejects** candles that hit both stop and target in the same minute, because OHLC cannot reconstruct which traded first. It also fails closed on missing, duplicate, or invalid bars. Incomplete horizons are excluded rather than mislabeled. It does **not** establish that an order at the assumed entry price would have filled.
 
-Quant evidence now requires the same **direction, regime, target distance, stop distance, and vertical horizon** for every historical example. A time-limit is counted as a non-target; this conservative shortcut does not estimate the actual time-exit P/L, which would require a fill-aware simulator and separate dataset.
+Quant evidence now requires the same **direction, regime, target distance, stop distance, and vertical horizon** for every historical example. A time-limit counts as a non-target for forecasting. The binary payoff review abstains when a time-exit payoff is unknown.
 
 ## External methodology references (ideas only; code not copied)
 
@@ -280,6 +302,8 @@ python3 -m scripts.agent_tournament \
 ~~~
 
 The optional output refuses to overwrite an existing report. Default requirements: 50 prior **resolved, identical-geometry** examples before a forecast; 40 eligible validation cases; 40 eligible final-test cases covering at least 10 US/Eastern days. Competition uses a 60%/20%/20% chronological development/validation/final-test split by detection timestamp. Agent selection requires at least 0.003 improvement in validation Brier score relative to baseline; final acceptance requires positive held-out improvement and a positive paired-day bootstrap lower confidence bound.
+
+Historical importer exports now require one instrument ID throughout a file. Its JSON receipt records the queried symbol, instrument ID and CSV digest. Older five-column exports require independent contract mapping.
 
 A result of **NO_VALIDATED_WINNER** is correct when data is sparse, unstable or weak. **RESEARCH_CHAMPION_ONLY** means better historical probability error in a preliminary test, **not** profitable trades or authorization to execute. Candidate comparison and overlapping observations can still inflate apparent confidence, so independent future evaluation is required.
 

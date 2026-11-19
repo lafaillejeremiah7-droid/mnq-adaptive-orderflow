@@ -31,3 +31,7 @@ jobs:
         run: |
           python3 -m scripts.agent_tournament --history examples/ILLUSTRATIVE_mnq_labeled_setups.csv > /tmp/tournament.json
           python3 -c 'import json; r=json.load(open("/tmp/tournament.json")); assert r["status"] == "NO_VALIDATED_WINNER"'
+      - name: Record the illustrative rejection
+        run: |
+          python3 -m scripts.research_cycle demo /tmp/illustrative.sqlite > /tmp/decision.json
+          python3 -c 'import json; assert json.load(open("/tmp/decision.json"))["status"] == "REJECTED"'

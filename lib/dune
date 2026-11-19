@@ -1,3 +1,4 @@
 (library
  (name mnq_core)
- (wrapped true))
+ (wrapped true)
+ (libraries unix))

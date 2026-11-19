@@ -14,6 +14,7 @@ MINUTE_NS = 60_000_000_000
 def bar(minute, price=80000):
     return SimpleNamespace(
         ts_event=minute * MINUTE_NS,
+        instrument_id=123,
         open=price * TICK,
         high=(price + 3) * TICK,
         low=(price - 3) * TICK,
@@ -57,6 +58,16 @@ class HistoryTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 write_price_rows([bar(20), bar(20)], dst)
             self.assertFalse(dst.exists())
+
+    def test_missing_or_changed_instrument_rejects_entire_export(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory) / "bars.csv"
+            for instrument in (None, 124):
+                last = bar(2)
+                last.instrument_id = instrument
+                with self.subTest(instrument=instrument), self.assertRaises(ValueError):
+                    write_price_rows([bar(1), last], out)
+                self.assertFalse(out.exists())
 
     def test_empty_historical_response(self):
         with tempfile.TemporaryDirectory() as root:

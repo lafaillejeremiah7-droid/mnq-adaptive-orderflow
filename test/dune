@@ -18,3 +18,8 @@
  (name test_replay)
  (libraries mnq_core))
 
+
+(test
+ (name test_survival)
+ (deps ../examples/ILLUSTRATIVE_risk_snapshot.txt)
+ (libraries mnq_core))
