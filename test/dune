@@ -17,3 +17,7 @@
 (test
  (name test_replay)
  (libraries mnq_core))
+
+(test
+ (name test_latest_quote)
+ (libraries mnq_core))
