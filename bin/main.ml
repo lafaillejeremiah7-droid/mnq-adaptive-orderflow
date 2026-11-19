@@ -98,9 +98,39 @@ let live_nq_price () =
   in
   consume ()
 
+(** No-key Yahoo NQ=F stream: DELAYED market prices, not live CME quotes. *)
+let delayed_nq_price () =
+  let latest = ref None in
+  let rec consume () =
+    match input_line stdin with
+    | line ->
+        let quote =
+          match Mnq_core.Latest_quote.parse line with
+          | Ok quote -> quote
+          | Error reason ->
+              Printf.eprintf "STOP invalid delayed NQ price: %s\n%!" reason;
+              exit 2
+        in
+        (match Mnq_core.Latest_quote.accept !latest quote with
+        | Error reason ->
+            Printf.eprintf "STOP delayed NQ source: %s\n%!" reason;
+            exit 2
+        | Ok next ->
+            latest := next;
+            Printf.printf
+              "NQ_FUTURES DELAYED_PRICE=%.2f INDEX_POINTS as_of_utc_ms=%Ld SOURCE=YAHOO_NQ=F (NOT_LIVE)\n%!"
+              (Mnq_core.Latest_quote.points quote) quote.as_of_ms);
+        consume ()
+    | exception End_of_file ->
+        Printf.eprintf "Delayed NQ source ended; no new price.\n%!"
+  in
+  consume ()
+
 let () =
   if Array.length Sys.argv = 2 && Sys.argv.(1) = "--price-stream" then
     price_stream ()
+  else if Array.length Sys.argv = 2 && Sys.argv.(1) = "--delayed-nq-price" then
+    delayed_nq_price ()
   else if Array.length Sys.argv = 2 && Sys.argv.(1) = "--live-nq-price" then
     live_nq_price ()
   else if Array.length Sys.argv = 2 && Sys.argv.(1) = "--price-replay" then
