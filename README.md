@@ -4,7 +4,9 @@ A clean-slate, functional-first foundation for an MNQ futures trading **research
 
 ## Status
 
-The repository contains a deterministic market-print aggregator, volume-at-price profile calculations, cumulative signed trade volume, and a strict **advisory-only** risk gate. It does **not** connect to Tradovate, independently verify a licensed live feed, recognize real order-book absorption, implement a validated entry strategy, or submit orders. An optional Databento **price-only** bridge is available below, but has not been authenticated or exercised against live CME market data here. No positive expectancy or payout probability has been established.
+**Offline research only.** All real-time and delayed-price polling scripts, stream commands, and associated tests were deliberately removed. This repository does not fetch or display the current NQ/MNQ market price. Historical replay and a separate, opt-in historical-data importer remain available.
+
+The repository contains a deterministic market-print aggregator, volume-at-price profile calculations, cumulative signed trade volume, and a strict **advisory-only** risk gate. It does **not** connect to Tradovate, independently verify a licensed live feed, recognize real order-book absorption, implement a validated entry strategy, or submit orders. Historical OHLC research and offline replay are supported. No live or delayed price feed is installed. No positive expectancy or payout probability has been established.
 
 The core accepts **actual aggressor-side trade prints**; ordinary OHLCV bars cannot reliably reconstruct bid/ask delta or footprint data. Cumulative delta and profile are labeled **since stream start**, not RTH-session values, until a validated session calendar and warmup mechanism are added.
 
@@ -24,8 +26,8 @@ dune exec ./bin/main.exe
 - `lib/profile.ml`: volume-at-price and deterministic 70% value area.
 - `lib/features.ml`: market-derived features and a snapshot that excludes the next minute's first print.
 - `lib/risk.ml`: trade count, loss, drawdown-floor, position, freshness, and signal gates. **REVIEW_ONLY is not permission to execute.**
-- `lib/price_stream.ml`: independent OHLC-only bar input; excludes delta, volume profile, and order book.
-- `bin/main.ml --price-stream`: standalone price-derived regime monitor; no broker or order-flow integration.
+- `lib/price_stream.ml`: offline historical OHLC bar parser; excludes delta, volume profile, and order book.
+- `bin/main.ml --price-replay`: offline price-derived regime summary; no market-data streaming.
 - `test/test_core.ml`: deterministic tests; GitHub Actions runs them.
 
 ## Risk defaults (personal, not firm rules)
@@ -39,7 +41,7 @@ These are **starter defaults**, not verification of your actual funded-account r
 
 ## Next milestone
 
-Authenticate and validate the optional independent CME price feed and an account-state adapter; reconcile timestamps, session resets, rollovers, and exchange holidays; then validate price-based statistical hypotheses with fees and slippage on genuine out-of-sample data. Order-flow analysis remains with the user and is not consumed by the price-only monitor. Do not use experimental signals as automatic trading orders.
+Obtain properly licensed historical price bars and validate price-based statistical hypotheses with fees, slippage and genuine out-of-sample data. Live-price and delayed-price integrations have been removed. Order-flow analysis remains with the user and is not consumed by the price-only monitor. Do not use experimental signals as automatic trading orders.
 
 ## Quant research gates (experimental)
 
@@ -72,26 +74,6 @@ Quant evidence now requires the same **direction, regime, target distance, stop 
 - [NautilusTrader](https://github.com/nautechsystems/nautilus_trader): event-driven parity between offline simulation and live code paths; substantial integration complexity, not needed in Phase 1.
 
 **Next validation milestone:** obtain appropriately licensed MNQ tick/quote data and broker order records, reproduce observed real stop/limit/market fill behavior, then run strict chronological walk-forward tests with purge windows for overlapping labels. Until then all quant signals remain research-only and no observed forecast reliability is claimed.
-
-## Independent price-only Nasdaq futures feed (experimental)
-
-**Input is CME MNQ (or NQ) futures prices, not the Nasdaq-100 NDX cash index.** These are different markets. This optional adapter does **not** request or analyze volume profile, cumulative delta, order-flow buying/selling pressure, absorption, or market depth. The user performs those analyses independently. The agent calculates only price-derived market regimes, volatility, historical price behavior and risk when appropriate.
-
-`scripts/databento_price_only.py` uses Databento's `GLBX.MDP3` with **`ohlcv-1m`** and the continuous symbol `MNQ.c.0`. It prints timestamp plus four OHLC prices as 0.25-point integer ticks. `bin/main.ml --price-stream` consumes that narrow format and runs `Quant.on_closed_bar`, printing research-only regime and volatility readings after 21 contiguous bars. There is no Tradovate integration. Prices are **not** streamed into the older aggressor-trade/volume-profile feature pipeline. Price-only records carry *unknown* buy/sell quantities; the adapter uses zero placeholder fields solely to match the existing OHLC record type, and the quant path never uses them.
-
-Requires **a Databento account with licensed CME live-data access**, an API key, and Python 3.10+ plus the Databento SDK. Subscription and exchange entitlements may cost money. The connector is not live until you configure these yourself; we cannot provide the key. Do not commit keys to GitHub.
-
-```sh
-python3 -m pip install databento
-export DATABENTO_API_KEY='YOUR_PRIVATE_KEY'
-python3 scripts/databento_price_only.py --symbol MNQ.c.0 | dune exec ./bin/main.exe -- --price-stream
-```
-
-Run from the cloned repository after installing OCaml 5 and Dune 3. Use `--symbol NQ.c.0` instead if you explicitly want E-mini prices. A rolling contract mapping will **not** automatically update a live subscription when the front month changes; restart/reconcile it and rebuild the warmup after rollovers. The current strict contiguous-minute policy stops on a gap (such as a session break or an interval without a bar) rather than silently bridging or fabricating missing prices. The monitor is not yet a resilient unattended live service. Market sessions, holidays, and auto-backfill still need implementing.
-
-This feature outputs regime/volatility observations, not trading signals or verified probabilities. Real-time feed access, authenticated entitlement, and price freshness have not been demonstrated in this repository. The price-based model has not been validated on unseen MNQ data, and this path does not interact with the broker account or fix stop-loss execution.
-
-Sources: [Databento live quickstart](https://databento.com/docs/quickstart/live), [Live subscription/symbology](https://databento.com/docs/api-live/client/subscribe), [Continuous futures caveat](https://databento.com/docs/api-live/basics).
 
 ## Offline MNQ price replay (research-only, no trading integration)
 
@@ -135,62 +117,3 @@ The historical importer writes the CSV only after successful completion, refuses
 **Remaining work before the quantitative engine is useful for decisions:** genuine backtest data, rollover-aware mapping, realistic fills, purged chronological validation for overlapping labels, calibration checks, and an independently verified broker-state adapter. The historical replay does not attempt these claims or place orders.
 
 API references: [Databento historical timeseries](https://databento.com/docs/api-historical/timeseries/timeseries-get-range?lang=python), [iterating DBN records](https://databento.com/docs/api-historical/helpers/dbn-store-iter?lang=python), [continuous futures mapping](https://databento.com/docs/examples/symbology/continuous).
-
-## Live NQ futures last-price monitor (price-only)
-
-Use this mode when you only need the agent to **see the latest NQ futures price**. It reads a single **completed one-second OHLC close** through Databento's `GLBX.MDP3` `ohlcv-1s` stream. It completely ignores the bar's volume: no cumulative delta, absorption, buying/selling pressure, or volume profile is used.
-
-**NQ futures (`NQ.c.0`) are not the Nasdaq-100 cash index (`NDX`).** NQ is the futures contract underlying your MNQ trading; NDX itself is a separately licensed index value. An exact real-time NDX feed would require a provider entitled to Nasdaq's index data service.
-
-The feed does **not** work without a valid Databento key and real-time CME data entitlement. You cannot create a genuine real-time exchange data feed from this repository alone.
-
-From a cloned repository on Linux, after installing OCaml 5, Dune 3, Python 3.10+ and the Databento SDK:
-
-```bash
-python3 -m pip install databento
-export DATABENTO_API_KEY='YOUR_PRIVATE_DATABENTO_KEY'
-python3 scripts/databento_nq_last_price.py | opam exec -- dune exec ./bin/main.exe -- --live-nq-price
-```
-
-The output identifies the instrument as `NQ_FUTURES`, prints a price in index points and the UTC end-of-interval timestamp in milliseconds. The program never places or modifies orders.
-
-**Important limitations:** This is a one-second *completed bar close*, not every intrasecond tick. There may be no updates outside CME market hours or when no trades occur. The live code has not been tested against an authenticated account in this repository; the tests use synthetic input. Because Databento's live continuous instrument mappings do not automatically switch to a different contract after rollover, restart and verify your mapping at contract rollover. No guaranteed price freshness, no automatic reconnect and no trade signal capability is claimed.
-
-Provider references: [Databento live quickstart](https://databento.com/docs/quickstart/live), [one-second OHLCV schema](https://databento.com/docs/schemas/ohlcv), [Nasdaq GIDS real-time index data](https://www.nasdaq.com/products/global-indexes/data/gids).
-
-## Free independent delayed NQ futures price monitor (NO API KEY)
-
-**Recommended for zero market-data budget:** use Yahoo Finance's `NQ=F` futures quote via an **unofficial, unauthenticated** chart interface. It reads the E-mini Nasdaq-100 **futures** price, not `^NDX`, `QQQ`, or MNQ order flow. Yahoo explicitly labels this CME quote as **delayed**. You do not need Tradovate, Databento, IBKR, CME live-data entitlement, or an account API key. The Python poller uses only the Python standard library.
-
-Clone/update the repository, then use these commands from its root directory on your Chromebook Linux terminal:
-
-```bash
-git pull
-opam exec -- dune build
-set -o pipefail
-python3 scripts/yahoo_nq_delayed.py | opam exec -- dune exec ./bin/main.exe -- --delayed-nq-price
-```
-
-A successful print resembles:
-
-```text
-NQ_FUTURES DELAYED_PRICE=25000.25 INDEX_POINTS as_of_utc_ms=... SOURCE=YAHOO_NQ=F (NOT_LIVE)
-```
-
-That price is an **illustrative example**, not a current market quote. The `as_of_utc_ms` is the timestamp reported by Yahoo, never a fabricated present timestamp. The poller fetches every 60 seconds, reports Yahoo's quote age to stderr, and emits a fresh CSV quote only when the provider timestamp advances. It rejects mismatched symbols, invalid prices, quotes older than 60 minutes by default, and provider errors. When the market is closed or Yahoo blocks requests, it reports **UNAVAILABLE** rather than claiming current data.
-
-For a one-shot connectivity test:
-
-```bash
-python3 scripts/yahoo_nq_delayed.py --once
-```
-
-For more detailed settings:
-
-```bash
-python3 scripts/yahoo_nq_delayed.py --help
-```
-
-**Reliability limitation:** Yahoo does not provide an official/publicly supported market-data API for this interface; it may rate-limit, change, block, or cease access at any time. Yahoo's terms govern use. Data is delayed (often by at least 10 minutes), not suitable for intraday execution decisions, and is not guaranteed to update at any fixed rate. The current code has offline mocked tests, but a real authenticated/unauthenticated live request still must be tested on the machine that runs the agent. Do not mistake an example or passing unit test for confirmed connectivity. For a production-grade real-time NQ feed you still need a licensed market-data source.
-
-Data page: [Yahoo Finance delayed NQ=F futures quote](https://finance.yahoo.com/quote/NQ%3DF/). See the [unofficial yfinance library disclaimer](https://github.com/ranaroussi/yfinance) for Yahoo personal-use limits.
