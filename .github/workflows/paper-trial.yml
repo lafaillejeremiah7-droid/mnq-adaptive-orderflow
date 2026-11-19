@@ -2,7 +2,7 @@ name: Solana paper trial
 on:
   workflow_dispatch:
   schedule:
-    - cron: '7,22,37,52 * * * *'
+    - cron: '7,37 * * * *'
 permissions:
   contents: write
 concurrency:
@@ -12,7 +12,7 @@ jobs:
   quote-and-record:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
       - name: Open trial ledger
@@ -20,20 +20,10 @@ jobs:
         with:
           ref: paper-results
           path: trial
-      - name: Advance paper portfolio by one observation
+      - name: Stream live paper trades
         run: |
           set -eu
           test -s trial/ledger.sqlite
-          python3 solana_paper.py --db trial/ledger.sqlite > trial/report.next
-          mv trial/report.next trial/report.json
-      - name: Save trial state
-        working-directory: trial
-        run: |
-          set -eu
-          git config user.name 'paper-desk[bot]'
-          git config user.email 'paper-desk@users.noreply.github.com'
-          git add ledger.sqlite report.json
-          if ! git diff --cached --quiet; then
-            git commit -m 'Record forward paper portfolio'
-            git push origin HEAD:paper-results
-          fi
+          git -C trial config user.name 'paper-desk[bot]'
+          git -C trial config user.email 'paper-desk@users.noreply.github.com'
+          python3 -u live_paper.py --directory trial --seconds 3900 --publish

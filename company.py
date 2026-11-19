@@ -112,11 +112,30 @@ def signal_bot(s, q, c, previous, bid, ask):
     return mid, momentum
 
 
+def live_signal(s, q, c, previous, bid, ask):
+    """Compare fresh quotes to a time-based reference; faster polling must not shorten the horizon."""
+    ts, asset = q["ts"], q["asset"]
+    cutoff = ts - 900 * c["lookback"]
+    history = s.setdefault("timed_history", {}).get(asset, [])
+    if previous and ts - previous["ts"] > c["max_gap_seconds"]:
+        history = []
+    history = [point for point in history if point[0] >= cutoff - 60]
+    reference = next(
+        (price for when, price in reversed(history) if when <= cutoff), None
+    )
+    mid = (bid + ask) / 2
+    history.append([ts, str(mid)])
+    s["timed_history"][asset] = history
+    return mid, reference is not None and mid >= Decimal(reference) * (
+        1 + Decimal(c["entry_bps"]) / 10000
+    )
+
+
 def risk_bot(c, cash):
     return min(cash, Decimal(c["order_usd"]), Decimal(c["exposure_usd"]))
 
 
-def process(s, q, c, now):
+def process(s, q, c, now, *, live=False):
     bid, ask, bid_size, ask_size = read_quote(q, c, now)
     asset, ts = q["asset"], q["ts"]
     previous = s["last"].get(asset)
@@ -126,7 +145,8 @@ def process(s, q, c, now):
         raise ValueError("Out-of-order or conflicting quote")
     s["clock"] = ts
     s["last"][asset] = q
-    mid, momentum = signal_bot(s, q, c, previous, bid, ask)
+    signal = live_signal if live else signal_bot
+    mid, momentum = signal(s, q, c, previous, bid, ask)
     pos, pending = s["position"], s["pending"]
     record = {
         "ts": ts,
@@ -156,7 +176,7 @@ def process(s, q, c, now):
     spread_ok = (ask - bid) * 10000 <= mid * Decimal(c["max_spread_bps"])
     if (
         pending
-        and ts - pending["ts"] > c["max_gap_seconds"]
+        and ts - pending["ts"] > (60 if live else c["max_gap_seconds"])
         and pending["side"] == "buy"
     ):
         s["pending"] = pending = None
@@ -210,14 +230,14 @@ def process(s, q, c, now):
     return record
 
 
-def ingest(db, c, digest, quote, now):
+def ingest(db, c, digest, quote, now, *, live=False):
     db.execute("BEGIN IMMEDIATE")
     try:
         row = db.execute("SELECT config,state FROM desk WHERE id=1").fetchone()
         if row and row[0] != digest:
             raise ValueError("Configuration or run mode differs from this ledger")
         state = json.loads(row[1]) if row else initial(c)
-        event = process(state, quote, c, now)
+        event = process(state, quote, c, now, live=live)
         if event is not None:
             db.execute(
                 "INSERT OR REPLACE INTO desk VALUES(1,?,?)", (digest, json.dumps(state))
@@ -233,6 +253,7 @@ def ingest(db, c, digest, quote, now):
 def open_ledger(path):
     db = sqlite3.connect(path)
     db.executescript("""CREATE TABLE IF NOT EXISTS desk(id INTEGER PRIMARY KEY,config TEXT,state TEXT);
+                        CREATE TABLE IF NOT EXISTS archived_stats(id INTEGER PRIMARY KEY, stats TEXT);
                         CREATE TABLE IF NOT EXISTS journal(id INTEGER PRIMARY KEY,event TEXT);""")
     return db
 
