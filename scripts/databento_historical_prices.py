@@ -15,7 +15,7 @@ from pathlib import Path
 import sys
 import tempfile
 
-from scripts.databento_price_only import format_ohlcv
+from scripts.price_bar_format import format_ohlcv
 
 
 def parse_dates(start: str, end: str) -> tuple[datetime, datetime]:
