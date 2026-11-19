@@ -9,3 +9,7 @@
 (test
  (name test_labeling)
  (libraries mnq_core))
+
+(test
+ (name test_price_stream)
+ (libraries mnq_core))

@@ -1,3 +1,49 @@
+let regime_name = function
+  | Mnq_core.Quant.Trending_up -> "TREND_UP"
+  | Mnq_core.Quant.Trending_down -> "TREND_DOWN"
+  | Mnq_core.Quant.Ranging -> "RANGE"
+  | Mnq_core.Quant.Volatility_spike -> "VOLATILITY_SPIKE"
+
+(** Advisory-only, price-only stream. Does not receive or calculate
+    volume profiles, delta, book activity, or absorption. *)
+let price_stream () =
+  let state = ref Mnq_core.Quant.empty in
+  let rec consume () =
+    match input_line stdin with
+    | line ->
+        let bar =
+          match Mnq_core.Price_stream.parse line with
+          | Ok bar -> bar
+          | Error reason ->
+              Printf.eprintf "STOP invalid price feed: %s\n%!" reason;
+              exit 2
+        in
+        (match Mnq_core.Quant.on_closed_bar !state bar with
+        | Error reason ->
+            Printf.eprintf "STOP nonconsecutive/invalid price feed: %s\n%!"
+              reason;
+            exit 2
+        | Ok (next, measurement) ->
+            state := next;
+            (match measurement with
+            | None -> Printf.printf "WAIT insufficient completed price bars\n%!"
+            | Some (m : Mnq_core.Quant.measurement) ->
+                Printf.printf
+                  "REGIME %s close_minute_ms=%Ld efficiency=%.4f fast_tr_ticks=%.2f slow_tr_ticks=%.2f (RESEARCH_ONLY)\n%!"
+                  (regime_name m.regime)
+                  m.closed_minute_start_ms
+                  m.efficiency_ratio
+                  m.fast_true_range_ticks
+                  m.slow_true_range_ticks));
+        consume ()
+    | exception End_of_file -> ()
+  in
+  consume ()
+
 let () =
-  print_endline "MNQ Agent: OCaml core initialized.";
-  print_endline "No live feed, broker connection, strategy validation, or order execution is configured."
+  if Array.length Sys.argv = 2 && Sys.argv.(1) = "--price-stream" then
+    price_stream ()
+  else (
+    print_endline "MNQ Agent: OCaml core initialized.";
+    print_endline
+      "Use --price-stream with validated CME price-only OHLC input. No live feed or order execution is configured by default.")
