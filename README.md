@@ -231,3 +231,56 @@ from the source option data's true observation time.
 
 **Required attribution:** [Options gamma data by AlgoX Flow](https://algoxflow.com).
 Free API documentation and usage terms: https://algoxflow.com/api-docs .
+
+
+## Multi-agent research tournament (offline, no subscriptions or orders)
+
+The Python module scripts/agent_tournament.py is a **multi-agent competition framework** for one measurable MNQ research task: forecasting whether a hypothetical entry hits a predeclared profit target before its stop. Its workers are transparent, deterministic statistical forecasting policies, **not LLMs or autonomous trading bots**:
+
+| Worker | Responsibility |
+| --- | --- |
+| baseline_same_geometry | Benchmark smoothed target-first frequency for the **exact same direction, target/stop distances and horizon** |
+| regime_specialist | Add current market-regime classification to past outcomes, shrinking toward baseline |
+| recency_specialist | Emphasize recently **resolved** outcomes, shrinking toward baseline |
+| regime_recency_specialist | Combine regime context and recent resolved examples |
+
+Two independent roles check the competitors: a **data auditor** rejects malformed, duplicated, unsorted, future-dated and misaligned labels; a **judge** selects from the middle chronological validation segment and tests the selected challenger on the final unseen segment. A **skeptic** withholds a champion unless a daily-block bootstrap lower bound shows positive held-out Brier-score improvement over the baseline. These are software components, not paid external AI employees.
+
+### Data contract
+
+Provide a CSV with header:
+
+~~~csv
+detected_at_ms,resolved_at_ms,regime,direction,target_distance_ticks,stop_distance_ticks,horizon_bars,outcome
+~~~
+
+- Timestamps: UTC Unix milliseconds, aligned to one minute; detected_at_ms must be sorted ascending. An outcome is **not available** to any agent until resolved_at_ms is strictly earlier than the prediction time.
+- Regime: TREND_UP, TREND_DOWN, RANGE, or VOLATILITY_SPIKE.
+- Direction: LONG or SHORT; distances are integer 0.25-point ticks; horizon is in completed 1-minute bars. Resolution must be after detection and no later than the horizon.
+- Outcome: TARGET_FIRST, STOP_FIRST, or TIME_LIMIT. TIME_LIMIT means the target did not get hit first, **not** that a real trade necessarily lost money.
+- Historical rows must contain information known at the time of the decision. Do not label ambiguous candles that touched both stop and target as though the touch order was known. Do not apply today's QQQ walls to historical decisions.
+
+Use actual historical setups with the same entry methodology and stop/target assumptions as your research question. Mixing fundamentally different setup definitions produces misleading performance estimates.
+
+### Run the competition
+
+~~~bash
+cd ~/mnq-adaptive-orderflow
+git pull
+python3 -m scripts.agent_tournament \
+  --history examples/ILLUSTRATIVE_mnq_labeled_setups.csv
+~~~
+
+The bundled CSV is **synthetic** and has too few rows to establish a winner. It is an example of the required file structure. To use genuine labeled history:
+
+~~~bash
+python3 -m scripts.agent_tournament \
+  --history /path/to/your_real_mnq_labeled_setups.csv \
+  --output tournament_report.json
+~~~
+
+The optional output refuses to overwrite an existing report. Default requirements: 50 prior **resolved, identical-geometry** examples before a forecast; 40 eligible validation cases; 40 eligible final-test cases covering at least 10 US/Eastern days. Competition uses a 60%/20%/20% chronological development/validation/final-test split by detection timestamp. Agent selection requires at least 0.003 improvement in validation Brier score relative to baseline; final acceptance requires positive held-out improvement and a positive paired-day bootstrap lower confidence bound.
+
+A result of **NO_VALIDATED_WINNER** is correct when data is sparse, unstable or weak. **RESEARCH_CHAMPION_ONLY** means better historical probability error in a preliminary test, **not** profitable trades or authorization to execute. Candidate comparison and overlapping observations can still inflate apparent confidence, so independent future evaluation is required.
+
+This tournament does **not** run in the background, fetch live or delayed NQ prices, place orders, use a brokerage account, or convert current QQQ walls into retroactive historical predictive features. The separate on-demand QQQ wall lookup remains available, but needs timestamped historical observations before it can be a predictor. No external LLM or paid API is needed.

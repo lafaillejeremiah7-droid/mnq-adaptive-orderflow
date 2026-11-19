@@ -19,5 +19,15 @@ jobs:
         run: opam exec -- dune build
       - name: Test
         run: opam exec -- dune runtest
-      - name: Price-only Python adapter tests
+
+  offline-python-research:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run all offline Python research tests
         run: python3 -m unittest discover -s tests_py -v
+      - name: Verify synthetic tournament abstains without evidence
+        run: |
+          python3 -m scripts.agent_tournament --history examples/ILLUSTRATIVE_mnq_labeled_setups.csv > /tmp/tournament.json
+          python3 -c 'import json; r=json.load(open("/tmp/tournament.json")); assert r["status"] == "NO_VALIDATED_WINNER"'
