@@ -92,3 +92,46 @@ Run from the cloned repository after installing OCaml 5 and Dune 3. Use `--symbo
 This feature outputs regime/volatility observations, not trading signals or verified probabilities. Real-time feed access, authenticated entitlement, and price freshness have not been demonstrated in this repository. The price-based model has not been validated on unseen MNQ data, and this path does not interact with the broker account or fix stop-loss execution.
 
 Sources: [Databento live quickstart](https://databento.com/docs/quickstart/live), [Live subscription/symbology](https://databento.com/docs/api-live/client/subscribe), [Continuous futures caveat](https://databento.com/docs/api-live/basics).
+
+## Offline MNQ price replay (research-only, no trading integration)
+
+There is a separate path for historical **price-only** analysis. It does not use Tradovate, volume profile, cumulative delta, buying/selling pressure, absorption, positions, or trading-account funds.
+
+The `--price-replay` mode accepts a chronologically increasing CSV with **no header**:
+
+```text
+1699999980000,80000,80010,79996,80006
+1700000040000,80006,80016,80001,80014
+```
+
+Fields: `minute_start_utc_ms,open_ticks,high_ticks,low_ticks,close_ticks`; all price fields are **integer 0.25-point ticks**, not displayed index points. The example numbers above are illustrative, not genuine market data. Historical gaps start new contiguous segments with a fresh 21-bar warmup; duplicate or out-of-order timestamps are rejected. No synthetic bars are inserted.
+
+To replay an already obtained, appropriately licensed MNQ price CSV:
+
+```sh
+cat mnq_prices.csv | dune exec ./bin/main.exe -- --price-replay
+```
+
+This prints the number of bars, gaps/segments, classified bars, and counts of uptrend/downtrend/range/volatility-spike observations. **These are descriptive numbers only**—not predictive accuracy, estimated trade win rate, or strategy P/L. Segments with fewer than 21 consecutive bars provide zero classified observations.
+
+### Optional historical CME data import
+
+The data importer uses Databento `GLBX.MDP3` `ohlcv-1m` continuous `MNQ.c.0`. You must own a Databento key and have historical access to the relevant CME dataset. **Data queries may incur provider charges**. The script requires an explicit opt-in flag and limits each request to **at most seven calendar days** to reduce accidental large historical bills. It does not make any request without those prerequisites.
+
+```sh
+python3 -m pip install databento
+export DATABENTO_API_KEY='YOUR_PRIVATE_DATABENTO_KEY'
+python3 -m scripts.databento_historical_prices \\
+  --symbol MNQ.c.0 \\
+  --start 2026-11-09 --end 2026-11-12 \\
+  --output mnq_prices.csv --allow-provider-charges
+cat mnq_prices.csv | dune exec ./bin/main.exe -- --price-replay
+```
+
+Ensure your API key is not saved in GitHub, shell history, public notebooks or chat messages. Both the Python conversion and the OCaml parser are testable offline without provider access.
+
+The historical importer writes the CSV only after successful completion, refuses to overwrite an existing file, and does not fill missing minutes or bridge discontinuities from weekend closures and futures contract rollovers.
+
+**Remaining work before the quantitative engine is useful for decisions:** genuine backtest data, rollover-aware mapping, realistic fills, purged chronological validation for overlapping labels, calibration checks, and an independently verified broker-state adapter. The historical replay does not attempt these claims or place orders.
+
+API references: [Databento historical timeseries](https://databento.com/docs/api-historical/timeseries/timeseries-get-range?lang=python), [iterating DBN records](https://databento.com/docs/api-historical/helpers/dbn-store-iter?lang=python), [continuous futures mapping](https://databento.com/docs/examples/symbology/continuous).
