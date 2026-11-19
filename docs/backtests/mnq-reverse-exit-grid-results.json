@@ -1,0 +1,202 @@
+{
+  "grid": {
+    "sessions": 200,
+    "trades": 187,
+    "exclusions": {
+      "incomplete_selected_session": 8,
+      "incomplete_opening_range": 2
+    },
+    "rows": [
+      {
+        "stop_points": 6,
+        "target_points": 6,
+        "gross": -540.0,
+        "net": -1194.5,
+        "stress_net": -1568.5,
+        "wins": 71,
+        "close_drawdown": 1194.5
+      },
+      {
+        "stop_points": 6,
+        "target_points": 12,
+        "gross": -228.0,
+        "net": -882.5,
+        "stress_net": -1256.5,
+        "wins": 56,
+        "close_drawdown": 887.0
+      },
+      {
+        "stop_points": 6,
+        "target_points": 18,
+        "gross": -324.0,
+        "net": -978.5,
+        "stress_net": -1352.5,
+        "wins": 40,
+        "close_drawdown": 1003.0
+      },
+      {
+        "stop_points": 6,
+        "target_points": 24,
+        "gross": -287.5,
+        "net": -942.0,
+        "stress_net": -1316.0,
+        "wins": 33,
+        "close_drawdown": 982.5
+      },
+      {
+        "stop_points": 6,
+        "target_points": 36,
+        "gross": -214.0,
+        "net": -868.5,
+        "stress_net": -1242.5,
+        "wins": 25,
+        "close_drawdown": 868.5
+      },
+      {
+        "stop_points": 12,
+        "target_points": 6,
+        "gross": -210.0,
+        "net": -864.5,
+        "stress_net": -1238.5,
+        "wins": 119,
+        "close_drawdown": 877.5
+      },
+      {
+        "stop_points": 12,
+        "target_points": 12,
+        "gross": -90.0,
+        "net": -744.5,
+        "stress_net": -1118.5,
+        "wins": 92,
+        "close_drawdown": 792.0
+      },
+      {
+        "stop_points": 12,
+        "target_points": 18,
+        "gross": -123.5,
+        "net": -778.0,
+        "stress_net": -1152.0,
+        "wins": 73,
+        "close_drawdown": 830.5
+      },
+      {
+        "stop_points": 12,
+        "target_points": 24,
+        "gross": 206.0,
+        "net": -448.5,
+        "stress_net": -822.5,
+        "wins": 66,
+        "close_drawdown": 561.0
+      },
+      {
+        "stop_points": 12,
+        "target_points": 36,
+        "gross": 447.5,
+        "net": -207.0,
+        "stress_net": -581.0,
+        "wins": 55,
+        "close_drawdown": 444.0
+      },
+      {
+        "stop_points": 18,
+        "target_points": 6,
+        "gross": -66.0,
+        "net": -720.5,
+        "stress_net": -1094.5,
+        "wins": 139,
+        "close_drawdown": 720.5
+      },
+      {
+        "stop_points": 18,
+        "target_points": 12,
+        "gross": -88.0,
+        "net": -742.5,
+        "stress_net": -1116.5,
+        "wins": 111,
+        "close_drawdown": 791.0
+      },
+      {
+        "stop_points": 18,
+        "target_points": 18,
+        "gross": -193.5,
+        "net": -848.0,
+        "stress_net": -1222.0,
+        "wins": 91,
+        "close_drawdown": 1008.0
+      },
+      {
+        "stop_points": 18,
+        "target_points": 24,
+        "gross": 129.0,
+        "net": -525.5,
+        "stress_net": -899.5,
+        "wins": 83,
+        "close_drawdown": 767.0
+      },
+      {
+        "stop_points": 18,
+        "target_points": 36,
+        "gross": 516.0,
+        "net": -138.5,
+        "stress_net": -512.5,
+        "wins": 74,
+        "close_drawdown": 566.0
+      },
+      {
+        "stop_points": 24,
+        "target_points": 6,
+        "gross": 138.0,
+        "net": -516.5,
+        "stress_net": -890.5,
+        "wins": 152,
+        "close_drawdown": 516.5
+      },
+      {
+        "stop_points": 24,
+        "target_points": 12,
+        "gross": -36.0,
+        "net": -690.5,
+        "stress_net": -1064.5,
+        "wins": 123,
+        "close_drawdown": 690.5
+      },
+      {
+        "stop_points": 24,
+        "target_points": 18,
+        "gross": 80.0,
+        "net": -574.5,
+        "stress_net": -948.5,
+        "wins": 106,
+        "close_drawdown": 761.0
+      },
+      {
+        "stop_points": 24,
+        "target_points": 24,
+        "gross": 463.0,
+        "net": -191.5,
+        "stress_net": -565.5,
+        "wins": 97,
+        "close_drawdown": 783.5
+      },
+      {
+        "stop_points": 24,
+        "target_points": 36,
+        "gross": 648.5,
+        "net": -6.0,
+        "stress_net": -380.0,
+        "wins": 85,
+        "close_drawdown": 629.0
+      }
+    ]
+  },
+  "leader": {
+    "stop_points": 24,
+    "target_points": 36,
+    "gross": 648.5,
+    "net": -6.0,
+    "stress_net": -380.0,
+    "wins": 85,
+    "close_drawdown": 629.0
+  },
+  "followup": null
+}
