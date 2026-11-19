@@ -192,28 +192,35 @@ levels as today's.
 
 ### Optional QQQ wall to NQ/MNQ-equivalent conversion
 
-The data source does **not** provide an authorized NQ futures quote. To
-compute a mapping without restoring a futures price feed, pass a verified
-NQ futures reference price **from your own chart**, observed at approximately
-the same time as the provider QQQ snapshot. Use the **actual UTC observation
-timestamp**, never simply the time the script was started.
+The data source does **not** supply a verified NQ futures price and **its
+QQQ spot field has no separately verified last-trade time**. The provider
+can recalculate gamma after QQQ stops trading. Therefore the converter
+never assumes that the provider snapshot update time is the QQQ trade time.
+
+To map QQQ walls without restoring an NQ feed, enter **two independently
+observed chart prices**: QQQ ETF and the selected NQ futures contract.
+Record their actual UTC observation times. They must be within five
+minutes of each other, be from the same US/Eastern date as the provider
+snapshot, and be no more than 12 hours old. Fake or missing timestamps
+are rejected.
 
 ```bash
-# EXAMPLE VALUES ONLY — replace with a real same-time chart observation
+# ILLUSTRATIVE VALUES ONLY: replace ALL quotes/times with your own observations
 python3 -m scripts.qqq_walls_today \
-  --nq-price 24000 \
-  --nq-asof 2026-11-18T20:01:00Z
+  --qqq-price 668.65 \
+  --qqq-asof 2026-11-18T20:55:00Z \
+  --nq-price 26700 \
+  --nq-asof 2026-11-18T20:56:00Z
 ```
 
-For this illustrative example, a source snapshot at
-**2026-11-18T20:00:00Z** would be compatible. The script **rejects**
-references more than 5 minutes apart; mapping is omitted if no NQ
-reference is provided. The formula is
-`QQQ strike × (NQ reference / provider QQQ spot)`,
-rounded to the nearest 0.25-point NQ tick. NQ and MNQ price levels match
-in index points, not dollar value per contract. This mapping is an
-**approximation**, not a native NQ options-gamma level; in addition, the
-provider's QQQ spot last-trade timestamp is not independently given.
+The conversion is
+`NQ-equivalent = QQQ wall strike × (same-time NQ reference / same-time QQQ reference)`,
+rounded to the nearest 0.25-point futures tick. No futures data is fetched.
+Without both reference quotes, the agent automatically returns the real
+QQQ walls but correctly marks NQ levels **NOT_CALCULATED**. The fact that
+two quotes are close in time does not prove they track perfectly: ETF
+premium/discount and futures basis are additional limitations. NQ and MNQ
+have the same index-points scale but different dollars per contract.
 
 **Provider scope:** This on-demand API supplies vendor-derived wall estimates
 and is separate from the more granular, offline
