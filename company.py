@@ -115,7 +115,7 @@ def signal_bot(s, q, c, previous, bid, ask):
 def live_signal(s, q, c, previous, bid, ask):
     """Compare fresh quotes to a time-based reference; faster polling must not shorten the horizon."""
     ts, asset = q["ts"], q["asset"]
-    cutoff = ts - 900 * c["lookback"]
+    cutoff = ts - c.get("signal_horizon_seconds", 900 * c["lookback"])
     history = s.setdefault("timed_history", {}).get(asset, [])
     if previous and ts - previous["ts"] > c["max_gap_seconds"]:
         history = []
@@ -146,14 +146,18 @@ def process(s, q, c, now, *, live=False):
     s["clock"] = ts
     s["last"][asset] = q
     signal = live_signal if live else signal_bot
-    mid, momentum = signal(s, q, c, previous, bid, ask)
+    if live and not ask_size:
+        mid, momentum = bid, False
+        s.setdefault("timed_history", {}).pop(asset, None)
+    else:
+        mid, momentum = signal(s, q, c, previous, bid, ask)
     pos, pending = s["position"], s["pending"]
     record = {
         "ts": ts,
         "asset": asset,
         "action": "observe",
         "bid": str(bid),
-        "ask": str(ask),
+        "ask": str(ask) if ask_size else None,
     }
     if pos and pos["asset"] != asset:
         return record
