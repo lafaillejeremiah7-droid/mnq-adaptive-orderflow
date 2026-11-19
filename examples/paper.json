@@ -1,0 +1,1 @@
+{"tokens":{"fixture:MEME/USD":6},"cash_usd":"1000","order_usd":"10","exposure_usd":"10","daily_loss_usd":"5","fee_bps":"30","entry_bps":"100","stop_bps":"300","target_bps":"500","max_spread_bps":"50","max_age_seconds":15,"max_gap_seconds":30,"lookback":3}

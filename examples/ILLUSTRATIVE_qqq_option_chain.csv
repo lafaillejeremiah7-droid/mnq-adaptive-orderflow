@@ -1,5 +1,0 @@
-expiration,option_type,strike,open_interest,gamma,multiplier
-2026-11-20,call,610,500,0.05,100
-2026-11-20,call,615,600,0.01,100
-2026-11-20,put,590,300,0.20,100
-2026-11-20,put,585,900,0.01,100
