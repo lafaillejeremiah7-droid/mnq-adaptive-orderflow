@@ -69,7 +69,8 @@ def candidates(rows, stage, now):
             and row.get("initialized") is True
             and all(row.get(k) is False for k in ("hidden", "is_banned", "nsfw"))
             and row.get("base_decimals") == 6
-            and row.get("token_program") in TOKEN_PROGRAMS
+            and isinstance(row.get("token_program"), str)
+            and row["token_program"] in TOKEN_PROGRAMS
             and row.get("transfer_fee_bps") == 0
             and not row.get("transfer_hook_program")
             and all(
@@ -91,32 +92,48 @@ PUMP_PROGRAM = Pubkey.from_string("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P")
 
 
 def jupiter_candidates(rows, stage, now):
+    """Ignore malformed third-party records instead of aborting an entire scan."""
     found = {}
     for row in rows:
-        mint = row.get("id", "")
+        if not isinstance(row, dict):
+            continue
+        mint = row.get("id")
+        audit = row.get("audit")
+        program = row.get("tokenProgram")
         if (
             row.get("launchpad") != "pump.fun"
             or row.get("decimals") != 6
-            or row.get("tokenProgram") not in TOKEN_PROGRAMS
+            or not isinstance(program, str)
+            or program not in TOKEN_PROGRAMS
+            or not isinstance(mint, str)
             or not ADDRESS.fullmatch(mint)
-            or row.get("audit", {}).get("freezeAuthorityDisabled") is not True
+            or not isinstance(audit, dict)
+            or audit.get("freezeAuthorityDisabled") is not True
         ):
             continue
         pool = row.get("graduatedPool") or ""
         if stage == "graduated":
-            if not row.get("graduatedAt") or not ADDRESS.fullmatch(pool):
+            if (
+                not isinstance(pool, str)
+                or not ADDRESS.fullmatch(pool)
+                or not isinstance(row.get("graduatedAt"), str)
+                or not row["graduatedAt"]
+            ):
                 continue
         else:
-            if pool or row.get("graduatedAt") or not row.get("createdAt"):
+            created = row.get("createdAt")
+            if pool or row.get("graduatedAt") or not isinstance(created, str):
                 continue
-            if (
-                not -2
-                <= now
-                - datetime.fromisoformat(
-                    row["createdAt"].replace("Z", "+00:00")
-                ).timestamp()
-                <= 900
-            ):
+            try:
+                timestamp = datetime.fromisoformat(
+                    created.replace("Z", "+00:00")
+                )
+                if timestamp.tzinfo is None:
+                    continue
+                age = now - timestamp.timestamp()
+            except (ValueError, OverflowError):
+                continue
+            if not -2 <= age <= 900:
                 continue
         try:
             key = Pubkey.from_string(mint)
@@ -127,7 +144,6 @@ def jupiter_candidates(rows, stage, now):
         )
         found[mint] = {"bonding_curve": str(curve), "pool_address": pool}
     return found
-
 
 def discover(stage, now):
     params = {
@@ -335,10 +351,17 @@ def scan(folder, stage, now):
             watchlist=list(watch),
         )
         if report.get("position"):
-            meta = watch[report["position"]["asset"]]
+            # Never crash or invent an exit price if watch metadata is missing.
+            meta = watch.get(report["position"]["asset"])
             report["position_mark_stale"] = bool(
-                meta["misses"] or time.time() - meta.get("last_quote", 0) > 25
+                not meta
+                or meta.get("misses", 0)
+                or time.time() - meta.get("last_quote", 0) > 25
             )
+            if meta is None:
+                report["position_quote_unavailable"] = (
+                    "Held mint has no verified venue metadata; exit not modeled"
+                )
         save(file, scan)
         return cfg, report
 
