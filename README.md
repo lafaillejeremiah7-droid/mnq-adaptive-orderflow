@@ -117,3 +117,48 @@ The historical importer writes the CSV only after successful completion, refuses
 **Remaining work before the quantitative engine is useful for decisions:** genuine backtest data, rollover-aware mapping, realistic fills, purged chronological validation for overlapping labels, calibration checks, and an independently verified broker-state adapter. The historical replay does not attempt these claims or place orders.
 
 API references: [Databento historical timeseries](https://databento.com/docs/api-historical/timeseries/timeseries-get-range?lang=python), [iterating DBN records](https://databento.com/docs/api-historical/helpers/dbn-store-iter?lang=python), [continuous futures mapping](https://databento.com/docs/examples/symbology/continuous).
+
+
+## Offline QQQ put/call walls mapped to NQ futures (no live-price feed)
+
+The Python research module at scripts/qqq_option_walls.py calculates **QQQ options walls** and converts those option strikes into approximate **NQ/MNQ futures price levels** using time-aligned QQQ and NQ price snapshots. It uses **only QQQ options**, never NDX options. There are **no external HTTP requests, subscriptions, credentials, browser integrations, trading signals, or order entry** in this feature.
+
+Two definitions are supported:
+
+- --metric gex (default): largest **unsigned call-side** and **unsigned put-side** gamma exposure *magnitude* by QQQ strike. For each standard QQQ option, exposure per 1% QQQ move is approximated by: gamma × open interest × 100 shares × QQQ price² × 0.01. Aggregates by strike separately across calls and puts. It does not infer whether dealers are net long or short gamma, and is **not a signed dealer GEX, gamma flip, or guaranteed support/resistance prediction**.
+- --metric oi: largest call and put **open interest** by strike, irrespective of gamma. These are **OI concentration levels, not gamma walls**. You must select this mode explicitly if you do not have option gamma; missing gamma never silently becomes an OI wall.
+
+Provide a QQQ options CSV with headers:
+
+`expiration,option_type,strike,open_interest,gamma`
+
+Each record corresponds to a standard QQQ call or put contract with its expiration (YYYY-MM-DD), strike in QQQ dollars, open interest (contracts), and option gamma per $1 move in QQQ. A multiplier column is optional but, when supplied, must equal 100. Missing or nonstandard option contracts, duplicate contract rows, negative inputs, and incomplete gamma data are rejected.
+
+The example CSV at examples/ILLUSTRATIVE_qqq_option_chain.csv is **invented test data, not observed market data**. Do not treat its levels as current.
+
+### Example: calculate with your own actual snapshot
+
+After updating your cloned GitHub repo, obtain a QQQ option-chain snapshot and time-aligned QQQ and NQ futures reference prices. Use UTC ISO-8601 timestamps of **the actual observations**; do not use current clock time for old data. An **illustrative** command is:
+
+```bash
+python3 -m scripts.qqq_option_walls \
+  --chain examples/ILLUSTRATIVE_qqq_option_chain.csv \
+  --metric gex --expiration 2026-11-20 \
+  --chain-asof 2026-11-18T15:00:00Z \
+  --qqq-price 600 --qqq-asof 2026-11-18T15:00:00Z \
+  --nq-price 24000 --nq-asof 2026-11-18T15:00:00Z
+```
+
+For these **synthetic inputs only**, the gamma-weighted QQQ call wall is 610 → approximately 24,400.00 NQ; the put wall is 590 → approximately 23,600.00 NQ. When selecting --metric oi for the same example, the largest OI levels are different. You can omit --expiration to aggregate across all expirations in the CSV. This code does not independently source options chains or reference prices.
+
+**Conversion:**
+
+`NQ_equivalent = QQQ_strike × (NQ_reference_price / QQQ_reference_price)`
+
+The result is rounded to the nearest legal NQ futures tick (0.25 index points). QQQ/NQ reference timestamps must be within **five minutes** of each other, and must occur within **30 minutes after the options snapshot**, rather than before it, to prevent accidental historical look-ahead. These are conservative initial data-quality gates, not a proof that basis or tracking error is negligible. Recompute when either market's price changes. NQ and MNQ use the same index-points price scale, but have different dollar multipliers.
+
+**Interpretation:** QQQ option strikes and NQ futures are related, but their levels are not mechanically identical. The conversion is approximate and depends on the chosen NQ futures contract, futures basis, QQQ tracking, and timing. OI is ordinarily published with a lag, so the supplied gamma and OI values may have different effective timestamps; record their provenance and do not claim real-time dealer positioning.
+
+The output is JSON, with the selected QQQ strike, mapped NQ price, chosen wall weight, and the complete source timestamps. The command is **offline**: historical replay and QQQ options processing remain separate; neither restores the Yahoo or Databento live-price feeds that were removed.
+
+Methodological references: [OCC standard 100-share equity options](https://www.theocc.com/clearance-and-settlement/clearing/equity-options-product-specifications), [QQQ gamma levels explained](https://quantwheel.com/tools/gex/qqq), [NQ/QQQ ratio mapping](https://quantwheel.com/tools/futures-gex/nq).
