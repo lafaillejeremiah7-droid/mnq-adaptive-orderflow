@@ -1,0 +1,96 @@
+{
+  "files": 5387,
+  "excluded_observed_dates": {
+    "incomplete_selected_session": 38,
+    "incomplete_opening_range": 7
+  },
+  "results": {
+    "early": {
+      "start": "2020-10-12",
+      "end": "2023-10-03",
+      "sessions": 598,
+      "trades": 558,
+      "winners": 268,
+      "net_dollars": -3225.0,
+      "expectancy_dollars": -5.779569892473118,
+      "stressed_net_dollars": -4341.0,
+      "max_close_drawdown_dollars": 3269.0,
+      "exits": {
+        "target": 271,
+        "stop": 282,
+        "stop_at_open": 1,
+        "ambiguous_stop": 4
+      },
+      "uncertainty": {
+        "one_sided_alpha_per_endpoint": 0.0125,
+        "expectancy_lower_cents_per_trade": -855.1630434782609,
+        "mean_paired_session_return_improvement_lower": -0.0009432706568713943
+      }
+    },
+    "middle": {
+      "start": "2023-10-04",
+      "end": "2024-10-03",
+      "sessions": 200,
+      "trades": 190,
+      "winners": 97,
+      "net_dollars": -681.5,
+      "expectancy_dollars": -3.586842105263158,
+      "stressed_net_dollars": -1061.5,
+      "max_close_drawdown_dollars": 830.0,
+      "exits": {
+        "stop": 88,
+        "target": 100,
+        "ambiguous_stop": 2
+      },
+      "uncertainty": {
+        "one_sided_alpha_per_endpoint": 0.0125,
+        "expectancy_lower_cents_per_trade": -828.8359788359788,
+        "mean_paired_session_return_improvement_lower": -0.0008025917005483155
+      }
+    },
+    "latest_reused": {
+      "start": "2024-10-07",
+      "end": "2025-10-08",
+      "sessions": 200,
+      "trades": 184,
+      "winners": 95,
+      "net_dollars": -815.5,
+      "expectancy_dollars": -4.432065217391305,
+      "stressed_net_dollars": -1183.5,
+      "max_close_drawdown_dollars": 872.0,
+      "exits": {
+        "ambiguous_stop": 12,
+        "stop": 75,
+        "target": 97
+      },
+      "uncertainty": {
+        "one_sided_alpha_per_endpoint": 0.0125,
+        "expectancy_lower_cents_per_trade": -890.4255319148937,
+        "mean_paired_session_return_improvement_lower": -0.0008613065923830518
+      }
+    },
+    "all_reused": {
+      "start": "2020-10-12",
+      "end": "2025-10-08",
+      "sessions": 998,
+      "trades": 932,
+      "winners": 460,
+      "net_dollars": -4722.0,
+      "expectancy_dollars": -5.0665236051502145,
+      "stressed_net_dollars": -6586.0,
+      "max_close_drawdown_dollars": 4822.0,
+      "exits": {
+        "target": 468,
+        "stop": 445,
+        "stop_at_open": 1,
+        "ambiguous_stop": 18
+      },
+      "uncertainty": {
+        "one_sided_alpha_per_endpoint": 0.0125,
+        "expectancy_lower_cents_per_trade": -729.8924731182796,
+        "mean_paired_session_return_improvement_lower": -0.0009071450931832495
+      }
+    },
+    "fresh": null
+  }
+}

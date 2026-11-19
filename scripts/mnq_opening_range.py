@@ -57,28 +57,32 @@ def simulate(bars):
             continue
         side = 1 if close > hi else -1
         entry = bars[i+1][0]
-        for j in range(i+1, MINUTES):
-            o,h,l,_,_ = bars[j]
-            gap = side*(o-entry)
-            adverse, favorable = sorted((side*(l-entry), side*(h-entry)))
-            if gap <= -80:
-                ticks, reason = gap, "stop_at_open"
-            elif gap >= 160:
-                ticks, reason = 160, "target_at_open"
-            elif j == MINUTES-1:
-                ticks, reason = gap, "time_exit"
-            elif adverse <= -80:
-                ticks, reason = -80, "ambiguous_stop" if favorable >= 160 else "stop"
-            elif favorable >= 160:
-                ticks, reason = 160, "target"
-            else:
-                continue
-            return {"direction": side, "entry_minute": i+1, "exit_minute": j,
-                    "gross_ticks": ticks, "exit_reason": reason}
+        return simulate_exit(bars, i+1, side, entry, 80, 160)
     return None
 
 
-def replay(root):
+def simulate_exit(bars, entry_minute, side, entry, stop_ticks, target_ticks):
+    for j in range(entry_minute, MINUTES):
+        o,h,l,_,_ = bars[j]
+        gap = side*(o-entry)
+        adverse, favorable = sorted((side*(l-entry), side*(h-entry)))
+        if gap <= -stop_ticks:
+            ticks, reason = gap, "stop_at_open"
+        elif gap >= target_ticks:
+            ticks, reason = target_ticks, "target_at_open"
+        elif j == MINUTES-1:
+            ticks, reason = gap, "time_exit"
+        elif adverse <= -stop_ticks:
+            ticks, reason = -stop_ticks, "ambiguous_stop" if favorable >= target_ticks else "stop"
+        elif favorable >= target_ticks:
+            ticks, reason = target_ticks, "target"
+        else:
+            continue
+        return {"direction": side, "entry_minute": entry_minute, "exit_minute": j,
+                "gross_ticks": ticks, "exit_reason": reason}
+
+
+def replay(root, policy=simulate):
     files = sorted((m[1], m[2], p) for p in root.glob("*.csv") if (m := FILE.fullmatch(p.name)))
     if not files:
         raise ValueError("No dated MNQ outright CSVs found")
@@ -103,11 +107,11 @@ def replay(root):
         if len(bars) != MINUTES:
             skips["incomplete_selected_session"] += 1
             continue
-        sessions.append((day.isoformat(), symbol, simulate(bars)))
+        sessions.append((day.isoformat(), symbol, policy(bars)))
     return sessions, skips, len(files)
 
 
-def summarize(rows):
+def summarize(rows, *, family=1):
     if not rows:
         raise ValueError("Empty evaluation segment")
     trades = [t for _,_,t in rows if t is not None]
@@ -117,7 +121,7 @@ def summarize(rows):
     counts = [int(t is not None) for _,_,t in rows]
     # A fixed illustrative research portfolio is used only for return diagnostics.
     returns, dd, _, _ = equity_path(1_000_000, cents)
-    bounds = lower_bounds(cents, counts, returns, family=1, block=3, seed=247, draws=3999)
+    bounds = lower_bounds(cents, counts, returns, family=family, block=3, seed=247, draws=3999)
     return dict(start=rows[0][0], end=rows[-1][0], sessions=len(rows), trades=n,
                 winners=sum(v > 0 for v in cents), net_dollars=sum(cents)/100,
                 expectancy_dollars=sum(cents)/100/n if n else None,
