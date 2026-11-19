@@ -66,6 +66,58 @@ class PumpTests(unittest.TestCase):
         self.assertIn(mint, p.jupiter_candidates([grad], "graduated", 13))
         self.assertFalse(p.jupiter_candidates([grad], "launch", 13))
 
+    def test_malformed_jupiter_rows_do_not_abort_discovery(self):
+        mint = "ryBYEgsEQLypy8WuyS5feoxnLCQEgX5gUwwENmUpump"
+        good = {
+            "id": mint,
+            "launchpad": "pump.fun",
+            "decimals": 6,
+            "tokenProgram": next(iter(p.TOKEN_PROGRAMS)),
+            "audit": {"freezeAuthorityDisabled": True},
+            "createdAt": "1970-01-01T00:00:10Z",
+        }
+        broken = [
+            None,
+            [],
+            {**good, "id": None},
+            {**good, "audit": None},
+            {**good, "tokenProgram": []},
+            {**good, "createdAt": 10},
+            {**good, "createdAt": "not a date"},
+            {**good, "createdAt": "1970-01-01T00:00:10"},
+            {**good, "graduatedPool": ["bad"]},
+        ]
+        expected = p.jupiter_candidates([good], "launch", 12)
+        self.assertEqual(
+            p.jupiter_candidates([*broken, good], "launch", 12), expected
+        )
+        graduate = {**good, "graduatedPool": "1" * 32, "graduatedAt": "ok"}
+        bad_graduates = [
+            {**graduate, "graduatedPool": []},
+            {**graduate, "graduatedAt": 100},
+            {**graduate, "audit": []},
+        ]
+        self.assertEqual(
+            p.jupiter_candidates([*bad_graduates, graduate], "graduated", 12),
+            p.jupiter_candidates([graduate], "graduated", 12),
+        )
+
+    def test_orphaned_position_is_reported_stale(self):
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        with TemporaryDirectory() as temporary:
+            with (
+                patch.object(p, "discover", return_value=({}, 0, "test")),
+                patch.object(
+                    p, "account_report",
+                    return_value={"position": {"asset": "unlisted-mint"}},
+                ),
+            ):
+                _, report = p.scan(Path(temporary), "launch", 1000)
+            self.assertTrue(report["position_mark_stale"])
+            self.assertIn("position_quote_unavailable", report)
+
     def test_reject_wrong_pool_and_split(self):
         meta = {"pool_address": "pool", "bonding_curve": "curve"}
         step = {
