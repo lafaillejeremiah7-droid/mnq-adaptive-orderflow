@@ -48,23 +48,54 @@ class QQQWallAutoTests(unittest.TestCase):
     def test_optional_nq_mapping_from_matched_price(self):
         report = parse_response(sample(), now=TIME)
         mapped = add_nq_equivalents(
-            report, nq_price="24000", nq_asof="2026-11-18T20:01:00Z"
+            report, qqq_price="600.0", qqq_asof="2026-11-18T20:00:00Z",
+            nq_price="24000", nq_asof="2026-11-18T20:01:00Z", now=TIME
         )
         self.assertEqual(mapped["nq_call_wall_equivalent"], "24400.00")
         self.assertEqual(mapped["nq_put_wall_equivalent"], "23600.00")
         self.assertEqual(mapped["nq_conversion_ratio"], "4E+1")  # 24000 / 600.0
-        self.assertIn("not downloaded", mapped["nq_conversion_warning"])
+        self.assertIn("user-supplied", mapped["nq_conversion_warning"])
 
     def test_rounding_nq_to_quarter_tick(self):
         report = parse_response(sample(callWall=610.25), now=TIME)
-        mapped = add_nq_equivalents(report, nq_price="24001", nq_asof="2026-11-18T20:00:00Z")
+        mapped = add_nq_equivalents(
+            report, qqq_price="600", qqq_asof="2026-11-18T20:00:00Z",
+            nq_price="24001", nq_asof="2026-11-18T20:00:00Z", now=TIME
+        )
         self.assertEqual(Decimal(mapped["nq_call_wall_equivalent"]) % Decimal(".25"), 0)
 
     def test_timestamp_mismatch_refuses_conversion(self):
         report = parse_response(sample(), now=TIME)
-        with self.assertRaisesRegex(DataUnavailable, "seconds"):
+        with self.assertRaisesRegex(DataUnavailable, "apart"):
             add_nq_equivalents(
-                report, nq_price="24000", nq_asof="2026-11-18T20:10:00Z"
+                report, qqq_price="600", qqq_asof="2026-11-18T20:00:00Z",
+                nq_price="24000", nq_asof="2026-11-18T20:10:00Z", now=TIME
+            )
+
+    def test_vendor_update_after_hours_does_not_fake_qqq_trade_timestamp(self):
+        late = datetime(2026, 11, 19, 3, 30, tzinfo=timezone.utc)
+        provider = parse_response(
+            sample(updated="2026-11-19T03:17:14Z"), now=late
+        )
+        # Both chart observations were at 3:55pm ET, whereas provider ran
+        # after 10pm ET. This paired conversion is allowed and labelled.
+        mapped = add_nq_equivalents(
+            provider,
+            qqq_price="668.65", qqq_asof="2026-11-18T20:55:00Z",
+            nq_price="26700", nq_asof="2026-11-18T20:56:00Z",
+            now=late,
+        )
+        self.assertEqual(mapped["qqq_reference_price"], "668.65")
+        self.assertEqual(mapped["nq_reference_price"], "26700")
+        self.assertIn("NOT the vendor", mapped["nq_conversion_warning"])
+
+    def test_reject_cross_session_references(self):
+        report = parse_response(sample(), now=TIME)
+        with self.assertRaisesRegex(DataUnavailable, "session date"):
+            add_nq_equivalents(
+                report, qqq_price="600", qqq_asof="2026-11-17T20:00:00Z",
+                nq_price="24000", nq_asof="2026-11-17T20:01:00Z",
+                now=TIME,
             )
 
     def test_old_previous_session_refused(self):
