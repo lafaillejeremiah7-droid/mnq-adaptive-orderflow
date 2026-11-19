@@ -1,17 +1,16 @@
 """One forward paper cycle on Solana mainnet swap quotes, with no signing capability."""
 
 import argparse
-from datetime import datetime, timezone
-from decimal import Decimal
 import email.utils
 import json
-from pathlib import Path
 import time
 import urllib.parse
 import urllib.request
+from datetime import UTC, datetime
+from decimal import Decimal
+from pathlib import Path
 
 from company import config_digest, ingest, open_ledger, validate_config
-
 
 USDC = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
 BONK = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"
@@ -24,9 +23,13 @@ ROUTE = "https://transaction-v1.raydium.io/compute/swap-base-in"
 
 def quote_amount(src, dst, amount, max_age):
     query = urllib.parse.urlencode(
-        dict(
-            inputMint=src, outputMint=dst, amount=amount, slippageBps=30, txVersion="V0"
-        )
+        {
+            "inputMint": src,
+            "outputMint": dst,
+            "amount": amount,
+            "slippageBps": 30,
+            "txVersion": "V0",
+        }
     )
     req = urllib.request.Request(
         ROUTE + "?" + query,
@@ -75,14 +78,14 @@ def scout(c, asset=ASSET):
     ask = Decimal(usdc).scaleb(-6) / size
     bid = Decimal(sell).scaleb(-6) / size
     # Timestamp the older leg. Recheck age after both requests.
-    return dict(
-        asset=asset,
-        ts=start,
-        bid=str(bid.quantize(Decimal("1e-24"))),
-        ask=str(ask.quantize(Decimal("1e-24"))),
-        bid_size=str(size),
-        ask_size=str(size),
-    )
+    return {
+        "asset": asset,
+        "ts": start,
+        "bid": str(bid.quantize(Decimal("1e-24"))),
+        "ask": str(ask.quantize(Decimal("1e-24"))),
+        "bid_size": str(size),
+        "ask_size": str(size),
+    }
 
 
 def account_report(db, c, now):
@@ -112,29 +115,30 @@ def account_report(db, c, now):
     status = "TRIAL_ENDED" if now >= first + 30 * DAY else "COLLECTING"
 
     def utc(ts):
-        return datetime.fromtimestamp(ts, timezone.utc).isoformat()
+        return datetime.fromtimestamp(ts, UTC).isoformat()
 
-    return dict(
-        status=status,
-        pairs=["BONK/USDC", "WIF/USDC"],
-        mode="forward paper",
-        first_quote_utc=utc(first),
-        last_quote_utc=utc(s["clock"]),
-        trial_end_utc=utc(first + 30 * DAY),
-        observations=observations,
-        buys=entries,
-        sell_fills=exits,
-        closed_trades=closed,
-        cash_usdc=s["cash"],
-        position=s["position"],
-        pending=s["pending"],
-        marked_liquidation_equity_usdc=s["last_equity"],
-        net_vs_cash_usdc=str(net),
-        return_percent=str(net / initial * 100),
-        max_observed_drawdown_usdc=str(drawdown),
-        daily_halt=s["halted"],
-        edge="NOT_ESTABLISHED",
-    )
+    return {
+        "status": status,
+        "pairs": ["BONK/USDC", "WIF/USDC"],
+        "mode": "forward paper",
+        "first_quote_utc": utc(first),
+        "last_quote_utc": utc(s["clock"]),
+        "last_quote_by_mint": {k: utc(v["ts"]) for k, v in s["last"].items()},
+        "trial_end_utc": utc(first + 30 * DAY),
+        "observations": observations,
+        "buys": entries,
+        "sell_fills": exits,
+        "closed_trades": closed,
+        "cash_usdc": s["cash"],
+        "position": s["position"],
+        "pending": s["pending"],
+        "marked_liquidation_equity_usdc": s["last_equity"],
+        "net_vs_cash_usdc": str(net),
+        "return_percent": str(net / initial * 100),
+        "max_observed_drawdown_usdc": str(drawdown),
+        "daily_halt": s["halted"],
+        "edge": "NOT_ESTABLISHED",
+    }
 
 
 def cycle(c, path):
@@ -151,10 +155,23 @@ def cycle(c, path):
             raise ValueError("Use a separate ledger for a new configuration")
         report = account_report(db, c, int(time.time()))
         if report["status"] != "TRIAL_ENDED":
+            errors = {}
             for asset in c["tokens"]:
-                q = scout(c, asset)
-                ingest(db, c, digest, q, int(time.time()))
+                try:
+                    q = scout(c, asset)
+                    ingest(db, c, digest, q, int(time.time()))
+                except (
+                    OSError,
+                    ValueError,
+                    KeyError,
+                    TypeError,
+                    ArithmeticError,
+                ) as exc:
+                    errors[asset] = str(exc)
+            if len(errors) == len(c["tokens"]):
+                raise RuntimeError(f"All routes unavailable: {errors}")
             report = account_report(db, c, int(time.time()))
+            report["unavailable_quotes"] = errors
         return report
     finally:
         db.close()

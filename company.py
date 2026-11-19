@@ -1,16 +1,15 @@
 """Event-driven memecoin trading desk with a persistent paper broker."""
 
 import argparse
-from collections import deque
-from datetime import datetime, timezone
-from decimal import Decimal, ROUND_DOWN, getcontext
 import hashlib
 import json
-from pathlib import Path
 import sqlite3
 import sys
 import time
-
+from collections import deque
+from datetime import UTC, datetime
+from decimal import ROUND_DOWN, Decimal, getcontext
+from pathlib import Path
 
 getcontext().prec = 80
 
@@ -140,7 +139,7 @@ def process(s, q, c, now):
         return record
     cash = Decimal(s["cash"])
     qty = Decimal(pos["qty"]) if pos else Decimal(0)
-    day = datetime.fromtimestamp(ts, timezone.utc).date().isoformat()
+    day = datetime.fromtimestamp(ts, UTC).date().isoformat()
     if day != s["day"]:
         # Carry yesterday's last observed marked equity across the boundary to include gaps.
         s.update(day=day, opening_equity=s.get("last_equity", str(cash)), halted=False)
