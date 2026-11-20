@@ -1,0 +1,138 @@
+{
+  "round_trip_fee_usd": 1,
+  "eligible_outright_files": 5387,
+  "excluded_dates": {
+    "incomplete_selected_session": 38,
+    "incomplete_opening_range": 7
+  },
+  "periods": {
+    "early": {
+      "start": "2020-10-12",
+      "end": "2023-10-03",
+      "sessions": 598,
+      "trades": 544,
+      "gross_usd": -1975.0,
+      "exits": {
+        "stop": 156,
+        "time_exit": 257,
+        "target": 131
+      },
+      "scenarios": [
+        {
+          "slippage_ticks_per_side": 0,
+          "net_usd": -2519.0,
+          "winning_trades": 258,
+          "max_session_close_drawdown_usd": 2871.5
+        },
+        {
+          "slippage_ticks_per_side": 1,
+          "net_usd": -3063.0,
+          "winning_trades": 257,
+          "max_session_close_drawdown_usd": 3340.5
+        },
+        {
+          "slippage_ticks_per_side": 2,
+          "net_usd": -3607.0,
+          "winning_trades": 257,
+          "max_session_close_drawdown_usd": 3809.5
+        }
+      ]
+    },
+    "selection": {
+      "start": "2023-10-04",
+      "end": "2024-10-03",
+      "sessions": 200,
+      "trades": 187,
+      "gross_usd": 1723.5,
+      "exits": {
+        "stop": 43,
+        "time_exit": 94,
+        "target": 50
+      },
+      "scenarios": [
+        {
+          "slippage_ticks_per_side": 0,
+          "net_usd": 1536.5,
+          "winning_trades": 102,
+          "max_session_close_drawdown_usd": 746.5
+        },
+        {
+          "slippage_ticks_per_side": 1,
+          "net_usd": 1349.5,
+          "winning_trades": 102,
+          "max_session_close_drawdown_usd": 796.5
+        },
+        {
+          "slippage_ticks_per_side": 2,
+          "net_usd": 1162.5,
+          "winning_trades": 102,
+          "max_session_close_drawdown_usd": 846.5
+        }
+      ]
+    },
+    "later": {
+      "start": "2024-10-07",
+      "end": "2025-10-08",
+      "sessions": 200,
+      "trades": 192,
+      "gross_usd": 530.0,
+      "exits": {
+        "time_exit": 76,
+        "target": 57,
+        "stop": 59
+      },
+      "scenarios": [
+        {
+          "slippage_ticks_per_side": 0,
+          "net_usd": 338.0,
+          "winning_trades": 104,
+          "max_session_close_drawdown_usd": 960.0
+        },
+        {
+          "slippage_ticks_per_side": 1,
+          "net_usd": 146.0,
+          "winning_trades": 104,
+          "max_session_close_drawdown_usd": 1020.0
+        },
+        {
+          "slippage_ticks_per_side": 2,
+          "net_usd": -46.0,
+          "winning_trades": 102,
+          "max_session_close_drawdown_usd": 1080.0
+        }
+      ]
+    },
+    "all": {
+      "start": "2020-10-12",
+      "end": "2025-10-08",
+      "sessions": 998,
+      "trades": 923,
+      "gross_usd": 278.5,
+      "exits": {
+        "stop": 258,
+        "time_exit": 427,
+        "target": 238
+      },
+      "scenarios": [
+        {
+          "slippage_ticks_per_side": 0,
+          "net_usd": -644.5,
+          "winning_trades": 464,
+          "max_session_close_drawdown_usd": 2956.0
+        },
+        {
+          "slippage_ticks_per_side": 1,
+          "net_usd": -1567.5,
+          "winning_trades": 463,
+          "max_session_close_drawdown_usd": 3461.0
+        },
+        {
+          "slippage_ticks_per_side": 2,
+          "net_usd": -2490.5,
+          "winning_trades": 461,
+          "max_session_close_drawdown_usd": 4027.0
+        }
+      ]
+    }
+  }
+}
