@@ -1,19 +1,16 @@
 # Hugging Face market-dataset discovery for NQ/MNQ
 
-Generated UTC: 2026-11-20T22:39:03.135537+00:00
+Generated UTC: 2026-11-20T22:39:43.737345+00:00
 
 **This is a metadata-only audit, not a verified market-data acquisition.**
 Hugging Face dataset claims and license labels are not exchange authenticity certificates.
-Unrelated NLP/other search results filtered: 0
+Unrelated NLP/other search results filtered: 3
 
 | Candidate dataset | Classification | License label | Files | Review |
 |---|---|---|---:|---|
 | [mdelcristo/NQ-F_1min_OHLCV_Parquet](https://huggingface.co/datasets/mdelcristo/NQ-F_1min_OHLCV_Parquet) | NQ_or_MNQ_OHLCV_candidate_unverified | mit | 13 | inspect rows + rights |
 | [lynx1231/historical-equity-index-futures-data-sample](https://huggingface.co/datasets/lynx1231/historical-equity-index-futures-data-sample) | futures_candidate_requires_instrument_verification | other | 14 | inspect rows + rights |
-| [MCINext/nq-fa](https://huggingface.co/datasets/MCINext/nq-fa) | futures_candidate_requires_instrument_verification | unspecified | 6 | inspect rows + rights |
-| [mteb/NQ-Fa](https://huggingface.co/datasets/mteb/NQ-Fa) | futures_candidate_requires_instrument_verification | unknown | 9 | inspect rows + rights |
 | [syncster-data/us-market-1m-data](https://huggingface.co/datasets/syncster-data/us-market-1m-data) | futures_candidate_requires_instrument_verification | other | 37 | gated |
-| [crazyofapple/CME-Chinese](https://huggingface.co/datasets/crazyofapple/CME-Chinese) | futures_candidate_requires_instrument_verification | apache-2.0 | 4 | inspect rows + rights |
 | [amansharma2910/nasdaq_news_sentiment](https://huggingface.co/datasets/amansharma2910/nasdaq_news_sentiment) | broader_financial_data_verify_NQ_presence | mit | 5 | inspect rows + rights |
 | [athapong/NASDAQ](https://huggingface.co/datasets/athapong/NASDAQ) | broader_financial_data_verify_NQ_presence | unspecified | 3 | inspect rows + rights |
 | [benstaf/FNSPID-filtered-nasdaq-100](https://huggingface.co/datasets/benstaf/FNSPID-filtered-nasdaq-100) | broader_financial_data_verify_NQ_presence | unspecified | 4 | inspect rows + rights |
