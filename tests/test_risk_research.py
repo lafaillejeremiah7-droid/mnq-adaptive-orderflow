@@ -61,6 +61,19 @@ class Tests(unittest.TestCase):
         self.assertEqual(result["median_days_to_target_conditional"],2)
         self.assertFalse(result["profitability_proven"])
 
+    def test_target_first_is_reached_before_later_intraday_drawdown(self):
+        class Pick:
+            def choice(self, population):
+                return population[0]
+        raw = fake_history()
+        p = params(raw, horizon_days=1, profit_target_usd=10,
+                   maximum_drawdown_usd=20)
+        # MNQ $0.50/tick: +40 prints a +$20 balance above the target;
+        # -100 would later breach the account drawdown if erroneously evaluated.
+        actual = risk.one_path([[40, -100]], p, Pick())
+        self.assertEqual(actual["outcome"], "passed_target")
+        self.assertEqual(actual["final_equity"], 1020)
+
     def test_negative_history_fails_before_horizon(self):
         raw=fake_history(-1)
         result=risk.research(params(raw),raw)

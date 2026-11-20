@@ -144,6 +144,11 @@ def one_path(day_outcomes, p, rng):
             # is updated only after completed session.
             if equity <= floor:
                 return {"outcome":"failed_drawdown","day":day_no,"final_equity":equity,"worst_dip":worst_dip}
+            # Target-first means the first completed-trade event that reaches
+            # the target wins. Checking only at EOD incorrectly labels a later
+            # loss as failure after a target was already reached.
+            if equity >= target:
+                return {"outcome":"passed_target","day":day_no,"final_equity":equity,"worst_dip":worst_dip}
             if p["daily_stop_usd"] and day_start-equity >= p["daily_stop_usd"]:
                 break
         # Track worst drawdown from completed-session peaks in all policies;
@@ -152,8 +157,6 @@ def one_path(day_outcomes, p, rng):
         if p["drawdown_mode"] == "eod_trailing":
             candidate = high_eod - p["maximum_drawdown_usd"]
             floor = min(starting, candidate) if p["eod_floor_cap_at_start"] else candidate
-        if equity >= target:
-            return {"outcome":"passed_target","day":day_no,"final_equity":equity,"worst_dip":worst_dip}
     return {"outcome":"unfinished","day":p["horizon_days"],"final_equity":equity,"worst_dip":worst_dip}
 
 
@@ -194,11 +197,13 @@ def simulate(history, p):
         "limits": [
             "Resamples the provided trade-outcome distribution; future stationarity is not established.",
             "Whole-day sampling preserves only within-day clusters, not longer losing regimes.",
+            "Target and drawdown thresholds are assessed after every recorded trade, not within trades.",
             "Drawdown and profit evaluation are implemented as specified, but prop-firm rulebooks differ.",
             "End-of-day trailing high watermark changes only at day end; breaches checked after each recorded trade.",
             "A daily stop blocks later trades on that day, assuming all stopped trades are skipped.",
             "No intratrade adverse excursions, spread/impact/market capacity or missed orders are modeled.",
             "Outcomes are assumed to scale linearly with contracts, often invalid in reality.",
+            "Wilson intervals quantify Monte Carlo sampling error only, not uncertainty about future market or account outcomes.",
             "This is not a trade recommendation or a proof of payout probability.",
         ],
     }
