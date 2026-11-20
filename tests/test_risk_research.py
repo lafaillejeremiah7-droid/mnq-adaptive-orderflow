@@ -16,7 +16,7 @@ def fake_history(sign=1, contract="MNQ"):
     writer=csv.writer(out,lineterminator="\n")
     writer.writerow(risk.COLUMNS)
     day=date(2025,1,6)
-    for i in range(12):
+    for _ in range(12):
         while day.weekday()>4:
             day+=timedelta(days=1)
         writer.writerow([day.isoformat(),1,contract,sign*8])

@@ -1,5 +1,4 @@
 """Offline tests for Hugging Face market dataset discovery."""
-import json
 import unittest
 from company import huggingface_discovery as hf
 

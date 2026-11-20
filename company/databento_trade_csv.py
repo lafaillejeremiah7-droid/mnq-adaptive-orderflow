@@ -7,9 +7,8 @@ import argparse
 import csv
 import io
 import re
-import sys
 from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation
+from decimal import InvalidOperation
 from pathlib import Path
 
 from quantlab import ticks

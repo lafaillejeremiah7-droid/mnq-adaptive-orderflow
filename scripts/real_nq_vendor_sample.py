@@ -9,7 +9,6 @@ import hashlib
 import io
 import json
 import math
-import statistics
 import urllib.request
 import zipfile
 from datetime import datetime, timezone
@@ -63,7 +62,7 @@ def parse(raw):
     asks = table.column("ask_sz").to_pylist()
     trades, total, last = [], 0, None
     for i, (stamp, price, size, symbol, count, bid, ask) in enumerate(
-            zip(timestamps, prices, volumes, symbols, counts, bids, asks)):
+            zip(timestamps, prices, volumes, symbols, counts, bids, asks, strict=True)):
         if not isinstance(stamp, int) or last is not None and stamp < last:
             raise ValueError("unsorted vendor ticks")
         last = stamp

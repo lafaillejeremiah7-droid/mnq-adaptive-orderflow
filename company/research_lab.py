@@ -19,7 +19,7 @@ import math
 import random
 import re
 import statistics
-from collections import Counter, defaultdict
+from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -277,7 +277,7 @@ def trading_diagnostics(observations, threshold, cost, seed):
     No quote spread, queue, participation or fill model is inferred from OHLCV.
     """
     ordered = sorted(observations, key=lambda r: r["decision"])
-    for before, after in zip(ordered, ordered[1:]):
+    for before, after in zip(ordered, ordered[1:], strict=True):
         if before["end"] > after["decision"]:
             return {
                 "status": "unavailable_overlapping_labels",
