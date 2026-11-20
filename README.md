@@ -33,3 +33,7 @@ python -m unittest discover -s tests
 ## Institutional basis
 
 Citadel describes researchers working on forecasts, market impact and portfolio construction. Goldman Sachs describes quantitative strategists improving execution logic and analytics used by client-facing teams. Federal Reserve guidance describes qualified, objective challenge of a model’s intended use. This repository adapts the investigation and validation responsibilities to MNQ. The earlier simulator experiment has a [separate historical record](docs/earlier-simulator.md). [Citadel EQR](https://www.citadel.com/careers/career-perspectives/inside-eqr-what-it-means-quantitative-researcher/) · [Goldman Sachs](https://www.goldmansachs.com/careers/blog/meet-our-people-erin-r) · [Federal Reserve](https://www.federalreserve.gov/frrs/guidance/supervisory-guidance-on-model-risk-management.htm)
+
+## First employee: Quant Researcher
+
+See [Employee 001 charter](docs/EMPLOYEE_001_QUANT_RESEARCHER.md), [deterministic researcher](company/quant_researcher.py), and ECC-inspired [Codex agent role](.codex/agents/quant_researcher.toml). This role performs checksummed descriptive MNQ intraday-range research, not live execution or validated trading-alpha discovery. Run `python -m unittest discover -s tests -v` before merging.

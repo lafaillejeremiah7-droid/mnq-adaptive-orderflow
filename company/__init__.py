@@ -1,0 +1,1 @@
+"""MNQ research employee modules."""
