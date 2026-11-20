@@ -101,11 +101,11 @@ def assess_metadata(dataset_id: str, detail: dict) -> dict:
         or re.search(r"(?<![a-z0-9])(?:mnq|nq)[hmuz][0-9]{1,4}(?![a-z0-9])", direct)
     )
     has_cfd = bool(re.search(r"ustech|cfd|us100|nas100", direct))
-    has_futures = bool(re.search(r"(?<![a-z])(?:futures?|cme|equity-index-futures)(?![a-z])", direct))
+    has_futures = bool(re.search(r"(?<![a-z])futures?(?![a-z])", direct))
     financial_markers = bool(re.search(
         r"nasdaq|ohlcv|market.?data|trading|financial|price.?bars?|(?<![a-z])"
         r"(?:1min|1m|minute|candles?|bid.?ask|orderbook|volume.?profile)(?![a-z])|"
-        r"(?:mnq|nq)[hmuz][0-9]{1,4}(?![a-z0-9])|nq-f",
+        r"(?:mnq|nq)[hmuz][0-9]{1,4}(?![a-z0-9])|nq-f(?![a-z])",
         direct,
     ))
     market_context = financial_markers or has_futures
@@ -200,7 +200,7 @@ def discover(get_json=fetch_json, queries=SEARCH_TERMS, seeds=SEED_DATASETS,
     # The very common "NQ" in the NLP Natural Questions benchmark otherwise
     # fills the first search page and crowds out market-data candidates.
     market_name = re.compile(
-        r"nq-f|(?:mnq|nq)[hmuz][0-9]{1,4}|ustech|nasdaq|futures?|"
+        r"nq-f(?![a-z])|(?:mnq|nq)[hmuz][0-9]{1,4}|ustech|nasdaq|futures?|"
         r"cme|ohlcv|1min|market|intraday|tick|orderbook",
         flags=re.IGNORECASE,
     )

@@ -15,6 +15,11 @@ def detail(dataset_id, files, license_label="mit", **extra):
 
 
 class TestHuggingFaceDiscovery(unittest.TestCase):
+    def test_reject_other_acronym_collisions(self):
+        for name in ("mteb/NQ-Fa", "MCINext/nq-fa", "crazyofapple/CME-Chinese"):
+            r = hf.assess_metadata(name, detail(name, ["data/train.parquet"]))
+            self.assertEqual(r["classification"], "not_confirmed_relevant")
+
     def test_natural_questions_NQ_is_not_financial_data(self):
         for name in (
             "google-research-datasets/nq_open",
