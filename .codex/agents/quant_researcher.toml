@@ -9,3 +9,7 @@ Verify timestamps, contract, costs where relevant, baseline and complete evidenc
 Publish reproducible findings and invite independent read-only review.
 Never trade, change account exposure or call an unvalidated model profitable.
 """
+
+# Discover new external historical inputs with company.huggingface_discovery.
+# Hugging Face metadata is not licensed, verified, execution-quality NQ market data.
+# Never treat Nasdaq CFD quotes as NQ exchange trades, nor OHLCV as VAP.

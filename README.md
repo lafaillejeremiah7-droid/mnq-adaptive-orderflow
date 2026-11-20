@@ -50,3 +50,9 @@ Employee #1 has completed two public-source historical studies beyond the single
 - **Explicit New York sessions, 2024–2026:** [read the NQ multi-year opening-vs-midday report](studies/nq-session-years-2024-2026/report.md) and [source/coverage hashes](studies/nq-session-years-2024-2026/summary.json). It analyzes 593 complete paired dates from a separate, mixed-provider continuous-futures bar file with ET timestamps.
 
 Rerun with `python -m company.five_year_nq` or `python -m company.nq_session_years` on a machine with network access; GitHub Actions has dedicated historical research workflows. Original third-party bars remain outside this repository. These are descriptive OHLCV studies, **not five years of POC/HVN/LVN/order-book research**. Historical price-and-size ticks and explicit rollover/coverage verification are still required for genuine multi-year volume-at-price tests. No study establishes tradable alpha or live readiness.
+
+## New external data discovery: Hugging Face
+
+[Hugging Face data-scout documentation](docs/HUGGINGFACE_DATA_SCOUT.md) explains the new `python -m company.huggingface_discovery` command and its dedicated Actions workflow. The Quant Researcher searches the Hugging Face public dataset API for potential NQ, MNQ, futures, and Nasdaq-related sources. It classifies candidate instrument types and file availability, records dataset revisions and license labels, and writes a metadata-only candidate report. It does **not** assume a listed dataset is exchange-authenticated or fit for backtesting, and it does not download raw market data.
+
+Promising lead: `mdelcristo/NQ-F_1min_OHLCV_Parquet` advertises 2015–2025 NQ one-minute bars. `CarlosSilva1/ustech-ticks` is Nasdaq-related *CFD quotes*, not CME NQ prints. Neither source should be treated as volume-at-price NQ tick data solely from a Hugging Face preview.

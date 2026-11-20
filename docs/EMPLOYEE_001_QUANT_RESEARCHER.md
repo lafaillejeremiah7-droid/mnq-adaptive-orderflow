@@ -36,3 +36,7 @@ Beyond the deterministic price-range and volume-profile modules, study condition
 ## Completed historical assignments
 
 Employee #1 has executed multi-year, source-pinned NQ OHLCV analyses. Read `studies/nq-five-year-2021-2025/` and `studies/nq-session-years-2024-2026/` before reusing the data. The first analysis compares conditional next-minute ranges using 2021–2023 thresholds and a 2024–2025 holdout. The second evaluates 09:30–10:00 ET versus midday range across complete paired sessions from 2024–2026. Both reports include source fingerprints, coverage, uncertainty, and limitations. Neither can substantiate five-year VAP/POC/VAH/VAL/HVN/LVN claims from minute OHLCV; provide licensed historical trade-by-price records for those questions.
+
+## External data scout: Hugging Face
+
+The research employee can now discover candidate market datasets using the Hugging Face Hub public metadata API. Read docs/HUGGINGFACE_DATA_SCOUT.md and inspect studies/huggingface-discovery/ when present. The scout must classify NQ/MNQ CME futures separately from USTECH CFDs, NDX spot/index values, QQQ shares, and synthetic datasets. Candidate findings are not verified, no raw data is auto-downloaded, and missing license or provenance must be flagged rather than inferred.
