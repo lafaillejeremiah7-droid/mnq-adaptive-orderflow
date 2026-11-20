@@ -66,3 +66,17 @@ References:
 - CME NQ/MNQ official tick and multiplier specifications: https://www.cmegroup.com/markets/equities/sp-500-and-nasdaq-100-futures.html
 
 These are quality benchmarks, not evidence of regulatory compliance.
+
+## Path-dependent risk research module
+
+The researcher now also includes a [scenario Monte Carlo engine](../company/risk_research.py) on actual per-trade historical outcomes when legally available. It resamples complete trading days, preserves within-day sequence, and distinguishes successful target-first paths, drawdown breaches, and unfinished paths. Supported explicit rules are static or EOD-trailing drawdown (optional cap at starting balance), daily loss stop, maximum daily trades, one NQ/MNQ root and per-contract round-trip fees. NQ uses $5/tick, MNQ uses $0.50/tick. The output includes Wilson confidence intervals over simulation trials. Simulation probabilities are **conditional on the observed trade distribution and assumed future stationarity**, not an objective payout forecast or risk-optimal contract recommendation.
+
+Example CSV header:
+
+    session_date,trade_number,contract,pnl_ticks
+
+Values are integer gross PnL ticks for one contract, in the order each session's historical trades occurred. This requires at least 10 real trading dates; timestamps, data rights and rules need external review. A JSON protocol includes keys id, source_sha256, source_kind, source_rights, contract, starting_balance_usd, profit_target_usd, maximum_drawdown_usd, drawdown_mode, eod_floor_cap_at_start, daily_stop_usd, round_trip_fees_per_contract_usd, contracts, max_trades_per_day, horizon_days, simulations, seed, sample_already_examined.
+
+    python -m company.risk_research --protocol risk-protocol.json --trades trade-outcomes.csv
+
+This is not yet a full institutional risk platform: it omits intratrade excursions, account-specific nuanced rule changes, regime-preserving multiday dependence, market impact, live execution and independently verified trade distribution. A negative or inconclusive finding must be retained. Do not optimize contract count against the same resampled history and label it a valid holdout.

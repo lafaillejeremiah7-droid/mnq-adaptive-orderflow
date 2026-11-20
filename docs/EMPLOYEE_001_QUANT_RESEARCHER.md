@@ -44,3 +44,7 @@ The research employee can now discover candidate market datasets using the Huggi
 ## Upgraded scientific standard
 
 See docs/QUANT_RESEARCH_STANDARD.md for the hypothesis-development, point-in-time data, purged chronological experiment, multiple-testing, cost and independent validation requirements. Use company.research_lab and company.research_gate for eligible questions. Preserve all negative and inconclusive outcomes. The research gate is an automated challenge, not a new employee's authenticated independent approval.
+
+## Risk-mathematics assignment
+
+Use company.risk_research to examine historical trade-result sequences with day-block Monte Carlo and explicit drawdown/target/daily-stop policies. Keep NQ/MNQ tick-value differences separate and disclose the return-distribution stationarity assumption. See docs/QUANT_RESEARCH_STANDARD.md. A simulated success frequency is not a validated probability of passing an actual prop challenge.

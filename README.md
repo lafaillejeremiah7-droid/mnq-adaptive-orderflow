@@ -60,3 +60,7 @@ Promising lead: `mdelcristo/NQ-F_1min_OHLCV_Parquet` advertises 2015–2025 NQ o
 ## Scientist-grade experiment governance (research only)
 
 Employee #1 now includes a registered, checksummed, point-in-time [research experiment runner](company/research_lab.py) and an [adversarial model-review gate](company/research_gate.py). See [standards, operations and limits](docs/QUANT_RESEARCH_STANDARD.md). The researcher fits a fixed train-only ridge baseline comparison across purged chronological folds, evaluates date-level uncertainty and a declared multiple-testing family, and rejects overlapping-return P&L. The gate does not self-approve live trading or pretend to be a human independent reviewer. Run the existing Python test suite.
+
+## Path-dependent risk research
+
+The researcher also includes [NQ/MNQ Monte Carlo risk study](company/risk_research.py): resample whole historical trade days, apply explicit static or EOD-trailing drawdowns and target-first rules, calculate failure/target/unfinished frequencies and Wilson intervals, and account for separate NQ/MNQ tick values and round-trip fees. Synthetic tests do **not** establish real challenge success probabilities. Usage and assumptions: [quant research standard](docs/QUANT_RESEARCH_STANDARD.md).

@@ -146,8 +146,10 @@ def one_path(day_outcomes, p, rng):
                 return {"outcome":"failed_drawdown","day":day_no,"final_equity":equity,"worst_dip":worst_dip}
             if p["daily_stop_usd"] and day_start-equity >= p["daily_stop_usd"]:
                 break
+        # Track worst drawdown from completed-session peaks in all policies;
+        # only the funded account's failure FLOOR is static in static mode.
+        high_eod = max(high_eod, equity)
         if p["drawdown_mode"] == "eod_trailing":
-            high_eod = max(high_eod, equity)
             candidate = high_eod - p["maximum_drawdown_usd"]
             floor = min(starting, candidate) if p["eod_floor_cap_at_start"] else candidate
         if equity >= target:
