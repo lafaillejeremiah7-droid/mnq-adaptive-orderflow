@@ -81,3 +81,7 @@ Both the initial volume profile and the comparison must use **the appropriate NQ
 
 Reference for conventional volume profiles: https://www.tradingview.com/support/solutions/43000502040-volume-profile-indicators-basic-concepts/
 Reference for trade fields: https://databento.com/docs/schemas/trades
+
+## Footprint-like price delta and one-minute cumulative delta
+
+For each actually traded price the profile also reports `volume_at_price_aggressor`: buy-initiated, sell-initiated and unknown-side contract volume, plus known signed delta. The `one_minute_trade_delta` dictionary contains each occupied UTC minute's signed aggressor volume and cumulative **known** delta. Both outputs explicitly mark incomplete side coverage; they do not manufacture signs for records with N (unknown) aggressor side. Trade prints alone are still insufficient for definitive resting-limit-order absorption, true order-book liquidity, or counterparty intent. These are not a substitute for quotes/MBO reconstruction.

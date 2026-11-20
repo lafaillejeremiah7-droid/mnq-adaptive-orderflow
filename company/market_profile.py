@@ -156,11 +156,15 @@ def volume_profile(trades: list[Trade], fraction: float) -> dict:
         raise ValueError("profile requires trade events")
     vap = Counter()
     side_volume = Counter()
+    side_at_price = defaultdict(Counter)
+    side_by_minute = defaultdict(Counter)
     weight = 0
     total = 0
     for item in trades:
         vap[item.price_ticks] += item.size
         side_volume[item.side] += item.size
+        side_at_price[item.price_ticks][item.side] += item.size
+        side_by_minute[item.timestamp_ns // (60 * BILLION)][item.side] += item.size
         weight += item.price_ticks * item.size
         total += item.size
     lower, upper = min(vap), max(vap)
@@ -208,6 +212,21 @@ def volume_profile(trades: list[Trade], fraction: float) -> dict:
         high_nodes.append(poc)
     high_nodes = sorted(high_nodes, key=lambda p: (-vap[p], p))[:5]
     low_nodes = sorted(low_nodes, key=lambda p: (vap[p], p))[:5]
+    minute_flow = {}
+    running_known_delta = 0
+    complete_to_date = True
+    for minute_key, sides in sorted(side_by_minute.items()):
+        buy, sell, unknown = sides["B"], sides["A"], sides["N"]
+        running_known_delta += buy - sell
+        complete_to_date = complete_to_date and unknown == 0
+        minute_flow[str(minute_key * 60 * BILLION)] = {
+            "aggressor_buy_volume": buy,
+            "aggressor_sell_volume": sell,
+            "unknown_side_volume": unknown,
+            "known_delta": buy - sell,
+            "running_known_delta": running_known_delta,
+            "complete_side_coverage_through_minute": complete_to_date,
+        }
     return {
         "contract": trades[0].contract,
         "total_contracts_traded": total,
@@ -222,6 +241,16 @@ def volume_profile(trades: list[Trade], fraction: float) -> dict:
         "lvn_ticks": low_nodes,
         "untraded_price_bins": zeros,
         "volume_at_price": {str(p / 4): vap[p] for p in sorted(vap)},
+        "volume_at_price_aggressor": {
+            str(p / 4): {
+                "buy": side_at_price[p]["B"],
+                "sell": side_at_price[p]["A"],
+                "unknown": side_at_price[p]["N"],
+                "known_delta": side_at_price[p]["B"] - side_at_price[p]["A"],
+                "complete_aggressor_coverage": side_at_price[p]["N"] == 0,
+            } for p in sorted(vap)
+        },
+        "one_minute_trade_delta": minute_flow,
         "aggressor_buy_volume": side_volume["B"],
         "aggressor_sell_volume": side_volume["A"],
         "aggressor_unknown_volume": side_volume["N"],
