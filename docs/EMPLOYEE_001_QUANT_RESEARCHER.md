@@ -32,3 +32,7 @@ ECC (https://github.com/affaan-m/ECC, MIT) inspired the plan-test-verify-review 
 ## Additional mathematics the role must investigate
 
 Beyond the deterministic price-range and volume-profile modules, study conditional first-passage probabilities, volatility-normalized excursions, realized volatility, robust bootstrap intervals, regime dependence, sequential outcomes, change-point detection, and appropriate Bayesian/time-series models **only when the source data and evaluation design justify them**. Specify the statistic and time-of-availability before computing it. Treat every added hypothesis/threshold as an additional comparison. A technical indicator is not automatically evidence of predictive information. For NQ/MNQ tick-trade research, use [the profile lab](docs/PROFILE_RESEARCH_LAB.md) for POC/VAH/VAL/HVN/LVN and level-reaction definitions.
+
+## Completed historical assignments
+
+Employee #1 has executed multi-year, source-pinned NQ OHLCV analyses. Read `studies/nq-five-year-2021-2025/` and `studies/nq-session-years-2024-2026/` before reusing the data. The first analysis compares conditional next-minute ranges using 2021–2023 thresholds and a 2024–2025 holdout. The second evaluates 09:30–10:00 ET versus midday range across complete paired sessions from 2024–2026. Both reports include source fingerprints, coverage, uncertainty, and limitations. Neither can substantiate five-year VAP/POC/VAH/VAL/HVN/LVN claims from minute OHLCV; provide licensed historical trade-by-price records for those questions.

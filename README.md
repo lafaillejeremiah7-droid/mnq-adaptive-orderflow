@@ -41,3 +41,12 @@ See [Employee 001 charter](docs/EMPLOYEE_001_QUANT_RESEARCHER.md), [deterministi
 ## NQ/MNQ trade-by-trade volume profile research
 
 [Employee #1's volume-profile and reaction lab](docs/PROFILE_RESEARCH_LAB.md) adds actual executed volume-at-price, POC, VAH, VAL, HVN, LVN, VWAP, labeled aggressor delta, and prior-session first-touch rejection/cross research on separate NQ or MNQ trade files. It deliberately rejects OHLC-only volume-profile reconstruction and records all censoring/coverage limits. Start with the file format, offline Databento CSV adapter, preregistered experiment protocol and commands in the guide. No real market data or brokerage credentials are bundled.
+
+## Multi-year empirical NQ research (historical bars)
+
+Employee #1 has completed two public-source historical studies beyond the single-day tick-profile demonstration:
+
+- **Five calendar years, 2021–2025:** [read the NQ five-year report](studies/nq-five-year-2021-2025/report.md) and [source/coverage hashes](studies/nq-five-year-2021-2025/summary.json). It analyzes 1,597,249 minute bars from pinned NinjaTrader exports. Thresholds are calibrated on 2021–2023 and evaluated on 2024–2025 without retuning. The source has unknown time zone, so no opening-session statements are made from it.
+- **Explicit New York sessions, 2024–2026:** [read the NQ multi-year opening-vs-midday report](studies/nq-session-years-2024-2026/report.md) and [source/coverage hashes](studies/nq-session-years-2024-2026/summary.json). It analyzes 593 complete paired dates from a separate, mixed-provider continuous-futures bar file with ET timestamps.
+
+Rerun with `python -m company.five_year_nq` or `python -m company.nq_session_years` on a machine with network access; GitHub Actions has dedicated historical research workflows. Original third-party bars remain outside this repository. These are descriptive OHLCV studies, **not five years of POC/HVN/LVN/order-book research**. Historical price-and-size ticks and explicit rollover/coverage verification are still required for genuine multi-year volume-at-price tests. No study establishes tradable alpha or live readiness.
