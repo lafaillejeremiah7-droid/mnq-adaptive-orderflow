@@ -340,6 +340,8 @@ def experiment(protocol, raw):
         raise ValueError("insufficient distinct holdout dates")
     if len(eval_rows) < protocol["min_test_events"]:
         raise ValueError("insufficient holdout event count")
+    if any(r["end"] > test_end for r in eval_rows):
+        raise ValueError("evaluation outcome extends past the registered test end")
     if len(dates) < protocol["test_folds"] * 2:
         raise ValueError("each chronological fold must have at least two holdout dates")
     predictions = []
@@ -353,9 +355,15 @@ def experiment(protocol, raw):
         from datetime import timedelta
         purge_cutoff = cutoff - timedelta(seconds=embargo)
         # In frozen mode, no holdout data ever enters fitting.
-        train = [r for r in rows if r["decision"] < train_end and r["end"] <= purge_cutoff] if protocol["retraining"] == "frozen" else [
-            r for r in rows if r["decision"] < cutoff and r["end"] <= purge_cutoff
-        ]
+        # A frozen model must know both its features AND its labels by the
+        # registered training cutoff, not merely before the later test start.
+        if protocol["retraining"] == "frozen":
+            frozen_cutoff = min(train_end, purge_cutoff)
+            train = [r for r in rows if r["decision"] < frozen_cutoff
+                     and r["end"] <= frozen_cutoff]
+        else:
+            train = [r for r in rows if r["decision"] < purge_cutoff
+                     and r["end"] <= purge_cutoff]
         if len({r["date"] for r in train}) < protocol["min_train_dates"]:
             raise ValueError("fold has too few usable training dates after label purging")
         if len(test) < 2:

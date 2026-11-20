@@ -123,6 +123,19 @@ class InstitutionalLabTests(unittest.TestCase):
             f["training_last_label_end_utc"] < f["test_first_decision_utc"] for f in folds
         ))
 
+    def test_frozen_cutoff_purges_labels_unavailable_at_train_end(self):
+        # A label from a pre-cutoff decision that ends after train_end may
+        # not enter a model frozen on train_end, even if test begins later.
+        raw = dataset()
+        original = lab.experiment(registered(raw), raw)
+        protocol = registered(raw, train_end_utc="2025-01-10T10:00:00Z",
+                              min_train_dates=4)
+        adjusted = lab.experiment(protocol, raw)
+        self.assertLess(adjusted["folds"][0]["train_events"],
+                        original["folds"][0]["train_events"])
+        self.assertLessEqual(adjusted["folds"][0]["training_last_label_end_utc"],
+                             "2025-01-10T10:00:00+00:00")
+
     def test_future_feature_is_hard_failure(self):
         raw = dataset(bad_feature=True)
         with self.assertRaisesRegex(ValueError, "lookahead"):
