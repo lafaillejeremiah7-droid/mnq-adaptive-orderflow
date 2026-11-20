@@ -17,7 +17,7 @@ import urllib.request
 from pathlib import Path
 
 BASE = "https://huggingface.co"
-SEARCH_TERMS = ("NQ futures", "MNQ", "Nasdaq futures", "NQ", "USTECH")
+SEARCH_TERMS = ("NQ", "MNQ", "NQ-F", "Nasdaq", "CME", "USTECH")
 SEED_DATASETS = (
     "mdelcristo/NQ-F_1min_OHLCV_Parquet",
     "lynx1231/historical-equity-index-futures-data-sample",
@@ -96,7 +96,10 @@ def assess_metadata(dataset_id: str, detail: dict) -> dict:
     direct = dataset_id.lower() + " " + " ".join(files[:150]).lower()
     # "NQ" also refers to the huge unrelated Natural Questions NLP corpus.
     # Parquet is a storage format, NOT evidence of OHLCV or market data.
-    has_nq = bool(re.search(r"(?<![a-z0-9])(?:mnq|nq)(?![a-z0-9])", direct))
+    has_nq = bool(
+        re.search(r"(?<![a-z0-9])(?:mnq|nq)(?![a-z0-9])", direct)
+        or re.search(r"(?<![a-z0-9])(?:mnq|nq)[hmuz][0-9]{1,4}(?![a-z0-9])", direct)
+    )
     has_cfd = bool(re.search(r"ustech|cfd|us100|nas100", direct))
     has_futures = bool(re.search(r"(?<![a-z])(?:futures?|cme|equity-index-futures)(?![a-z])", direct))
     financial_markers = bool(re.search(
@@ -194,11 +197,17 @@ def discover(get_json=fetch_json, queries=SEARCH_TERMS, seeds=SEED_DATASETS,
             terms[term] = {"error": type(exc).__name__ + ": " + str(exc)}
             failures.append({"query": term, "error": str(exc)})
     # Explicit references are always inspected, even when Hub search changes.
-    ordered = list(dict.fromkeys([*seeds, *identifiers]))
+    # The very common "NQ" in the NLP Natural Questions benchmark otherwise
+    # fills the first search page and crowds out market-data candidates.
+    market_name = re.compile(
+        r"nq-f|(?:mnq|nq)[hmuz][0-9]{1,4}|ustech|nasdaq|futures?|"
+        r"cme|ohlcv|1min|market|intraday|tick|orderbook",
+        flags=re.IGNORECASE,
+    )
+    prioritized = [x for x in identifiers if market_name.search(x)]
+    ordered = list(dict.fromkeys([*seeds, *prioritized]))
     if len(ordered) > maximum_candidates:
-        ordered = list(dict.fromkeys(seeds)) + [
-            x for x in ordered if x not in seeds
-        ][:max(0, maximum_candidates - len(seeds))]
+        ordered = ordered[:maximum_candidates]
     assessed = []
     for dataset_id in ordered:
         try:
@@ -217,6 +226,7 @@ def discover(get_json=fetch_json, queries=SEARCH_TERMS, seeds=SEED_DATASETS,
         "search_terms": terms,
         "candidate_count": len(assessed),
         "discarded_unrelated_search_results": discarded_irrelevant,
+        "excluded_search_ids_without_market_context": len(set(identifiers) - set(ordered)),
         "candidates": assessed,
         "failures": failures,
         "raw_market_data_downloaded": False,
