@@ -94,21 +94,31 @@ def assess_metadata(dataset_id: str, detail: dict) -> dict:
         if tagged:
             license_label = tagged[0]
     direct = dataset_id.lower() + " " + " ".join(files[:150]).lower()
-    indirect = " ".join(tags).lower()
+    # "NQ" also refers to the huge unrelated Natural Questions NLP corpus.
+    # Parquet is a storage format, NOT evidence of OHLCV or market data.
     has_nq = bool(re.search(r"(?<![a-z0-9])(?:mnq|nq)(?![a-z0-9])", direct))
     has_cfd = bool(re.search(r"ustech|cfd|us100|nas100", direct))
-    has_futures = "futures" in direct or "future" in direct or "futures" in indirect
-    has_ohlcv = any(t in direct for t in ("ohlcv", "1min", "1m_", "parquet", "bar"))
-    has_tick = any(t in direct for t in ("tick", "trades", "orderbook", "mbo", "market-by-order"))
+    has_futures = bool(re.search(r"(?<![a-z])(?:futures?|cme|equity-index-futures)(?![a-z])", direct))
+    financial_markers = bool(re.search(
+        r"nasdaq|ohlcv|market.?data|trading|financial|price.?bars?|(?<![a-z])"
+        r"(?:1min|1m|minute|candles?|bid.?ask|orderbook|volume.?profile)(?![a-z])|"
+        r"(?:mnq|nq)[hmuz][0-9]{1,4}(?![a-z0-9])|nq-f",
+        direct,
+    ))
+    market_context = financial_markers or has_futures
+    has_ohlcv = bool(re.search(r"ohlcv|1min|1m_|1m-|(?:price|minute).?bars?", direct))
+    has_tick = bool(re.search(r"ticks?|trades?|orderbook|market-by-order|(?<![a-z])mbo(?![a-z])", direct))
     contains_data_files = any(path.lower().endswith(SUPPORTED_EXTS) for path in files)
-    if has_cfd and not has_nq:
+    if has_cfd:
         classification = "related_CFD_not_NQ_futures"
-    elif has_nq and has_tick:
+    elif has_nq and market_context and has_tick:
         classification = "NQ_or_MNQ_tick_candidate_unverified"
-    elif has_nq and has_ohlcv:
+    elif has_nq and market_context and has_ohlcv:
         classification = "NQ_or_MNQ_OHLCV_candidate_unverified"
-    elif has_nq or has_futures:
+    elif has_nq and market_context or has_futures:
         classification = "futures_candidate_requires_instrument_verification"
+    elif financial_markers:
+        classification = "broader_financial_data_verify_NQ_presence"
     else:
         classification = "not_confirmed_relevant"
     gated = detail.get("gated", False)
@@ -117,6 +127,7 @@ def assess_metadata(dataset_id: str, detail: dict) -> dict:
         "NQ_or_MNQ_tick_candidate_unverified": 90,
         "NQ_or_MNQ_OHLCV_candidate_unverified": 80,
         "futures_candidate_requires_instrument_verification": 45,
+        "broader_financial_data_verify_NQ_presence": 25,
         "related_CFD_not_NQ_futures": 15,
         "not_confirmed_relevant": 0,
     }[classification]
@@ -195,6 +206,8 @@ def discover(get_json=fetch_json, queries=SEARCH_TERMS, seeds=SEED_DATASETS,
             assessed.append(assess_metadata(dataset_id, detail))
         except (ValueError, OSError, urllib.error.URLError, json.JSONDecodeError) as exc:
             failures.append({"dataset_id": dataset_id, "error": type(exc).__name__ + ": " + str(exc)})
+    discarded_irrelevant = sum(x["classification"] == "not_confirmed_relevant" for x in assessed)
+    assessed = [x for x in assessed if x["classification"] != "not_confirmed_relevant"]
     assessed.sort(key=lambda x: (-x["ranking_score"], x["dataset_id"].casefold()))
     return {
         "employee": "quant-researcher-001",
@@ -203,6 +216,7 @@ def discover(get_json=fetch_json, queries=SEARCH_TERMS, seeds=SEED_DATASETS,
         "purpose": "Find candidate market datasets; never automatically trust them",
         "search_terms": terms,
         "candidate_count": len(assessed),
+        "discarded_unrelated_search_results": discarded_irrelevant,
         "candidates": assessed,
         "failures": failures,
         "raw_market_data_downloaded": False,
@@ -223,7 +237,8 @@ def markdown_report(result: dict) -> str:
         "# Hugging Face market-dataset discovery for NQ/MNQ", "",
         "Generated UTC: " + result["generated_utc"], "",
         "**This is a metadata-only audit, not a verified market-data acquisition.**",
-        "Hugging Face dataset claims and license labels are not exchange authenticity certificates.", "",
+        "Hugging Face dataset claims and license labels are not exchange authenticity certificates.",
+        "Unrelated NLP/other search results filtered: " + str(result.get("discarded_unrelated_search_results", 0)), "",
         "| Candidate dataset | Classification | License label | Files | Review |",
         "|---|---|---|---:|---|",
     ]

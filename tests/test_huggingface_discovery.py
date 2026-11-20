@@ -15,6 +15,23 @@ def detail(dataset_id, files, license_label="mit", **extra):
 
 
 class TestHuggingFaceDiscovery(unittest.TestCase):
+    def test_natural_questions_NQ_is_not_financial_data(self):
+        for name in (
+            "google-research-datasets/nq_open",
+            "BeIR/nq",
+            "nlpconnect/dpr-nq-reader",
+            "addy88/nq-question-answeronly",
+        ):
+            r = hf.assess_metadata(name, detail(name, ["data/train-00000-of-00001.parquet"]))
+            self.assertEqual(r["classification"], "not_confirmed_relevant")
+            self.assertEqual(r["ranking_score"], 0)
+
+    def test_genuine_nq_trade_candidate(self):
+        name = "testvendor/NQH5-tick-trades"
+        r = hf.assess_metadata(name, detail(name, ["NQH5-ticks-2025.csv"]))
+        self.assertEqual(r["classification"], "NQ_or_MNQ_tick_candidate_unverified")
+        self.assertFalse(r["trades_and_size_at_price_proven"])
+
     def test_identification_of_true_NQ_ohlcv_candidate(self):
         name = "mdelcristo/NQ-F_1min_OHLCV_Parquet"
         record = hf.assess_metadata(name, detail(name, ["NQ_1min_2015.parquet", "NQ_1min_2025.parquet"]))

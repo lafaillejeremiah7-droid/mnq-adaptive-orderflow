@@ -68,3 +68,11 @@ to underlying copyrighted or exchange-licensed data.
 
 Source: Hugging Face Hub API / list datasets:
 https://huggingface.co/docs/huggingface_hub/en/package_reference/hf_api
+
+## False-positive rejection
+
+Hugging Face keyword search for `NQ` also returns Google's **Natural Questions**
+NLP datasets. The scout explicitly requires financial-market context before
+classifying a dataset as an NQ/MNQ futures prospect. A generic Parquet filename
+is not evidence of price bars. Irrelevant search results are counted and
+filtered from the candidate output.
