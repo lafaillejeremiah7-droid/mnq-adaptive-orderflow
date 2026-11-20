@@ -1,0 +1,9 @@
+# Wider reward and risk distances on MNQ
+
+## Protocol frozen before scoring
+
+Use one MNQ and the exact unfiltered reversed failed-break entries from the previous exit study. Freeze the 09:30–09:59 Eastern range on Monday–Thursday. The first 10:00–14:28 minute that trades outside exactly one edge and closes strictly inside triggers entry at the next open. Buy a failed high and sell a failed low. Use the existing 30-minute exit, adverse gap and same-minute stop-first assumptions. Deduct $3.50 per round trip, then stress at $5.50. The price-only study measures hypothetical fills.
+
+Enumerate every whole-point short distance from 25 through 50 crossed with every whole-point long distance from 50 through 100. First place the shorter distance at the target and the longer at the stop. Then swap legs. Include the shared 50/50 case once. The 2,651 unique pairs include the requested 50/25, 75/35, 100/50 (TP/SL) and their mirrors. Rank each unequal group by stressed net P&L, breaking ties by smaller stop and then smaller target. Score the same Oct 4, 2023–Oct 3, 2024 sessions as the previous sweep. Verify 200 eligible sessions, 187 trades and the old 18/12 control's −$778 base net.
+
+Replay the six named pairs plus the single ranked leader from each unequal group on Oct 7, 2024–Oct 8, 2025, irrespective of selection-window performance. Record the selected pairs before processing that window. It has been seen in related studies. Comparing thousands of strongly correlated exits can produce incidental winners. Treat all results as descriptive and leave any promotion decision to a fresh prospective test. Evaluate every requested distance for comparison even when the modeled loss exceeds the trader's account-risk ceiling. Use the original [archive and eligibility rules](mnq-opening-range.md).
