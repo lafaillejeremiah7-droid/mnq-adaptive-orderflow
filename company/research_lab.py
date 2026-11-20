@@ -21,6 +21,7 @@ import re
 import statistics
 from collections import defaultdict
 from datetime import datetime, timezone
+from itertools import pairwise
 from pathlib import Path
 
 BASE_COLS = ("decision_at_utc", "feature_available_at_utc", "label_end_at_utc",
@@ -277,7 +278,7 @@ def trading_diagnostics(observations, threshold, cost, seed):
     No quote spread, queue, participation or fill model is inferred from OHLCV.
     """
     ordered = sorted(observations, key=lambda r: r["decision"])
-    for before, after in zip(ordered, ordered[1:], strict=True):
+    for before, after in pairwise(ordered):
         if before["end"] > after["decision"]:
             return {
                 "status": "unavailable_overlapping_labels",
