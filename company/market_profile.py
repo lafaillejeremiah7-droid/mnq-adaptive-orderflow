@@ -233,9 +233,14 @@ def volume_profile(trades: list[Trade], fraction: float) -> dict:
 
 
 def profile_levels(profile: dict) -> list[tuple[str, int]]:
-    levels = [("POC", profile["poc_ticks"]), ("VAH", profile["vah_ticks"]),
-              ("VAL", profile["val_ticks"])]
-    seen = {price for _, price in levels}
+    levels = []
+    seen = set()
+    for label, price in (("POC", profile["poc_ticks"]), ("VAH", profile["vah_ticks"]),
+                         ("VAL", profile["val_ticks"])):
+        # Different labels at exactly the same price are one physical touch.
+        if price not in seen:
+            levels.append((label, price))
+            seen.add(price)
     for name, values in (("HVN", profile["hvn_ticks"]), ("LVN", profile["lvn_ticks"])):
         for price in values:
             if price not in seen:
@@ -258,18 +263,27 @@ def first_touch(trades: list[Trade], level: int, tolerance: int, threshold: int,
             continue
         approach = 1 if dist > 0 else -1
         last = None
+        count = 0
+        first_passage_ns = None
+        max_rejection_ticks = 0
+        max_cross_ticks = 0
         outcome = "censored_no_future_trade"
         touch_ns = current.timestamp_ns
         for later in trades[i + 1:]:
             if later.timestamp_ns - touch_ns > horizon_ns:
                 break
             last = later
+            count += 1
             relative = approach * (later.price_ticks - level)
-            if outcome == "censored_no_future_trade" or outcome == "unresolved":
+            max_rejection_ticks = max(max_rejection_ticks, relative)
+            max_cross_ticks = max(max_cross_ticks, -relative)
+            if outcome in ("censored_no_future_trade", "unresolved"):
                 if relative >= threshold:
                     outcome = "rejection_first"
+                    first_passage_ns = later.timestamp_ns
                 elif relative <= -threshold:
                     outcome = "cross_first"
+                    first_passage_ns = later.timestamp_ns
                 else:
                     outcome = "unresolved"
         return {
@@ -278,7 +292,10 @@ def first_touch(trades: list[Trade], level: int, tolerance: int, threshold: int,
             "touch_price_ticks": current.price_ticks,
             "approach_from": "above" if approach > 0 else "below",
             "outcome": outcome,
-            "followup_trades": None if last is None else 1,
+            "followup_trades": count,
+            "first_passage_seconds": None if first_passage_ns is None else (first_passage_ns - touch_ns) / BILLION,
+            "max_rejection_excursion_ticks": max_rejection_ticks if count else None,
+            "max_cross_excursion_ticks": max_cross_ticks if count else None,
             "last_observed_offset_seconds": None if last is None else (last.timestamp_ns - touch_ns) / BILLION,
             "final_signed_away_from_level_ticks": None if last is None else approach * (last.price_ticks - level),
         }
@@ -295,6 +312,7 @@ def summarize(events: list[dict]) -> dict:
         conclusive = outcomes["rejection_first"] + outcomes["cross_first"]
         points = [x["final_signed_away_from_level_ticks"] for x in records
                   if x["final_signed_away_from_level_ticks"] is not None]
+        passage_times = [x["first_passage_seconds"] for x in records if x["first_passage_seconds"] is not None]
         result[kind] = {
             "events": len(records),
             "distinct_session_dates": len({x["session_date"] for x in records}),
@@ -304,6 +322,7 @@ def summarize(events: list[dict]) -> dict:
             "censored": outcomes["censored_no_future_trade"],
             "rejection_share_conditional_on_first_passage": outcomes["rejection_first"] / conclusive if conclusive else None,
             "median_signed_terminal_ticks": statistics.median(points) if points else None,
+            "median_time_to_first_passage_seconds": statistics.median(passage_times) if passage_times else None,
         }
     return result
 

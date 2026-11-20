@@ -37,3 +37,7 @@ Citadel describes researchers working on forecasts, market impact and portfolio 
 ## First employee: Quant Researcher
 
 See [Employee 001 charter](docs/EMPLOYEE_001_QUANT_RESEARCHER.md), [deterministic researcher](company/quant_researcher.py), and ECC-inspired [Codex agent role](.codex/agents/quant_researcher.toml). This role performs checksummed descriptive MNQ intraday-range research, not live execution or validated trading-alpha discovery. Run `python -m unittest discover -s tests -v` before merging.
+
+## NQ/MNQ trade-by-trade volume profile research
+
+[Employee #1's volume-profile and reaction lab](docs/PROFILE_RESEARCH_LAB.md) adds actual executed volume-at-price, POC, VAH, VAL, HVN, LVN, VWAP, labeled aggressor delta, and prior-session first-touch rejection/cross research on separate NQ or MNQ trade files. It deliberately rejects OHLC-only volume-profile reconstruction and records all censoring/coverage limits. Start with the file format, offline Databento CSV adapter, preregistered experiment protocol and commands in the guide. No real market data or brokerage credentials are bundled.

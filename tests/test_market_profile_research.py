@@ -96,6 +96,23 @@ class ProfileTests(unittest.TestCase):
         self.assertEqual(p2["untraded_price_bins"], 1)
         self.assertNotIn(401, p2["lvn_ticks"])
 
+    def test_coincident_levels_are_one_physical_touch(self):
+        profile = {
+            "poc_ticks": 400, "vah_ticks": 400, "val_ticks": 400,
+            "hvn_ticks": [400, 401], "lvn_ticks": [399, 399],
+        }
+        levels = mp.profile_levels(profile)
+        self.assertEqual(levels, [("POC", 400), ("HVN", 401), ("LVN", 399)])
+
+    def test_first_passage_exposes_count_and_timing(self):
+        raw = make_csv([BASE, REJECT])
+        r = mp.research(protocol(raw), raw)
+        first = next(e for e in r["events"] if e["kind"] == "POC")
+        self.assertEqual(first["followup_trades"], 1)
+        self.assertEqual(first["first_passage_seconds"], 1)
+        self.assertEqual(first["max_rejection_excursion_ticks"], 2)
+        self.assertEqual(first["max_cross_excursion_ticks"], 0)
+
     def test_past_profile_rejection_first(self):
         raw = make_csv([BASE, REJECT])
         r = mp.research(protocol(raw), raw)

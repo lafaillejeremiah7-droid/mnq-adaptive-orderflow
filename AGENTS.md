@@ -8,3 +8,5 @@ Run python -m unittest discover -s tests -v and retain checksummed evidence.
 Use a separate reviewer for validation; a researcher cannot certify its own model.
 No live order execution, brokerage credentials or paid-feed access without authorization.
 ECC (https://github.com/affaan-m/ECC, MIT) is a workflow reference, not a bundled dependency.
+
+For real NQ/MNQ volume-profile work, read docs/PROFILE_RESEARCH_LAB.md. Never use a completed same-day volume profile for an earlier timestamp. Count one physical touch for coincident POC/VAH/VAL and report control sampling limitations. Do not assert resting order-book absorption from prints; quotes/depth are separate data. Commit test protocols before inspecting outcomes.

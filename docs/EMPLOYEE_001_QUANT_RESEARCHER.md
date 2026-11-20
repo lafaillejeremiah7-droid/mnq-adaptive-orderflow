@@ -28,3 +28,7 @@ Each run creates research-runs/<id>/protocol.json, result.json and research_note
 An observed range difference is not a directional forecast or a profitable edge. OHLC cannot measure volume delta, cumulative delta, absorption, market depth or fill prices. This software cannot prove a historically unexamined holdout or independently authenticate third-party exchange data. Calendar and roll handling require separate tests. An independent reviewer must inspect all findings.
 
 ECC (https://github.com/affaan-m/ECC, MIT) inspired the plan-test-verify-review pattern and Codex role; ECC is not vendored or installed here. Existing quantlab.py and range_study.py remain independent, historically examined research tools.
+
+## Additional mathematics the role must investigate
+
+Beyond the deterministic price-range and volume-profile modules, study conditional first-passage probabilities, volatility-normalized excursions, realized volatility, robust bootstrap intervals, regime dependence, sequential outcomes, change-point detection, and appropriate Bayesian/time-series models **only when the source data and evaluation design justify them**. Specify the statistic and time-of-availability before computing it. Treat every added hypothesis/threshold as an additional comparison. A technical indicator is not automatically evidence of predictive information. For NQ/MNQ tick-trade research, use [the profile lab](docs/PROFILE_RESEARCH_LAB.md) for POC/VAH/VAL/HVN/LVN and level-reaction definitions.
