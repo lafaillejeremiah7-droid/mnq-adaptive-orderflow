@@ -1,0 +1,152 @@
+{
+  "annual_coverage": {
+    "2021": {
+      "calendar_dates": 326,
+      "contiguous_pairs": 343864,
+      "discontinuities_or_day_boundaries": 1096,
+      "first_naive_timestamp": "2021-01-03T23:01:00",
+      "last_naive_timestamp": "2021-12-31T22:00:00",
+      "median_one_minute_range_bps": 2.4837726851238573,
+      "rows": 344961,
+      "timezone": "unknown: no America/New_York assumption",
+      "year": 2021
+    },
+    "2022": {
+      "calendar_dates": 240,
+      "contiguous_pairs": 266194,
+      "discontinuities_or_day_boundaries": 569,
+      "first_naive_timestamp": "2022-01-02T23:01:00",
+      "last_naive_timestamp": "2022-12-30T22:00:00",
+      "median_one_minute_range_bps": 4.90204990529435,
+      "rows": 266764,
+      "timezone": "unknown: no America/New_York assumption",
+      "year": 2022
+    },
+    "2023": {
+      "calendar_dates": 314,
+      "contiguous_pairs": 345539,
+      "discontinuities_or_day_boundaries": 928,
+      "first_naive_timestamp": "2023-01-02T23:01:00",
+      "last_naive_timestamp": "2023-12-31T17:08:00",
+      "median_one_minute_range_bps": 2.504832182959132,
+      "rows": 346468,
+      "timezone": "unknown: no America/New_York assumption",
+      "year": 2023
+    },
+    "2024": {
+      "calendar_dates": 318,
+      "contiguous_pairs": 344920,
+      "discontinuities_or_day_boundaries": 630,
+      "first_naive_timestamp": "2024-01-01T23:01:00",
+      "last_naive_timestamp": "2024-12-31T22:00:00",
+      "median_one_minute_range_bps": 2.3510050546608676,
+      "rows": 345551,
+      "timezone": "unknown: no America/New_York assumption",
+      "year": 2024
+    },
+    "2025": {
+      "calendar_dates": 274,
+      "contiguous_pairs": 292958,
+      "discontinuities_or_day_boundaries": 546,
+      "first_naive_timestamp": "2025-01-01T23:01:00",
+      "last_naive_timestamp": "2025-11-09T14:57:00",
+      "median_one_minute_range_bps": 2.640089763051944,
+      "rows": 293505,
+      "timezone": "unknown: no America/New_York assumption",
+      "year": 2025
+    }
+  },
+  "data_type": "historical_NQ_one_minute_OHLCV",
+  "frozen_holdout": {
+    "calibration_years": [
+      2021,
+      2022,
+      2023
+    ],
+    "date_paired_holdout_effect": {
+      "bootstrap_95pct": [
+        5.651735520393263,
+        5.952361934295508
+      ],
+      "dates": 474,
+      "mean_difference_bps": 5.975593551267034,
+      "median_difference_bps": 5.788366397246647,
+      "negative_days": 0,
+      "positive_days": 474
+    },
+    "holdout_year_slices": {
+      "2024": {
+        "eligible_dates": 257,
+        "median_effect_bps": 5.8250766872967255,
+        "positive_date_share": 1.0
+      },
+      "2025": {
+        "eligible_dates": 217,
+        "median_effect_bps": 5.708682784321903,
+        "positive_date_share": 1.0
+      }
+    },
+    "holdout_years": [
+      2024,
+      2025
+    ],
+    "no_entry_or_exit_or_costs_or_PNL_tested": true,
+    "predeclared_comparison": "bottom versus top quintile of previous 1m normalized range",
+    "quantity": "(high-low)/open*10000 basis points",
+    "question": "Does prior 1m intrabar range forecast next 1m intrabar range?",
+    "test_observations_after_high": 88463,
+    "test_observations_after_low": 163762,
+    "thresholds_trained_only_on_2021_2023_bps": {
+      "bottom_20pct": 1.4159848961611077,
+      "top_20pct": 6.469613036270268
+    }
+  },
+  "independent_CME_data_authenticity_verified": false,
+  "limits": [
+    "Public third-party NinjaTrader files; exchange authenticity and rights not independently verified.",
+    "Quarterly contracts stitched and duplicates deleted by source processing.",
+    "Source timestamps have no recorded time zone; no session-specific claims.",
+    "OHLCV cannot reconstruct POC, VAH, VAL, HVN, LVN, footprint or absorption.",
+    "Consecutive-bar observations are serially correlated; daily bootstrap is descriptive.",
+    "This is one held-out hypothesis, not a trading-system validation.",
+    "No spread, queue, execution costs, trade entries or positions were simulated."
+  ],
+  "period": "2021-2025 inclusive",
+  "researcher": "quant-researcher-001",
+  "source_commit": "7ac6bd20d3fa46b25fa6d2db947200ef9860c6ef",
+  "source_pinned_blobs": {
+    "2021": {
+      "bytes": 19843057,
+      "git_sha1": "6257ed4b54cb2ed598dba3660b3397795bf3e745",
+      "sha256": "ac2bc9927b024cb8d4cfdae71907efef8b9dfd5e1c2b5f7558091d63b7a75dc7",
+      "url": "https://raw.githubusercontent.com/tdtrader76/NQ_Backtest/7ac6bd20d3fa46b25fa6d2db947200ef9860c6ef/Procesados/2021/NQ_1min_2021.csv"
+    },
+    "2022": {
+      "bytes": 15386387,
+      "git_sha1": "77a8fae1283ef5a24385e47ad47bcb156c65b00f",
+      "sha256": "956dde44a4b48822c4189fea8449a2ccad9802e16a7b62f8f39a71b4a23dcf8d",
+      "url": "https://raw.githubusercontent.com/tdtrader76/NQ_Backtest/7ac6bd20d3fa46b25fa6d2db947200ef9860c6ef/Procesados/2022/NQ_1min_2022.csv"
+    },
+    "2023": {
+      "bytes": 19955662,
+      "git_sha1": "5b3e186e783ba1ffd2a0cfb51295ff328157eb63",
+      "sha256": "f0feaed2f5b1f59b0762b1b78716634681177a95f0e699da053de17a530ea50a",
+      "url": "https://raw.githubusercontent.com/tdtrader76/NQ_Backtest/7ac6bd20d3fa46b25fa6d2db947200ef9860c6ef/Procesados/2023/NQ_1min_2023.csv"
+    },
+    "2024": {
+      "bytes": 19897930,
+      "git_sha1": "34b93384444426239312707ee92683b50c8e94a5",
+      "sha256": "2f321a70f958dc68076786894df5327b8564b3aa47c848c68141c3d6c989da98",
+      "url": "https://raw.githubusercontent.com/tdtrader76/NQ_Backtest/7ac6bd20d3fa46b25fa6d2db947200ef9860c6ef/Procesados/2024/NQ_1min_2024.csv"
+    },
+    "2025": {
+      "bytes": 16900814,
+      "git_sha1": "131adf871a9fce789e252aee71ae6737f1dcb32f",
+      "sha256": "589de2975a6413c21353a4aa83985c67d86a7a7d93cdadada50d46f3bdef0326",
+      "url": "https://raw.githubusercontent.com/tdtrader76/NQ_Backtest/7ac6bd20d3fa46b25fa6d2db947200ef9860c6ef/Procesados/2025/NQ_1min_2025.csv"
+    }
+  },
+  "source_repo": "tdtrader76/NQ_Backtest",
+  "tradable_edge_validated": false,
+  "volume_at_price_computable": false
+}
