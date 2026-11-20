@@ -32,3 +32,9 @@ Reproduce with `python3 -m scripts.mnq_wide_rr PATH_TO_MNQ_CSV_DIRECTORY results
 ## Later request for a 50-point stop and 50-point target
 
 The equal-distance setting earned $1,069 net on the original 187 trades ($695 stressed). At the trader's subsequent request, replaying it on the later 192 entries produced $530 gross and $672 in base costs, for a $142 net loss ($526 loss under stressed costs). There were 102 net winners and the largest session-close drawdown was $1,110. The prior 35-target/75-stop setting returned $612 net on those same later entries. The additional comparison used previously reviewed periods.
+
+## Five-year 50/50 replay using the trader's fee estimate
+
+The same unfiltered reversed entries, 30-minute exit and one MNQ produced 923 trades in 998 eligible Monday–Thursday sessions from October 12, 2020 through October 8, 2025. The earlier 544 trades lost $1,975 gross. Across the full archive the setup earned $278.50 gross. At $1 estimated fees per completed trade, net P&L was −$644.50 before added slippage. One tick per side adds $1 per round trip and takes net P&L to −$1,567.50, with a $3,461 session-close drawdown. Slippage is a modeled cost. The replay reconstructs hypothetical fills from minute bars and assumes the simulated account can take every entry.
+
+Reproduce with `python3 -m scripts.mnq_symmetric_fee_replay PATH_TO_MNQ_CSV_DIRECTORY`. [Results by period and slippage](mnq-50-50-fee-replay.json)
