@@ -1,0 +1,7 @@
+{
+  "findings": "Both net P&L and drawdown fail the registered thresholds. The two admissible OHLC touch orders change the sign. The archive was previously studied and cannot support an independent profit claim. No parameter retuning.",
+  "result_sha256": "2be8016a99827af49fafde0d650a4d926dd96e46a3db71c870454e2ec97e46eb",
+  "reviewed": "2026-11-20T16:58:46.825741+00:00",
+  "reviewer": "Codex build acceptance check (same author, not independent AI review)",
+  "verdict": "reject"
+}
