@@ -1,0 +1,195 @@
+{
+  "baseline": {
+    "50/50": {
+      "1": {
+        "earlier": {
+          "trades": 731,
+          "wins": 360,
+          "net_usd": -982.5,
+          "mean_usd": -1.344049247606019,
+          "planned_unit_usd": 101,
+          "empirical_f": 0.0
+        },
+        "later": {
+          "trades": 192,
+          "wins": 104,
+          "net_usd": 338.0,
+          "mean_usd": 1.7604166666666667,
+          "planned_unit_usd": 101,
+          "empirical_f": 0.026132980270325318
+        },
+        "all": {
+          "trades": 923,
+          "wins": 464,
+          "net_usd": -644.5,
+          "mean_usd": -0.6982665222101841,
+          "planned_unit_usd": 101,
+          "empirical_f": 0.0
+        }
+      },
+      "2": {
+        "earlier": {
+          "trades": 731,
+          "wins": 359,
+          "net_usd": -1713.5,
+          "mean_usd": -2.3440492476060193,
+          "planned_unit_usd": 102,
+          "empirical_f": 0.0
+        },
+        "later": {
+          "trades": 192,
+          "wins": 104,
+          "net_usd": 146.0,
+          "mean_usd": 0.7604166666666666,
+          "planned_unit_usd": 102,
+          "empirical_f": 0.011410178434361897
+        },
+        "all": {
+          "trades": 923,
+          "wins": 463,
+          "net_usd": -1567.5,
+          "mean_usd": -1.6982665222101843,
+          "planned_unit_usd": 102,
+          "empirical_f": 0.0
+        }
+      },
+      "3": {
+        "earlier": {
+          "trades": 731,
+          "wins": 359,
+          "net_usd": -2444.5,
+          "mean_usd": -3.3440492476060193,
+          "planned_unit_usd": 103,
+          "empirical_f": 0.0
+        },
+        "later": {
+          "trades": 192,
+          "wins": 102,
+          "net_usd": -46.0,
+          "mean_usd": -0.23958333333333334,
+          "planned_unit_usd": 103,
+          "empirical_f": 0.0
+        },
+        "all": {
+          "trades": 923,
+          "wins": 461,
+          "net_usd": -2490.5,
+          "mean_usd": -2.6982665222101843,
+          "planned_unit_usd": 103,
+          "empirical_f": 0.0
+        }
+      }
+    },
+    "48/50": {
+      "1": {
+        "earlier": {
+          "trades": 731,
+          "wins": 355,
+          "net_usd": -1434.5,
+          "mean_usd": -1.9623803009575924,
+          "planned_unit_usd": 97,
+          "empirical_f": 0.0
+        },
+        "later": {
+          "trades": 192,
+          "wins": 103,
+          "net_usd": 399.5,
+          "mean_usd": 2.0807291666666665,
+          "planned_unit_usd": 97,
+          "empirical_f": 0.03038604698879386
+        },
+        "all": {
+          "trades": 923,
+          "wins": 458,
+          "net_usd": -1035.0,
+          "mean_usd": -1.1213434452871072,
+          "planned_unit_usd": 97,
+          "empirical_f": 0.0
+        }
+      },
+      "2": {
+        "earlier": {
+          "trades": 731,
+          "wins": 354,
+          "net_usd": -2165.5,
+          "mean_usd": -2.962380300957592,
+          "planned_unit_usd": 98,
+          "empirical_f": 0.0
+        },
+        "later": {
+          "trades": 192,
+          "wins": 103,
+          "net_usd": 207.5,
+          "mean_usd": 1.0807291666666667,
+          "planned_unit_usd": 98,
+          "empirical_f": 0.015951407886701685
+        },
+        "all": {
+          "trades": 923,
+          "wins": 457,
+          "net_usd": -1958.0,
+          "mean_usd": -2.121343445287107,
+          "planned_unit_usd": 98,
+          "empirical_f": 0.0
+        }
+      },
+      "3": {
+        "earlier": {
+          "trades": 731,
+          "wins": 354,
+          "net_usd": -2896.5,
+          "mean_usd": -3.962380300957592,
+          "planned_unit_usd": 99,
+          "empirical_f": 0.0
+        },
+        "later": {
+          "trades": 192,
+          "wins": 101,
+          "net_usd": 15.5,
+          "mean_usd": 0.08072916666666667,
+          "planned_unit_usd": 99,
+          "empirical_f": 0.0012044106768372082
+        },
+        "all": {
+          "trades": 923,
+          "wins": 455,
+          "net_usd": -2881.0,
+          "mean_usd": -3.121343445287107,
+          "planned_unit_usd": 99,
+          "empirical_f": 0.0
+        }
+      }
+    }
+  },
+  "selection_leader": "MNQ-0364",
+  "selection": {
+    "trades": 553,
+    "wins": 285,
+    "net_usd": 2113.5,
+    "mean_usd": 3.821880650994575,
+    "planned_unit_usd": 98,
+    "empirical_f": 0.057692879378415385
+  },
+  "later": {
+    "trades": 192,
+    "wins": 97,
+    "net_usd": 52.5,
+    "mean_usd": 0.2734375,
+    "planned_unit_usd": 98,
+    "empirical_f": 0.004031973160945224
+  },
+  "later_growth_using_selection_fraction": {
+    "1": {
+      "f": 0.057692879378415385,
+      "log_growth_per_trade": -0.000992323129266034
+    },
+    "0.5": {
+      "f": 0.028846439689207692,
+      "log_growth_per_trade": -0.0002075211473794521
+    },
+    "0.25": {
+      "f": 0.014423219844603846,
+      "log_growth_per_trade": -3.1740372134318014e-05
+    }
+  }
+}
