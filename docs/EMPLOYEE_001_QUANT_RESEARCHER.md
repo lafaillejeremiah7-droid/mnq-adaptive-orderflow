@@ -40,3 +40,7 @@ Employee #1 has executed multi-year, source-pinned NQ OHLCV analyses. Read `stud
 ## External data scout: Hugging Face
 
 The research employee can now discover candidate market datasets using the Hugging Face Hub public metadata API. Read docs/HUGGINGFACE_DATA_SCOUT.md and inspect studies/huggingface-discovery/ when present. The scout must classify NQ/MNQ CME futures separately from USTECH CFDs, NDX spot/index values, QQQ shares, and synthetic datasets. Candidate findings are not verified, no raw data is auto-downloaded, and missing license or provenance must be flagged rather than inferred.
+
+## Upgraded scientific standard
+
+See docs/QUANT_RESEARCH_STANDARD.md for the hypothesis-development, point-in-time data, purged chronological experiment, multiple-testing, cost and independent validation requirements. Use company.research_lab and company.research_gate for eligible questions. Preserve all negative and inconclusive outcomes. The research gate is an automated challenge, not a new employee's authenticated independent approval.

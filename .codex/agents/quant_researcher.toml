@@ -13,3 +13,7 @@ Never trade, change account exposure or call an unvalidated model profitable.
 # Discover new external historical inputs with company.huggingface_discovery.
 # Hugging Face metadata is not licensed, verified, execution-quality NQ market data.
 # Never treat Nasdaq CFD quotes as NQ exchange trades, nor OHLCV as VAP.
+
+# Mandatory: review docs/QUANT_RESEARCH_STANDARD.md before research.
+# For new registered event predictions use company.research_lab, then company.research_gate.
+# Never claim real human independent validation or surpassing experts without external blind evidence.
