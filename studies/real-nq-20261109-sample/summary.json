@@ -1,0 +1,523 @@
+{
+  "alpha_validated": false,
+  "archive_sha256": "0393ec579d453d016b5a838392349a0e6f21f3ddd211f3e7c24bb5c8cb63fc72",
+  "contract": "NQZ6",
+  "coverage": {
+    "full_utc_contracts": 766017,
+    "full_utc_tick_records": 710815,
+    "rth_contracts": 526348,
+    "rth_first_ns": 1794234600000000000,
+    "rth_last_ns": 1794257999999006000,
+    "rth_tick_records": 488749
+  },
+  "date": "2026-11-09",
+  "execution_studied": false,
+  "independent_dates": 1,
+  "limits": [
+    "One day only; 12 rolling windows are strongly dependent.",
+    "The source vendor asserts CME origin; exchange authenticity is not independently verified.",
+    "Vendor terms restrict raw-sample redistribution and commercial use.",
+    "No quotes/MBO, queue, spreads or realistic transaction-cost simulation.",
+    "Unknown aggressor direction: no trusted absorption conclusions.",
+    "A touch from printed trades is not evidence that a limit order filled.",
+    "No prospective holdout or significance estimate."
+  ],
+  "manifest": "https://historicalfuturesdata.com/samples/pack/manifest.json",
+  "opening": {
+    "contracts": 104312,
+    "hvn": [
+      27540.0,
+      27761.5,
+      27545.25,
+      27559.0,
+      27590.0
+    ],
+    "lvn": [
+      27318.25,
+      27395.75,
+      27404.75,
+      27407.75,
+      27424.0
+    ],
+    "poc": 27540.0,
+    "trades": 96295,
+    "vah": 27784.25,
+    "val": 27517.75,
+    "value_area_coverage": 0.700024925224327,
+    "vwap": 27595.855539151777
+  },
+  "opening_reaction_summary": {
+    "HVN": {
+      "censored": 0,
+      "cross_first": 1,
+      "distinct_session_dates": 1,
+      "events": 1,
+      "median_signed_terminal_ticks": -1,
+      "median_time_to_first_passage_seconds": 0.184,
+      "rejection_first": 0,
+      "rejection_share_conditional_on_first_passage": 0.0,
+      "unresolved": 0
+    },
+    "VAH": {
+      "censored": 0,
+      "cross_first": 1,
+      "distinct_session_dates": 1,
+      "events": 1,
+      "median_signed_terminal_ticks": -106,
+      "median_time_to_first_passage_seconds": 0.288,
+      "rejection_first": 0,
+      "rejection_share_conditional_on_first_passage": 0.0,
+      "unresolved": 0
+    }
+  },
+  "opening_reactions": [
+    {
+      "approach_from": "above",
+      "final_signed_away_from_level_ticks": -106,
+      "first_passage_seconds": 0.288,
+      "followup_trades": 13628,
+      "kind": "VAH",
+      "last_observed_offset_seconds": 299.969,
+      "level_ticks": 111137,
+      "max_cross_excursion_ticks": 218,
+      "max_rejection_excursion_ticks": 6,
+      "outcome": "cross_first",
+      "price_level": 27784.25,
+      "session_date": "2026-11-09",
+      "touch_price_ticks": 111138,
+      "touch_ts_ns": 1794236400672000000
+    },
+    {
+      "approach_from": "above",
+      "final_signed_away_from_level_ticks": -1,
+      "first_passage_seconds": 0.184,
+      "followup_trades": 13310,
+      "kind": "HVN",
+      "last_observed_offset_seconds": 299.974002,
+      "level_ticks": 111046,
+      "max_cross_excursion_ticks": 127,
+      "max_rejection_excursion_ticks": 92,
+      "outcome": "cross_first",
+      "price_level": 27761.5,
+      "session_date": "2026-11-09",
+      "touch_price_ticks": 111047,
+      "touch_ts_ns": 1794236404059000000
+    }
+  ],
+  "parquet_sha256": "89a50dc88c4beacafd95b8cc4e2f7ee9000af498549dcb0910aa08feed82dba0",
+  "profile_freeze": "09:30-10:00 ET; later reaction measured after 10:00 ET",
+  "reaction_rule": "first printed touch within 1 tick, first 8-tick cross/rejection within 300 seconds",
+  "rolling_30m_results": [
+    {
+      "levels": {
+        "contracts": 104312,
+        "hvn": [
+          27540.0,
+          27761.5,
+          27545.25,
+          27559.0,
+          27590.0
+        ],
+        "lvn": [
+          27318.25,
+          27395.75,
+          27404.75,
+          27407.75,
+          27424.0
+        ],
+        "poc": 27540.0,
+        "trades": 96295,
+        "vah": 27784.25,
+        "val": 27517.75,
+        "value_area_coverage": 0.700024925224327,
+        "vwap": 27595.855539151777
+      },
+      "profile_records": 96295,
+      "profile_window": 0,
+      "test_records": 59888,
+      "touch_events": 2
+    },
+    {
+      "levels": {
+        "contracts": 63421,
+        "hvn": [
+          27769.0,
+          27835.0,
+          27833.75,
+          27834.5,
+          27817.25
+        ],
+        "lvn": [
+          27853.5,
+          27689.0,
+          27851.75,
+          27689.5,
+          27690.5
+        ],
+        "poc": 27769.0,
+        "trades": 59888,
+        "vah": 27821.0,
+        "val": 27698.75,
+        "value_area_coverage": 0.7006827391558001,
+        "vwap": 27788.58514924079
+      },
+      "profile_records": 59888,
+      "profile_window": 1,
+      "test_records": 42639,
+      "touch_events": 7
+    },
+    {
+      "levels": {
+        "contracts": 46490,
+        "hvn": [
+          27850.0,
+          27875.0,
+          27838.5,
+          27864.25,
+          27850.5
+        ],
+        "lvn": [
+          27920.25,
+          27895.5,
+          27896.75,
+          27962.0,
+          27816.0
+        ],
+        "poc": 27850.0,
+        "trades": 42639,
+        "vah": 27911.0,
+        "val": 27814.75,
+        "value_area_coverage": 0.700086040008604,
+        "vwap": 27888.02850613035
+      },
+      "profile_records": 42639,
+      "profile_window": 2,
+      "test_records": 46089,
+      "touch_events": 10
+    },
+    {
+      "levels": {
+        "contracts": 50651,
+        "hvn": [
+          27907.5,
+          27907.0,
+          27927.0,
+          27900.0,
+          27883.25
+        ],
+        "lvn": [
+          27840.5,
+          27862.25,
+          27841.0,
+          27858.5,
+          27860.75
+        ],
+        "poc": 27907.5,
+        "trades": 46089,
+        "vah": 27954.75,
+        "val": 27873.5,
+        "value_area_coverage": 0.7007956407573395,
+        "vwap": 27923.889898521255
+      },
+      "profile_records": 46089,
+      "profile_window": 3,
+      "test_records": 31773,
+      "touch_events": 11
+    },
+    {
+      "levels": {
+        "contracts": 33681,
+        "hvn": [
+          27854.0,
+          27923.25,
+          27888.0,
+          27855.0,
+          27855.75
+        ],
+        "lvn": [
+          27904.25,
+          27901.0,
+          27908.25,
+          27909.5,
+          27937.25
+        ],
+        "poc": 27854.0,
+        "trades": 31773,
+        "vah": 27908.0,
+        "val": 27820.0,
+        "value_area_coverage": 0.7002464297378344,
+        "vwap": 27880.499621448293
+      },
+      "profile_records": 31773,
+      "profile_window": 4,
+      "test_records": 24523,
+      "touch_events": 5
+    },
+    {
+      "levels": {
+        "contracts": 25996,
+        "hvn": [
+          27960.0,
+          27970.0,
+          27965.0,
+          27966.0,
+          27965.5
+        ],
+        "lvn": [
+          27990.5,
+          27906.5,
+          27991.0,
+          27905.5,
+          27908.25
+        ],
+        "poc": 27960.0,
+        "trades": 24523,
+        "vah": 27981.5,
+        "val": 27941.0,
+        "value_area_coverage": 0.7014925373134329,
+        "vwap": 27957.315029235266
+      },
+      "profile_records": 24523,
+      "profile_window": 5,
+      "test_records": 18439,
+      "touch_events": 7
+    },
+    {
+      "levels": {
+        "contracts": 19612,
+        "hvn": [
+          27939.75,
+          27956.0,
+          27960.0,
+          27942.0,
+          27980.0
+        ],
+        "lvn": [
+          27983.0,
+          27928.5,
+          27933.5,
+          27933.0,
+          27929.25
+        ],
+        "poc": 27939.75,
+        "trades": 18439,
+        "vah": 27968.0,
+        "val": 27936.25,
+        "value_area_coverage": 0.7029879665510912,
+        "vwap": 27956.403528451967
+      },
+      "profile_records": 18439,
+      "profile_window": 6,
+      "test_records": 16874,
+      "touch_events": 7
+    },
+    {
+      "levels": {
+        "contracts": 18254,
+        "hvn": [
+          27928.75,
+          27911.5,
+          27912.0,
+          27913.0,
+          27926.0
+        ],
+        "lvn": [
+          27894.5,
+          27895.75,
+          27949.0,
+          27953.25,
+          27921.5
+        ],
+        "poc": 27928.75,
+        "trades": 16874,
+        "vah": 27948.75,
+        "val": 27911.25,
+        "value_area_coverage": 0.7056535553851211,
+        "vwap": 27923.95869398488
+      },
+      "profile_records": 16874,
+      "profile_window": 7,
+      "test_records": 17324,
+      "touch_events": 4
+    },
+    {
+      "levels": {
+        "contracts": 18784,
+        "hvn": [
+          27940.0,
+          27940.75,
+          27941.5,
+          27939.0,
+          27986.75
+        ],
+        "lvn": [
+          27999.5,
+          27927.5,
+          27962.75,
+          27928.0,
+          27928.5
+        ],
+        "poc": 27940.0,
+        "trades": 17324,
+        "vah": 27975.5,
+        "val": 27927.75,
+        "value_area_coverage": 0.7021933560477002,
+        "vwap": 27961.941133411416
+      },
+      "profile_records": 17324,
+      "profile_window": 8,
+      "test_records": 13187,
+      "touch_events": 10
+    },
+    {
+      "levels": {
+        "contracts": 13950,
+        "hvn": [
+          27945.0,
+          27959.5,
+          27941.0,
+          27940.0,
+          27944.0
+        ],
+        "lvn": [
+          27978.25,
+          27977.75,
+          27924.25,
+          27976.75,
+          27925.5
+        ],
+        "poc": 27945.0,
+        "trades": 13187,
+        "vah": 27962.0,
+        "val": 27932.25,
+        "value_area_coverage": 0.7043727598566308,
+        "vwap": 27952.75562724014
+      },
+      "profile_records": 13187,
+      "profile_window": 9,
+      "test_records": 45729,
+      "touch_events": 10
+    },
+    {
+      "levels": {
+        "contracts": 49370,
+        "hvn": [
+          28025.0,
+          28015.75,
+          28100.0,
+          28022.0,
+          28014.75
+        ],
+        "lvn": [
+          27936.75,
+          27943.25,
+          28110.25,
+          28110.75,
+          28111.75
+        ],
+        "poc": 28025.0,
+        "trades": 45729,
+        "vah": 28089.25,
+        "val": 27993.75,
+        "value_area_coverage": 0.7001620417257444,
+        "vwap": 28026.65430423334
+      },
+      "profile_records": 45729,
+      "profile_window": 10,
+      "test_records": 26276,
+      "touch_events": 9
+    },
+    {
+      "levels": {
+        "contracts": 28182,
+        "hvn": [
+          28105.25,
+          28088.0,
+          28111.0,
+          28100.0,
+          28111.5
+        ],
+        "lvn": [
+          28048.25,
+          28057.0,
+          28011.0,
+          28043.5,
+          28045.25
+        ],
+        "poc": 28105.25,
+        "trades": 26276,
+        "vah": 28129.0,
+        "val": 28055.5,
+        "value_area_coverage": 0.7003051593215528,
+        "vwap": 28078.260325739833
+      },
+      "profile_records": 26276,
+      "profile_window": 11,
+      "test_records": 49713,
+      "touch_events": 11
+    }
+  ],
+  "rolling_reaction_count": 93,
+  "rolling_reaction_summary": {
+    "HVN": {
+      "censored": 0,
+      "cross_first": 21,
+      "distinct_session_dates": 1,
+      "events": 34,
+      "median_signed_terminal_ticks": 1.5,
+      "median_time_to_first_passage_seconds": 0.476499,
+      "rejection_first": 13,
+      "rejection_share_conditional_on_first_passage": 0.38235294117647056,
+      "unresolved": 0
+    },
+    "LVN": {
+      "censored": 0,
+      "cross_first": 17,
+      "distinct_session_dates": 1,
+      "events": 35,
+      "median_signed_terminal_ticks": 11,
+      "median_time_to_first_passage_seconds": 0.715,
+      "rejection_first": 18,
+      "rejection_share_conditional_on_first_passage": 0.5142857142857142,
+      "unresolved": 0
+    },
+    "POC": {
+      "censored": 0,
+      "cross_first": 3,
+      "distinct_session_dates": 1,
+      "events": 9,
+      "median_signed_terminal_ticks": -31,
+      "median_time_to_first_passage_seconds": 1.200998,
+      "rejection_first": 6,
+      "rejection_share_conditional_on_first_passage": 0.6666666666666666,
+      "unresolved": 0
+    },
+    "VAH": {
+      "censored": 0,
+      "cross_first": 4,
+      "distinct_session_dates": 1,
+      "events": 9,
+      "median_signed_terminal_ticks": 40,
+      "median_time_to_first_passage_seconds": 0.317993,
+      "rejection_first": 5,
+      "rejection_share_conditional_on_first_passage": 0.5555555555555556,
+      "unresolved": 0
+    },
+    "VAL": {
+      "censored": 0,
+      "cross_first": 0,
+      "distinct_session_dates": 1,
+      "events": 6,
+      "median_signed_terminal_ticks": -45.5,
+      "median_time_to_first_passage_seconds": 0.8705005,
+      "rejection_first": 6,
+      "rejection_share_conditional_on_first_passage": 1.0,
+      "unresolved": 0
+    }
+  },
+  "source": "https://historicalfuturesdata.com/samples/pack/es-nq-tick-sample-2026-11-09.zip",
+  "source_authenticity": "Source/vendor counts and checksums verified; CME origin not independently verified",
+  "statistical_significance": "Not estimable from one day",
+  "study": "Vendor-supplied historical NQZ6 tick sample, 2026-11-09",
+  "time_window": "09:30-16:00 America/New_York"
+}
