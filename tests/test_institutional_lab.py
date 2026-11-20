@@ -247,6 +247,19 @@ class AdversarialGateTests(unittest.TestCase):
         self.assertIn("NO_INDEPENDENT_VALIDATOR", failures)
         self.assertIn("RAW_FEATURE_LINEAGE_UNVERIFIED", failures)
 
+    def test_reviewer_source_and_engine_reverification(self):
+        raw = self.raw
+        engine = b"synthetic code"
+        check = gate.audit(self.bytes, self.result,
+                           source_bytes=raw, engine_bytes=engine)
+        self.assertTrue(check["reviewer_independently_rechecked_raw_bytes"])
+        self.assertTrue(check["reviewer_independently_rechecked_engine_bytes"])
+        self.assertFalse(check["production_ready"])
+        with self.assertRaisesRegex(ValueError, "independent source"):
+            gate.audit(self.bytes, self.result, source_bytes=raw+b"tampered")
+        with self.assertRaisesRegex(ValueError, "independent engine"):
+            gate.audit(self.bytes, self.result, source_bytes=raw, engine_bytes=b"wrong")
+
     def test_protocol_tampering_rejected(self):
         changed = self.bytes.replace(b"research-qualification-001", b"research-qualification-002")
         with self.assertRaisesRegex(ValueError, "checksum"):

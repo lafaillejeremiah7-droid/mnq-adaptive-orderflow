@@ -19,7 +19,7 @@ def fingerprint(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def audit(protocol_bytes: bytes, result: dict) -> dict:
+def audit(protocol_bytes: bytes, result: dict, source_bytes=None, engine_bytes=None) -> dict:
     """Refuse tampered artifacts, then list substantive scientific blockers."""
     protocol = json.loads(protocol_bytes)
     check_protocol(protocol)
@@ -59,12 +59,20 @@ def audit(protocol_bytes: bytes, result: dict) -> dict:
     flags = result.get("point_in_time_guards", {})
     if not isinstance(flags, dict) or flags.get("train_labels_finished_before_purged_test_start") is not True:
         raise ValueError("label purge evidence missing")
+    if source_bytes is not None and fingerprint(source_bytes) != protocol["source_sha256"]:
+        raise ValueError("independent source bytes fail registered SHA-256")
+    if engine_bytes is not None and fingerprint(engine_bytes) != result.get("engine_sha256"):
+        raise ValueError("independent engine bytes fail recorded SHA-256")
     blockers = []
     warnings = []
     def block(code, reason):
         blockers.append({"code": code, "reason": reason})
     def warn(code, reason):
         warnings.append({"code": code, "reason": reason})
+    if source_bytes is None:
+        block("SOURCE_NOT_RECHECKED", "Reviewer did not independently rehash the raw source dataset")
+    if engine_bytes is None:
+        block("ENGINE_NOT_RECHECKED", "Reviewer did not independently hash the executed analysis code")
     if protocol["source_kind"] != "historical":
         block("SYNTHETIC_ONLY", "Unit-test or simulated rows cannot validate a real market effect")
     if protocol["source_rights"] != "verified_documentation":
@@ -111,6 +119,8 @@ def audit(protocol_bytes: bytes, result: dict) -> dict:
         "review_type": "automated_adversarial_screen_not_human_review",
         "protocol_sha256": fingerprint(protocol_bytes),
         "engine_sha256_from_result": result.get("engine_sha256"),
+        "reviewer_independently_rechecked_raw_bytes": source_bytes is not None,
+        "reviewer_independently_rechecked_engine_bytes": engine_bytes is not None,
         "blockers": blockers, "warnings": warnings,
         "screen_passed": len(blockers) == 0,
         "independent_human_validation_completed": False,
@@ -127,11 +137,13 @@ def audit(protocol_bytes: bytes, result: dict) -> dict:
     }
 
 
-def run(study_folder, output=None):
+def run(study_folder, output=None, source_path=None, engine_path=None):
     folder = Path(study_folder)
     bytes_ = (folder/"protocol.json").read_bytes()
     result = json.loads((folder/"result.json").read_text())
-    review = audit(bytes_, result)
+    source = Path(source_path).read_bytes() if source_path is not None else None
+    engine = Path(engine_path).read_bytes() if engine_path is not None else None
+    review = audit(bytes_, result, source_bytes=source, engine_bytes=engine)
     target = Path(output) if output is not None else folder/"adversarial_review.json"
     with target.open("x") as writer:
         json.dump(review, writer, indent=2, sort_keys=True)
@@ -143,9 +155,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--study", type=Path, required=True)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--source", type=Path, help="re-read the original pinned dataset")
+    parser.add_argument("--engine", type=Path, help="re-read the exact executed Python engine")
     args = parser.parse_args()
     try:
-        report = run(args.study, args.output)
+        report = run(args.study, args.output, args.source, args.engine)
     except (ValueError, OSError, TypeError, KeyError, json.JSONDecodeError) as err:
         parser.exit(2, "review failed: " + str(err) + "\n")
     print(json.dumps({
