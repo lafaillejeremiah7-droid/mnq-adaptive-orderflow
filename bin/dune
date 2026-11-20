@@ -1,3 +1,0 @@
-(executables
- (names main risk_review)
- (libraries mnq_core))
