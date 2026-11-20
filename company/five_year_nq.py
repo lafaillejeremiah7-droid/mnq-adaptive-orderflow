@@ -3,6 +3,7 @@
 Timestamp timezone is undocumented in the source. No session inference,
 no volume-at-price inference, no orders, no untested alpha claims.
 """
+import argparse
 import csv
 import hashlib
 import io
