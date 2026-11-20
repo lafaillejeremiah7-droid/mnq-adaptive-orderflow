@@ -1,0 +1,33 @@
+name: Study multi-year NQ New York sessions
+
+on:
+  push:
+    branches: [feature/quant-research-workflow]
+    paths: [company/nq_session_years.py, .github/workflows/nq-session-years.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify date/time and data contracts
+        run: python -m unittest tests/test_nq_session_years.py -v
+      - name: Download and analyze multi-year New York NQ historical bars
+        run: python -m company.nq_session_years
+      - name: Publish derived study without copying raw bars
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add studies/nq-session-years-2024-2026/summary.json studies/nq-session-years-2024-2026/report.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish multi-year NQ New York session research [skip ci]'
+            git push origin HEAD:feature/quant-research-workflow
+          fi
