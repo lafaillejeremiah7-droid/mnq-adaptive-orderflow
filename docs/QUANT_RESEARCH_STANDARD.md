@@ -36,7 +36,7 @@ For example, a prospective experiment may set train_end_utc to 2025-01-15T00:00:
 Commands:
 
     python -m company.research_lab --protocol protocol.json --data events.csv
-    python -m company.research_gate --study research-runs/institutional/<experiment-id>
+    python -m company.research_gate --study research-runs/institutional/<experiment-id> --source events.csv --engine company/research_lab.py
     python -m unittest discover -s tests -v
 
 The new experiment writes protocol.json, result.json and research_note.md to a fresh output directory only. The second command writes adversarial_review.json. Neither module downloads confidential data nor executes trades. Its default use in tests is synthetic and clearly labeled.
@@ -51,7 +51,7 @@ The new experiment writes protocol.json, result.json and research_note.md to a f
 - Bootstrapping is over UTC dates. Its interval and exact sign p-value can be wrong under serial day dependence; Bonferroni only covers the *declared* test family. Neither statistical significance nor lower loss proves tradeability.
 - Indicative P&L is omitted if label intervals overlap, and even permitted results omit queue/fill modeling. Dollar risk in NQ/MNQ and proprietary firm rules need separate simulations.
 - Hashes ensure local consistency and reproducibility, not proof of pre-registration before first viewing results or legal source entitlements.
-- Machine review NEVER authenticates an independent reviewer or automatically authorizes deployment.
+- Machine review NEVER authenticates an independent reviewer or automatically authorizes deployment. Without --source and --engine it reports the missing independent source/code rehash as explicit review blockers. Even with both supplied, code cannot establish reviewer independence or upstream market correctness.
 
 ### Remaining gaps before a credible professional-standard claim
 
