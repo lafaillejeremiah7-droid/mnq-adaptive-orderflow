@@ -28,3 +28,7 @@ The last two rows are the selected leaders. Across all 1,325 smaller-target vari
 In the later window, 35 target / 75 stop earned $1.19 per trade under stress and had a $1,035.50 session-close drawdown at base costs. A 75-point stop on one MNQ risks $150 before costs or adverse gaps. This exceeds the trader's stated $100 ceiling even if the statistical result holds. For 100 target / 50 stop, only 13 later trades hit the target, 66 hit the stop and 113 exited on time. Nominal reward/risk therefore does not determine realized payoffs. Account failure was not simulated.
 
 Reproduce with `python3 -m scripts.mnq_wide_rr PATH_TO_MNQ_CSV_DIRECTORY results.csv`. [Full grid and later comparisons](mnq-wide-rr-results.csv)
+
+## Later request for a 50-point stop and 50-point target
+
+The equal-distance setting earned $1,069 net on the original 187 trades ($695 stressed). At the trader's subsequent request, replaying it on the later 192 entries produced $530 gross and $672 in base costs, for a $142 net loss ($526 loss under stressed costs). There were 102 net winners and the largest session-close drawdown was $1,110. The prior 35-target/75-stop setting returned $612 net on those same later entries. The additional comparison used previously reviewed periods.

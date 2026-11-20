@@ -33,6 +33,8 @@ def replay(archive):
                    key=lambda r: (-r["stress_net"], r["stop_points"], r["target_points"]))
         leaders.append((best["stop_points"], best["target_points"]))
     selected = list(dict.fromkeys([*((t,s) for s,t in EXAMPLES), *EXAMPLES, *leaders]))
+    # Additional user-requested comparison after the original eight were reported.
+    selected.append((50, 50))
     later, _, _ = score_period(files, selected, "20241007", "20251008")
     if later["sessions"] != 200:
         raise ValueError("archive follow-up session count mismatch")
