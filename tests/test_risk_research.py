@@ -90,12 +90,14 @@ class Tests(unittest.TestCase):
         self.assertEqual(static["outcome"],"unfinished")
 
     def test_daily_stop_changes_path(self):
-        raw=fake_history()
+        raw=fake_history(-1)
         base=params(raw)
-        normal=risk.research(base,raw)
-        stopped=risk.research({**base,"daily_stop_usd":1},raw)
-        self.assertGreater(stopped["median_days_to_target_conditional"],
-                           normal["median_days_to_target_conditional"])
+        all_trades=risk.one_path([[-8,-8]],base,__import__("random").Random(0))
+        stopped=risk.one_path([[-8,-8]],{**base,"daily_stop_usd":1},
+                              __import__("random").Random(0))
+        self.assertEqual(all_trades["outcome"],"failed_drawdown")
+        self.assertEqual(stopped["outcome"],"failed_drawdown")
+        self.assertGreater(stopped["day"],all_trades["day"])
 
     def test_wilson_bounds_and_unfinished_mass(self):
         self.assertEqual(risk.wilson(50,100)[0] < .5,True)
