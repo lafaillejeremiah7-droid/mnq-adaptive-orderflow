@@ -2,11 +2,8 @@
 import csv
 import hashlib
 import io
-import json
-import tempfile
 import unittest
 from datetime import date, datetime, timedelta, timezone
-from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from company.data_admission import admit_trades
@@ -94,6 +91,47 @@ class AdmissionTests(unittest.TestCase):
         for case in cases:
             with self.subTest(case=case), self.assertRaises(ValueError):
                 admit_trades(manifest(raw, **case), raw)
+
+    def test_research_run_pins_admission_and_actual_backend(self):
+        import json
+        import tempfile
+        from pathlib import Path
+        raw = sample()
+        p = {
+            "id": "admission-fixture", "question": "Test observed session coverage",
+            "falsifier": "Missing or misdeclared sessions",
+            "data_source": "synthetic test input",
+            "data_sha256": hashlib.sha256(raw).hexdigest(),
+            "data_kind": "synthetic", "contract": "NQH6",
+            "rth_start": "09:30", "rth_end": "09:32",
+            "value_area_fraction": 0.7, "touch_tolerance_ticks": 0,
+            "excursion_ticks": 2, "horizon_seconds": 120,
+            "min_profile_trades": 3, "min_eval_trades": 3,
+            "min_session_pairs": 1, "max_gap_calendar_days": 4,
+            "seed": 1, "max_trades": 1000,
+        }
+        direct = mp.research(p, raw, profile_backend="auto")
+        self.assertEqual(direct["data_admission"]["status"], "not_checked")
+        self.assertEqual(direct["actual_aggregation_backends"], ["python"])
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name)
+            sp, tp, manifest_file = root / "protocol.json", root / "trades.csv", root / "manifest.json"
+            sp.write_text(json.dumps(p))
+            tp.write_bytes(raw)
+            manifest_file.write_text(json.dumps(manifest(raw)))
+            folder = mp.run(sp, tp, root / "results",
+                            profile_backend="auto", admission_manifest=manifest_file)
+            result = json.loads((folder / "result.json").read_text())
+            self.assertEqual(result["actual_aggregation_backends"], ["python"])
+            self.assertEqual(result["session_pairs"][0]["aggregation_backend_used"], "python")
+            self.assertEqual(result["data_admission"]["status"], "declared_session_inventory_reconciled")
+            self.assertEqual(result["data_admission"]["manifest_sha256"],
+                             hashlib.sha256(manifest_file.read_bytes()).hexdigest())
+            self.assertNotIn("cpp_binary_sha256", result)
+            bad_manifest = manifest(raw, session_end="16:00")
+            manifest_file.write_text(json.dumps(bad_manifest))
+            with self.assertRaisesRegex(ValueError, "must match"):
+                mp.run(sp, tp, root / "invalid", admission_manifest=manifest_file)
 
     def test_documents_are_declarations_not_license_proof(self):
         raw = sample()

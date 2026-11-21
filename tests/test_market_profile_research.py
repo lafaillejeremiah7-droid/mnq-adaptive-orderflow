@@ -131,8 +131,13 @@ class ProfileTests(unittest.TestCase):
             py_run = mp.research(cfg, raw, profile_backend="python")
             cpp_run = mp.research(cfg, raw, profile_backend="cpp")
             self.assertEqual(cpp_run["requested_aggregation_backend"], "cpp")
-            py_run.pop("requested_aggregation_backend")
-            cpp_run.pop("requested_aggregation_backend")
+            self.assertEqual(cpp_run["actual_aggregation_backends"], ["cpp"])
+            self.assertEqual(py_run["actual_aggregation_backends"], ["python"])
+            for result in (py_run, cpp_run):
+                result.pop("requested_aggregation_backend")
+                result.pop("actual_aggregation_backends")
+                for pair in result["session_pairs"]:
+                    pair.pop("aggregation_backend_used")
             self.assertEqual(cpp_run, py_run)
 
     def test_cpp_cli_writes_binary_checksum_when_built(self):
@@ -158,6 +163,7 @@ class ProfileTests(unittest.TestCase):
                 (directory / "runs" / "nq-profile-study" / "result.json").read_text()
             )
             self.assertEqual(artifact["requested_aggregation_backend"], "cpp")
+            self.assertEqual(artifact["actual_aggregation_backends"], ["cpp"])
             self.assertEqual(len(artifact["cpp_binary_sha256"]), 64)
             self.assertEqual(len(artifact["cpp_source_sha256"]), 64)
 

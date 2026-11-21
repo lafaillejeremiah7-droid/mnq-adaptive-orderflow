@@ -44,10 +44,11 @@ The backend options are:
 - **auto**: native C++ for a group of 20,000+ trade objects if compiled;
   otherwise Python fallback.
 
-A research result records which backend was requested. On a run where a
-native extension is available and requested (or auto-requested), the original
-Python engine, native C++ source and compiled native binary are fingerprinted
-with SHA-256. Native binaries are ignored by Git; compile for the correct
+Research results record both the requested aggregation mode and the actual
+backend used for every evaluated session pair. In auto mode, small batches
+still execute Python. Only a study that actually uses the native kernel
+includes its C++ source/binary SHA-256 fingerprints; every run fingerprints
+the Python research engine. The data admission result is separate. Native binaries are ignored by Git; compile for the correct
 Python ABI, OS, architecture and compiler. Current builds are verified on
 Linux GCC and Python 3.11/3.12. GNU-style 128-bit integer support limits
 portability to Microsoft Visual C++ without additional changes.

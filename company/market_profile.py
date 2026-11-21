@@ -443,9 +443,16 @@ def research(spec: dict, raw: bytes, profile_backend: str = "python") -> dict:
         ]
         if candidates:
             levels.append(("CONTROL", control_rng.choice(candidates)))
+        # Auto selects native only on large groups with a built extension.
+        # Record the backend actually used, not just the requested mode.
+        native_used = profile_backend == "cpp"
+        if profile_backend == "auto" and len(old) >= 20_000:
+            from importlib.util import find_spec
+            native_used = find_spec("company._nq_cpp") is not None
         used.append({"profile_date": old_key, "evaluation_date": today,
                      "profile_last_event_ns": old[-1].timestamp_ns,
-                     "evaluation_first_event_ns": current[0].timestamp_ns})
+                     "evaluation_first_event_ns": current[0].timestamp_ns,
+                     "aggregation_backend_used": "cpp" if native_used else "python"})
         for kind, px in levels:
             event = first_touch(current, px, spec["touch_tolerance_ticks"],
                                 spec["excursion_ticks"], spec["horizon_seconds"] * BILLION)
@@ -467,6 +474,12 @@ def research(spec: dict, raw: bytes, profile_backend: str = "python") -> dict:
         "contract": spec["contract"],
         "profile_method": "prior observed completed New York RTH session; one tick per histogram bin",
         "requested_aggregation_backend": profile_backend,
+        "actual_aggregation_backends": sorted({r["aggregation_backend_used"] for r in used}),
+        "data_admission": {
+            "status": "not_checked",
+            "independent_exchange_authentication": False,
+            "independent_license_verification": False,
+        },
         "rth_window": [spec["rth_start"], spec["rth_end"]],
         "session_pairs": used,
         "excluded_pairs": excluded,
@@ -491,13 +504,28 @@ def research(spec: dict, raw: bytes, profile_backend: str = "python") -> dict:
 
 
 def run(spec_path: Path, trades_path: Path, output_root: Path,
-        profile_backend: str = "python") -> Path:
+        profile_backend: str = "python",
+        admission_manifest: Path | None = None) -> Path:
     frozen = Path(spec_path).read_bytes()
     spec = json.loads(frozen)
-    result = research(spec, Path(trades_path).read_bytes(), profile_backend=profile_backend)
+    raw = Path(trades_path).read_bytes()
+    admission = None
+    if admission_manifest is not None:
+        from company.data_admission import admit_trades
+        manifest_bytes = Path(admission_manifest).read_bytes()
+        manifest = json.loads(manifest_bytes)
+        if (manifest.get("contract") != spec.get("contract")
+                or manifest.get("session_start") != spec.get("rth_start")
+                or manifest.get("session_end") != spec.get("rth_end")):
+            raise ValueError("admission manifest contract/session must match research protocol")
+        admission = admit_trades(manifest, raw)
+        admission["manifest_sha256"] = hash_bytes(manifest_bytes)
+    result = research(spec, raw, profile_backend=profile_backend)
+    if admission is not None:
+        result["data_admission"] = admission
     result["protocol_sha256"] = hash_bytes(frozen)
     result["engine_sha256"] = hash_bytes(Path(__file__).read_bytes())
-    if profile_backend in ("cpp", "auto"):
+    if "cpp" in result["actual_aggregation_backends"]:
         from importlib.util import find_spec
         native_spec = find_spec("company._nq_cpp")
         if native_spec is not None and native_spec.origin is not None:
@@ -538,10 +566,13 @@ def main() -> None:
     parser.add_argument("--out-root", type=Path, default=Path("research-runs"))
     parser.add_argument("--profile-backend", choices=("python", "cpp", "auto"),
                         default="python", help="opt-in C++ aggregation or availability-based auto")
+    parser.add_argument("--admission-manifest", type=Path,
+                        help="optional declared session/coverage integrity manifest")
     args = parser.parse_args()
     try:
         output = run(args.spec, args.trades, args.out_root,
-                     profile_backend=args.profile_backend)
+                     profile_backend=args.profile_backend,
+                     admission_manifest=args.admission_manifest)
     except (OSError, ValueError, RuntimeError, TypeError, KeyError, csv.Error) as error:
         parser.exit(2, "research rejected: " + str(error) + "\n")
     print(json.dumps({"employee": "quant-researcher-001", "artifacts": str(output)}))

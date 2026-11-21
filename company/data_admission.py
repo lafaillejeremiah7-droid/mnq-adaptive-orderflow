@@ -11,6 +11,7 @@ import json
 import re
 from collections import defaultdict
 from datetime import date, datetime, time, timezone
+from itertools import pairwise
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -133,7 +134,7 @@ def admit_trades(manifest, raw):
             raise ValueError(f"{day}: last print too far from close")
         biggest_gap = max(
             (right.timestamp_ns - left.timestamp_ns
-             for left, right in zip(records, records[1:])), default=0
+             for left, right in pairwise(records)), default=0
         )
         if biggest_gap > manifest["max_intertrade_gap_seconds"] * BILLION:
             raise ValueError(f"{day}: excessive intertrade gap")
