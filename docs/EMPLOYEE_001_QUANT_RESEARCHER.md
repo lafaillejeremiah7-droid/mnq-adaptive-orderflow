@@ -48,3 +48,7 @@ See docs/QUANT_RESEARCH_STANDARD.md for the hypothesis-development, point-in-tim
 ## Risk-mathematics assignment
 
 Use company.risk_research to examine historical trade-result sequences with day-block Monte Carlo and explicit drawdown/target/daily-stop policies. Keep NQ/MNQ tick-value differences separate and disclose the return-distribution stationarity assumption. See docs/QUANT_RESEARCH_STANDARD.md. A simulated success frequency is not a validated probability of passing an actual prop challenge.
+
+## Language decision based on actual benchmark evidence
+
+Employee #1 is primarily a **Python quantitative scientist/data engineer**, not a Rust-only or C++-only agent. See docs/LANGUAGE_ARCHITECTURE_DECISION.md for measured Python, Polars, Rust and C++ trade-profile kernel speed and the conditions under which native code can be introduced. The Python+Polars data processing path is a good initial optimization candidate; compiled Rust may be useful for very large, independently validated feeds. This speed benchmark does not validate research findings, NQ/MNQ historical fidelity or executable alpha.

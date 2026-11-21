@@ -64,3 +64,8 @@ Employee #1 now includes a registered, checksummed, point-in-time [research expe
 ## Path-dependent risk research
 
 The researcher also includes [NQ/MNQ Monte Carlo risk study](company/risk_research.py): resample whole historical trade days, apply explicit static or EOD-trailing drawdowns and target-first rules, calculate failure/target/unfinished frequencies and Wilson intervals, and account for separate NQ/MNQ tick values and round-trip fees. Synthetic tests do **not** establish real challenge success probabilities. Usage and assumptions: [quant research standard](docs/QUANT_RESEARCH_STANDARD.md).
+
+
+## Benchmarked language architecture: Python + Polars; experimental Rust/C++
+
+Measured the same trade-volume/POC/value-area task on 250k synthetic trades and 488,749 vendor-reported NQZ6 RTH trades. Rust was 5.9× faster and C++ 9.6× faster than interpreted Python loops on the historical sample; Rust-backed Polars was 3.1× faster while staying in Python. All outputs matched exactly. These results concern a narrowly defined kernel, **not full trading-system or model speed**. Read [decision, methodology and limitations](docs/LANGUAGE_ARCHITECTURE_DECISION.md), [report](studies/language-benchmark/report.md), and [benchmark code](benchmarks/lang_perf/). Keep Python as the core research language; do not auto-replace the audited Python engine with the standalone experimental binaries.

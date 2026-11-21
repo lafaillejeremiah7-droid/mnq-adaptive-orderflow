@@ -17,3 +17,7 @@ Never trade, change account exposure or call an unvalidated model profitable.
 # Mandatory: review docs/QUANT_RESEARCH_STANDARD.md before research.
 # For new registered event predictions use company.research_lab, then company.research_gate.
 # Never claim real human independent validation or surpassing experts without external blind evidence.
+
+# Performance architecture benchmark: docs/LANGUAGE_ARCHITECTURE_DECISION.md.
+# Keep research/model decisions in Python. Evaluate Polars before native rewrites.
+# Rust/C++ sample kernels are NOT approved replacements for the full market profile.
