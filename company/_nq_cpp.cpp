@@ -4,6 +4,7 @@
 #include <pybind11/pybind11.h>
 #include <algorithm>
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <stdexcept>
@@ -18,6 +19,11 @@ struct Counts {
     i64 buy = 0;
     i64 sell = 0;
     i64 unknown = 0;
+};
+
+struct PriceBucket {
+    i64 volume = 0;
+    Counts sides;
 };
 
 static i64 checked_add(i64 left, i64 right) {
@@ -42,12 +48,15 @@ static std::string decimal_i128(i128 value) {
 }
 
 static py::tuple aggregate(py::iterable trades) {
-    std::unordered_map<i64, i64> price_volume;
-    std::unordered_map<i64, Counts> price_sides;
+    // One price hash table instead of separate volume and aggressor maps.
+    std::unordered_map<i64, PriceBucket> prices;
     std::unordered_map<i64, Counts> minute_sides;
-    price_volume.reserve(4096);
-    price_sides.reserve(4096);
-    minute_sides.reserve(1024);
+    std::size_t hint = 4096;
+    if (py::isinstance<py::sequence>(trades)) {
+        hint = static_cast<std::size_t>(py::len(trades));
+    }
+    prices.reserve(std::min<std::size_t>(4096, std::max<std::size_t>(16, hint / 32)));
+    minute_sides.reserve(std::min<std::size_t>(1024, std::max<std::size_t>(16, hint / 250)));
 
     Counts totals;
     i128 weighted = 0;
@@ -57,20 +66,25 @@ static py::tuple aggregate(py::iterable trades) {
         const i64 ts = trade.attr("timestamp_ns").cast<i64>();
         const i64 price = trade.attr("price_ticks").cast<i64>();
         const i64 size = trade.attr("size").cast<i64>();
-        const std::string side = trade.attr("side").cast<std::string>();
-        if (ts < 0 || price <= 0 || size <= 0 || (side != "B" && side != "A" && side != "N")) {
+        const py::object side_value = trade.attr("side");
+        if (!PyUnicode_Check(side_value.ptr()) || PyUnicode_GetLength(side_value.ptr()) != 1) {
+            throw py::value_error("native side must be a single B/A/N character");
+        }
+        const Py_UCS4 side = PyUnicode_ReadChar(side_value.ptr(), 0);
+        if (ts < 0 || price <= 0 || size <= 0 || (side != 'B' && side != 'A' && side != 'N')) {
             throw py::value_error("invalid historical trade field for native aggregation");
         }
         total = checked_add(total, size);
         weighted += static_cast<i128>(price) * static_cast<i128>(size);
-        price_volume[price] = checked_add(price_volume[price], size);
-        Counts &at_price = price_sides[price];
+        PriceBucket &bucket = prices[price];
+        bucket.volume = checked_add(bucket.volume, size);
+        Counts &at_price = bucket.sides;
         Counts &at_minute = minute_sides[ts / 60000000000LL];
-        if (side == "B") {
+        if (side == 'B') {
             at_price.buy = checked_add(at_price.buy, size);
             at_minute.buy = checked_add(at_minute.buy, size);
             totals.buy = checked_add(totals.buy, size);
-        } else if (side == "A") {
+        } else if (side == 'A') {
             at_price.sell = checked_add(at_price.sell, size);
             at_minute.sell = checked_add(at_minute.sell, size);
             totals.sell = checked_add(totals.sell, size);
@@ -86,10 +100,9 @@ static py::tuple aggregate(py::iterable trades) {
     py::dict volume;
     py::dict price;
     py::dict minute;
-    for (const auto &[tick, value] : price_volume) {
-        volume[py::int_(tick)] = py::int_(value);
-    }
-    for (const auto &[tick, counts] : price_sides) {
+    for (const auto &[tick, bucket] : prices) {
+        volume[py::int_(tick)] = py::int_(bucket.volume);
+        const Counts &counts = bucket.sides;
         price[py::int_(tick)] = py::make_tuple(counts.buy, counts.sell, counts.unknown);
     }
     for (const auto &[bucket, counts] : minute_sides) {

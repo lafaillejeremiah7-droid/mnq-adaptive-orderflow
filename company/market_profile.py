@@ -171,15 +171,15 @@ def _aggregate_profile(trades: list[Trade], backend: str):
             labels = ("B", "A", "N")
             return (
                 Counter(price_volume),
-                Counter(dict(zip(labels, side_totals, strict=True))),
-                defaultdict(Counter, {
-                    price: Counter(dict(zip(labels, values, strict=True)))
+                dict(zip(labels, side_totals, strict=True)),
+                {
+                    price: dict(zip(labels, values, strict=True))
                     for price, values in at_price.items()
-                }),
-                defaultdict(Counter, {
-                    minute: Counter(dict(zip(labels, values, strict=True)))
+                },
+                {
+                    minute: dict(zip(labels, values, strict=True))
                     for minute, values in at_minute.items()
-                }),
+                },
                 weight, total,
             )
     vap = Counter()
