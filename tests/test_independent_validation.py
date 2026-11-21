@@ -1,6 +1,4 @@
 """Independent numerical cross-checks using synthetic experiments only."""
-import hashlib
-import json
 import unittest
 from copy import deepcopy
 
