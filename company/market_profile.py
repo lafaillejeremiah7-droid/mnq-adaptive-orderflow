@@ -145,15 +145,43 @@ def rth_groups(trades: list[Trade], start_minute: int, end_minute: int) -> dict[
     return dict(sorted(sessions.items()))
 
 
-def volume_profile(trades: list[Trade], fraction: float) -> dict:
-    """VAP in one 0.25-point tick bin per exchange price; contiguous VA from POC.
+def _aggregate_profile(trades: list[Trade], backend: str):
+    """Exact integer counters; C++ is explicitly optional and never required."""
+    if backend not in ("python", "cpp", "auto"):
+        raise ValueError("profile backend must be python, cpp or auto")
+    # Avoid extension-loading and attribute-marshalling overhead on small samples.
+    use_cpp = backend == "cpp" or (backend == "auto" and len(trades) >= 20_000)
+    if use_cpp:
+        from importlib import import_module
 
-    When volumes tie: POC closest to exact VWAP, then lower price. VA expands
-    to the adjacent bin with more volume, then the bin closer to VWAP, then
-    the lower bin. LVNs exclude zero-volume gaps (which are reported separately).
-    """
-    if not trades:
-        raise ValueError("profile requires trade events")
+        try:
+            native = import_module("company._nq_cpp")
+        except ModuleNotFoundError as exc:
+            if exc.name != "company._nq_cpp":
+                raise
+            if backend == "cpp":
+                raise RuntimeError(
+                    "C++ research kernel not built: pip install pybind11 setuptools; "
+                    "python setup.py build_ext --inplace"
+                ) from exc
+        else:
+            price_volume, at_price, at_minute, side_totals, weight, total, count = native.aggregate(trades)
+            if count != len(trades):
+                raise RuntimeError("C++ kernel returned a different trade count")
+            labels = ("B", "A", "N")
+            return (
+                Counter(price_volume),
+                Counter(dict(zip(labels, side_totals, strict=True))),
+                defaultdict(Counter, {
+                    price: Counter(dict(zip(labels, values, strict=True)))
+                    for price, values in at_price.items()
+                }),
+                defaultdict(Counter, {
+                    minute: Counter(dict(zip(labels, values, strict=True)))
+                    for minute, values in at_minute.items()
+                }),
+                weight, total,
+            )
     vap = Counter()
     side_volume = Counter()
     side_at_price = defaultdict(Counter)
@@ -167,6 +195,20 @@ def volume_profile(trades: list[Trade], fraction: float) -> dict:
         side_by_minute[item.timestamp_ns // (60 * BILLION)][item.side] += item.size
         weight += item.price_ticks * item.size
         total += item.size
+    return vap, side_volume, side_at_price, side_by_minute, weight, total
+
+
+def volume_profile(trades: list[Trade], fraction: float, backend: str = "python") -> dict:
+    """VAP in one 0.25-point tick bin per exchange price; contiguous VA from POC.
+
+    Python is the audited default. The compiled C++ backend accelerates only
+    the integer counter pass. All VA, HVN/LVN and reporting logic stays shared.
+    """
+    if not trades:
+        raise ValueError("profile requires trade events")
+    vap, side_volume, side_at_price, side_by_minute, weight, total = (
+        _aggregate_profile(trades, backend)
+    )
     lower, upper = min(vap), max(vap)
     if upper - lower > 200_000:
         raise ValueError("profile price span too large; partition input")
@@ -356,7 +398,7 @@ def summarize(events: list[dict]) -> dict:
     return result
 
 
-def research(spec: dict, raw: bytes) -> dict:
+def research(spec: dict, raw: bytes, profile_backend: str = "python") -> dict:
     validate_spec(spec)
     if hash_bytes(raw) != spec["data_sha256"]:
         raise ValueError("research input checksum mismatch")
@@ -378,7 +420,7 @@ def research(spec: dict, raw: bytes) -> dict:
         if len(old) < spec["min_profile_trades"] or len(current) < spec["min_eval_trades"]:
             excluded[today] = "insufficient_trade_coverage"
             continue
-        profile = volume_profile(old, spec["value_area_fraction"])
+        profile = volume_profile(old, spec["value_area_fraction"], backend=profile_backend)
         levels = profile_levels(profile)
         profiles[old_key] = profile
         key_prices = {p for _, p in levels}
@@ -411,6 +453,7 @@ def research(spec: dict, raw: bytes) -> dict:
         "input_sha256": hash_bytes(raw),
         "contract": spec["contract"],
         "profile_method": "prior observed completed New York RTH session; one tick per histogram bin",
+        "requested_aggregation_backend": profile_backend,
         "rth_window": [spec["rth_start"], spec["rth_end"]],
         "session_pairs": used,
         "excluded_pairs": excluded,
@@ -434,12 +477,21 @@ def research(spec: dict, raw: bytes) -> dict:
     }
 
 
-def run(spec_path: Path, trades_path: Path, output_root: Path) -> Path:
+def run(spec_path: Path, trades_path: Path, output_root: Path,
+        profile_backend: str = "python") -> Path:
     frozen = Path(spec_path).read_bytes()
     spec = json.loads(frozen)
-    result = research(spec, Path(trades_path).read_bytes())
+    result = research(spec, Path(trades_path).read_bytes(), profile_backend=profile_backend)
     result["protocol_sha256"] = hash_bytes(frozen)
     result["engine_sha256"] = hash_bytes(Path(__file__).read_bytes())
+    if profile_backend in ("cpp", "auto"):
+        from importlib.util import find_spec
+        native_spec = find_spec("company._nq_cpp")
+        if native_spec is not None and native_spec.origin is not None:
+            result["cpp_source_sha256"] = hash_bytes(
+                Path(__file__).with_name("_nq_cpp.cpp").read_bytes()
+            )
+            result["cpp_binary_sha256"] = hash_bytes(Path(native_spec.origin).read_bytes())
     folder = Path(output_root) / spec["id"]
     folder.parent.mkdir(parents=True, exist_ok=True)
     folder.mkdir(exist_ok=False)
@@ -471,10 +523,13 @@ def main() -> None:
     parser.add_argument("--spec", type=Path, required=True)
     parser.add_argument("--trades", type=Path, required=True)
     parser.add_argument("--out-root", type=Path, default=Path("research-runs"))
+    parser.add_argument("--profile-backend", choices=("python", "cpp", "auto"),
+                        default="python", help="opt-in C++ aggregation or availability-based auto")
     args = parser.parse_args()
     try:
-        output = run(args.spec, args.trades, args.out_root)
-    except (OSError, ValueError, TypeError, KeyError, csv.Error) as error:
+        output = run(args.spec, args.trades, args.out_root,
+                     profile_backend=args.profile_backend)
+    except (OSError, ValueError, RuntimeError, TypeError, KeyError, csv.Error) as error:
         parser.exit(2, "research rejected: " + str(error) + "\n")
     print(json.dumps({"employee": "quant-researcher-001", "artifacts": str(output)}))
 
