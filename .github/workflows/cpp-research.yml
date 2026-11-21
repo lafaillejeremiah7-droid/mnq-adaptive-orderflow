@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   native:
@@ -43,13 +43,11 @@ jobs:
       - name: Benchmark full profile on synthetic and historical trade samples
         if: matrix.python-version == '3.11'
         run: python -m benchmarks.cpp_profile_bench --vendor --rounds 5
-      - name: Publish only aggregate performance metrics
+      - name: Preserve immutable aggregate performance evidence
         if: matrix.python-version == '3.11'
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add studies/cpp-profile-acceleration/summary.json studies/cpp-profile-acceleration/report.md
-          if ! git diff --cached --quiet; then
-            git commit -m 'Publish C++ integrated profile benchmark [skip ci]'
-            git push origin HEAD:feature/quant-research-workflow
-          fi
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpp-profile-acceleration-${{ github.sha }}
+          path: studies/cpp-profile-acceleration/
+          if-no-files-found: error
+          retention-days: 30
