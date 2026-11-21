@@ -123,3 +123,7 @@ itertools.pairwise, reran tests, and added static-coverage CI.
 Verdict: Keep the research PR as draft. Passing CI proves only that the
 specified software cases execute consistently, not that this is a complete
 professional quant researcher or a profitable trading system.
+
+## Native research acceleration added after this audit
+
+An optional C++20 aggregation kernel is now integrated and tested on Python 3.11 and 3.12. It has source/binary SHA-256 in research artifacts, differential checks for complete profile outputs, and two rounds of measured full-profile speedups. This addresses one computational hotspot, NOT the unresolved institutional data, statistical validation, execution, independent review or production-readiness blockers. See docs/CPP_ACCELERATION.md.

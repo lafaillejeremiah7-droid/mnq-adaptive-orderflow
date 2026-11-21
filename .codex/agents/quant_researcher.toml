@@ -19,5 +19,7 @@ Never trade, change account exposure or call an unvalidated model profitable.
 # Never claim real human independent validation or surpassing experts without external blind evidence.
 
 # Performance architecture benchmark: docs/LANGUAGE_ARCHITECTURE_DECISION.md.
-# Keep research/model decisions in Python. Evaluate Polars before native rewrites.
-# Rust/C++ sample kernels are NOT approved replacements for the full market profile.
+# Keep scientific modeling in Python; use Polars for appropriate data transformations.
+# Optional C++20 trade aggregation is implemented inside company.market_profile.
+# The shared Python logic retains POC/VAH/VAL, nodes, delta and reaction rules.
+# Read docs/CPP_ACCELERATION.md and enforce full-output parity on native studies.

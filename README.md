@@ -66,6 +66,18 @@ Employee #1 now includes a registered, checksummed, point-in-time [research expe
 The researcher also includes [NQ/MNQ Monte Carlo risk study](company/risk_research.py): resample whole historical trade days, apply explicit static or EOD-trailing drawdowns and target-first rules, calculate failure/target/unfinished frequencies and Wilson intervals, and account for separate NQ/MNQ tick values and round-trip fees. Synthetic tests do **not** establish real challenge success probabilities. Usage and assumptions: [quant research standard](docs/QUANT_RESEARCH_STANDARD.md).
 
 
-## Benchmarked language architecture: Python + Polars; experimental Rust/C++
+## Benchmarked architecture: Python + Polars + optional integrated C++
 
 Measured the same trade-volume/POC/value-area task on 250k synthetic trades and 488,749 vendor-reported NQZ6 RTH trades. Rust was 5.9× faster and C++ 9.6× faster than interpreted Python loops on the historical sample; Rust-backed Polars was 3.1× faster while staying in Python. All outputs matched exactly. These results concern a narrowly defined kernel, **not full trading-system or model speed**. Read [decision, methodology and limitations](docs/LANGUAGE_ARCHITECTURE_DECISION.md), [report](studies/language-benchmark/report.md), and [benchmark code](benchmarks/lang_perf/). Keep Python as the core research language; do not auto-replace the audited Python engine with the standalone experimental binaries.
+
+### Native C++ volume-profile acceleration
+
+The researcher now has an optional C++20 pybind11 extension that aggregates trade-size-at-price and aggressor counts inside the existing volume_profile engine while keeping Python rules for POC/VAH/VAL, HVN/LVN and delta. Complete result dictionaries match on differential tests; the historic vendor sample showed approximately 2.0–2.35x full-profile speedups on separate runners. The old standalone CSV speed comparison is not the full research speedup.
+
+Build on Linux using Python development headers and C++20 compiler:
+
+    python -m pip install pybind11==3.0.1 setuptools wheel
+    python setup.py build_ext --inplace
+    python -m company.market_profile --spec protocol.json --trades trades.csv --profile-backend cpp
+
+The default is Python; auto selects C++ only for >=20,000 historical trades when the extension is installed. See [the C++ integration guide](docs/CPP_ACCELERATION.md) and [integrated benchmark](studies/cpp-profile-acceleration/report.md). This is research-only, not an institutional edge or live system.

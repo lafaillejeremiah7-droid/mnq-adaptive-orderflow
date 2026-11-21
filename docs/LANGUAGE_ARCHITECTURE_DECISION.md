@@ -1,7 +1,7 @@
 # Quant Researcher: Python, Rust, C++, and Polars technology decision
 
 **Date:** 2026-11-20  
-**Decision:** **Retain Python for the scientist, use optional Polars for batch tabular data, and reserve Rust for proven high-volume CPU hot paths.** Do not rewrite the existing Quant Researcher in C++ or Rust merely because a narrow benchmark is faster.
+**Updated decision:** **Retain Python for the scientist, use Polars for appropriate tabular ETL, and use opt-in C++ for the measured historical trade-aggregation hotspot.** Rust remains a tested comparator, not a required runtime. Do not rewrite the entire researcher.
 
 ## Measurements
 
@@ -37,11 +37,11 @@ No vendor raw data is included in the repository. Only source-hash, correctness,
 
 - **Python**: hypotheses, statistical models, NumPy/SciPy/scikit-learn/PyTorch where applicable, validation, notebooks, experiment orchestration, risk research and reports.
 - **Polars through Python**: first-choice opt-in for validated multi-file and tabular ETL; it uses an underlying Rust execution engine. Profile quality, exact semantic match and source provenance must still be verified.
-- **Rust (opt-in, experimental)**: potential for very large tick streams, order-book/replay event loops, memory-constrained processing and latency-sensitive components, only after (a) end-to-end profiling and (b) exact parity checks with the approved Python reference. Expose as a safely packaged native library (e.g. PyO3/maturin) only after portability/installation tests, tests for numerical overflow, exception boundaries, CPU/memory capacity, and a transparent Python fallback.
-- **C++**: keep as a measured comparator. Consider only if a specific production latency/throughput requirement demonstrates an advantage beyond what Rust and existing Python native-backed libraries can deliver.
+- **C++20, selectively implemented**: The optional company._nq_cpp extension accelerates trade-volume counters inside company.market_profile. The POC, value area, nodes, delta formatting and reactions remain governed by shared Python code. See docs/CPP_ACCELERATION.md for build instructions and complete output parity evidence.
+- **Rust**: Keep the measured standalone CLI benchmark available for future comparisons, without adding a mandatory Rust runtime to the research pipeline.
 - **SQL/Parquet**: storage/query formats, not substitutes for the reasoning language; not evaluated in this benchmark.
 
-**No automatic native substitution** into the real profile or trading path is authorized here. Benchmarks are isolated from existing research scripts and trading operations.
+**Native substitution remains opt-in.** The actual research code supports --profile-backend cpp, while --profile-backend auto selects native aggregation only for 20,000+ trades when compiled; Python remains default. No live trading or execution code has been enabled.
 
 ## Reproduction
 
@@ -62,3 +62,7 @@ Authentic, licensed multi-year NQ/MNQ tick data and point-in-time feature lineag
 - Rust-backed Polars: https://docs.pola.rs/
 - Python/Rust bindings: https://pyo3.rs/
 - High-performance NumPy in Python: https://numpy.org/doc/stable/user/basics.performant_code.html
+
+## New integrated C++ full-profile benchmark
+
+The standalone CSV numbers above do not reflect the full Python research path. The separately measured full-profile Python/C++ implementation provides roughly 2.0–2.35x historical vendor-sample speedups within its two GitHub-hosted runs. See [C++ integration and measured caveats](CPP_ACCELERATION.md). The sample is one day and does not validate an alpha signal.
