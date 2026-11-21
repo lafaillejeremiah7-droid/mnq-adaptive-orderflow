@@ -1,0 +1,25 @@
+{
+  "engine_sha256": "5eb54ffe65a9ca7c91e521670b6390c8b15cde3a22aa8715307b0c270c32fac5",
+  "registered": "2026-11-20T16:57:54.855537+00:00",
+  "spec": {
+    "contract": "MNQH5",
+    "data_kind": "historical",
+    "data_sha256": "a0e4edcef38b102b7490c5beac530abddff9a3f23cba67952a2c11f73de2d0c1",
+    "data_source": "tdtrader76/NQ_Backtest at 7ac6bd20d3fa46b25fa6d2db947200ef9860c6ef via examples/prepare_mnq.py. Third-party bars, unauthenticated.",
+    "direction": "follow",
+    "end": "2025-03-01T00:00:00Z",
+    "failure_reason": "Reject if net is below one cent versus flat cash, fewer than 30 trades occur, or closed-trade drawdown exceeds $500. Previously studied historical archive. This retrospective engineering trial cannot establish a fresh holdout.",
+    "fee_cents": 100,
+    "hypothesis": "During 09:30\u201316:00 New York weekdays, a completed MNQH5 one-minute body of at least five points predicts next-minute continuation after costs.",
+    "id": "mnqh5-202502-impulse",
+    "instrument": "MNQ",
+    "max_drawdown_cents": 50000,
+    "min_body_ticks": 20,
+    "min_net_cents": 1,
+    "min_trades": 30,
+    "slippage_ticks_per_side": 1,
+    "start": "2025-02-01T00:00:00Z",
+    "stop_ticks": 20,
+    "target_ticks": 20
+  }
+}

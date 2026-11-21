@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+research-runs/
+experiments/.lock
+experiments/*/result.json
+
+# Optional C++ research kernel (compile for each Python ABI, OS and architecture)
+build/
+*.so
+*.pyd
+*.dll
+*.dylib
+*.egg-info/

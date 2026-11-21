@@ -1,0 +1,21 @@
+{
+  "id": "fixture-001",
+  "hypothesis": "A one-minute impulse continues on the next bar.",
+  "failure_reason": "Reject if net P&L or trade count misses the registered minimum, or closed-trade drawdown exceeds budget.",
+  "data_source": "Handwritten test bars in examples/bars.csv",
+  "data_kind": "synthetic",
+  "data_sha256": "6f2646826ba4891a5432ed1cc2e74ebf9fd196f70a5a2102aa9f2d7c022ebc5c",
+  "instrument": "NQ",
+  "contract": "NQH5",
+  "start": "2025-01-02T15:00:00Z",
+  "end": "2025-01-02T15:04:00Z",
+  "direction": "follow",
+  "min_body_ticks": 4,
+  "stop_ticks": 4,
+  "target_ticks": 4,
+  "fee_cents": 100,
+  "slippage_ticks_per_side": 1,
+  "min_trades": 2,
+  "min_net_cents": 1,
+  "max_drawdown_cents": 10000
+}

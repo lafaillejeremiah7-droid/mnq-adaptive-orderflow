@@ -1,0 +1,33 @@
+name: Research five years of historical NQ
+
+on:
+  push:
+    branches: [feature/quant-research-workflow]
+    paths: [company/five_year_nq.py, .github/workflows/five-year-nq.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  five-year-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test historical study's deterministic logic
+        run: python -m unittest tests/test_five_year_nq.py -v
+      - name: Download SHA-pinned 2021-2025 NQ source files and research holdout
+        run: python -m company.five_year_nq
+      - name: Publish only derived findings to development branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add studies/nq-five-year-2021-2025/summary.json studies/nq-five-year-2021-2025/report.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish five-year NQ historical holdout evidence [skip ci]'
+            git push origin HEAD:feature/quant-research-workflow
+          fi

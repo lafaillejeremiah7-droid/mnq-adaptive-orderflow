@@ -1,0 +1,19 @@
+# Integrated C++ NQ/MNQ profile acceleration
+
+Complete Python and C++-accelerated profile outputs matched exactly.
+
+| Dataset | Trades | Python median | C++ median | Speedup |
+|---|---:|---:|---:|---:|
+| synthetic_250k | 250,000 | 0.2113s | 0.0863s | 2.45× |
+| historical_vendor_rth | 488,749 | 0.3970s | 0.1690s | 2.35× |
+
+## Caveats
+
+- Single GitHub runner, no CPU pinning, benchmark intervals or hardware replication.
+- Both implementations share Python's value area, node and delta formatting logic.
+- Timings exclude loading vendor ZIP/Parquet, source integrity verification and input Trade preparation.
+- C++ import and Python binding overhead are included in every C++ call.
+- Historical vendor sample is one day; exchange authenticity not independently established.
+- No claim about NQ market direction, profitability, or overall model improvement.
+
+Benchmarks demonstrate performance, not a valid tradable edge.

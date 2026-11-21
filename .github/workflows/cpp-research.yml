@@ -1,0 +1,53 @@
+name: C++ NQ research parity and integrated performance
+
+on:
+  push:
+    branches: [feature/quant-research-workflow]
+    paths:
+      - company/_nq_cpp.cpp
+      - company/market_profile.py
+      - benchmarks/cpp_profile_bench.py
+      - tests/test_cpp_profile.py
+      - tests/test_market_profile_research.py
+      - setup.py
+      - .github/workflows/cpp-research.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install native binding dependencies
+        run: python -m pip install pybind11==3.0.1 setuptools wheel
+      - name: Build optimized C++20 extension
+        run: python setup.py build_ext --inplace
+      - name: Run existing suite and native differential tests
+        run: python -m unittest discover -s tests -v
+      - name: Verify optional extension available
+        run: python -c "from company import _nq_cpp; print(_nq_cpp.__doc__)"
+      - name: Install historical sample decoder
+        if: matrix.python-version == '3.11'
+        run: python -m pip install pyarrow==20.0.0
+      - name: Benchmark full profile on synthetic and historical trade samples
+        if: matrix.python-version == '3.11'
+        run: python -m benchmarks.cpp_profile_bench --vendor --rounds 5
+      - name: Preserve immutable aggregate performance evidence
+        if: matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpp-profile-acceleration-${{ github.sha }}
+          path: studies/cpp-profile-acceleration/
+          if-no-files-found: error
+          retention-days: 30

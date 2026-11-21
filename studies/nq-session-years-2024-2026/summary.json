@@ -1,0 +1,71 @@
+{
+  "all_day_paired_effect_bps": {
+    "bootstrap_95pct": [
+      4.908889375606625,
+      5.522269632941325
+    ],
+    "mean": 5.480078291194084,
+    "median": 5.143480127564234,
+    "n": 593,
+    "positive_share": 0.9763912310286678
+  },
+  "as_of_context": "previously available public historical data, exploratory",
+  "complete_day_count": 593,
+  "data_type": "third-party NQ continuous one-minute OHLCV; may have contract roll jumps",
+  "incomplete_observed_days": {},
+  "observed_bars_by_source": {
+    "alfordlabs": 772780,
+    "tradingview": 41955,
+    "yahoo": 258
+  },
+  "observed_bars_by_year": {
+    "2024": 187305,
+    "2025": 353233,
+    "2026": 274455
+  },
+  "per_year": {
+    "2024": {
+      "bootstrap_95pct": [
+        4.0045224368084416,
+        5.07790804955095
+      ],
+      "mean": 4.876062496705241,
+      "median": 4.5010139387218455,
+      "n": 137,
+      "positive_share": 0.9927007299270073
+    },
+    "2025": {
+      "bootstrap_95pct": [
+        4.38599472062435,
+        4.9964363090031645
+      ],
+      "mean": 4.985215732550354,
+      "median": 4.596665624419656,
+      "n": 257,
+      "positive_share": 0.9649805447470817
+    },
+    "2026": {
+      "bootstrap_95pct": [
+        6.0514730619240025,
+        7.075648263335653
+      ],
+      "mean": 6.535002117407199,
+      "median": 6.7096264872228515,
+      "n": 199,
+      "positive_share": 0.9798994974874372
+    }
+  },
+  "question": "Is mean one-minute range larger at the 09:30 New York open than at 12:00?",
+  "source_manifest": {
+    "git_blob_sha1": "83214fdbf39adc379e2735da6364d4d3eea4e984",
+    "sha256": "77641a522d8aed138505b947e9d7d1d5020bd99ee08688e963a0894812514e66",
+    "url": "https://raw.githubusercontent.com/kfccolonel1/BARS/b8f2d8ab36e44c289036ce093bf7c9f04073a7d9/NQ/1min/NQ_1min_continuous.csv.gz"
+  },
+  "source_range": [
+    "2024-06-21T00:00:00-04:00",
+    "2026-10-08T23:58:00-04:00"
+  ],
+  "tradable_edge_validated": false,
+  "trade_by_price_reconstruction_available": false,
+  "unit_of_analysis": "one paired New York date, not an independent minute"
+}

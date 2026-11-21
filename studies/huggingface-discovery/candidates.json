@@ -1,0 +1,1146 @@
+{
+  "candidate_count": 29,
+  "candidates": [
+    {
+      "classification": "NQ_or_MNQ_OHLCV_candidate_unverified",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "NQ_1min_2015.parquet",
+        "NQ_1min_2016.parquet",
+        "NQ_1min_2017.parquet",
+        "NQ_1min_2018.parquet",
+        "NQ_1min_2019.parquet",
+        "NQ_1min_2020.parquet",
+        "NQ_1min_2021.parquet",
+        "NQ_1min_2022.parquet",
+        "NQ_1min_2023.parquet",
+        "NQ_1min_2024.parquet",
+        "NQ_1min_2025.parquet"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "mdelcristo/NQ-F_1min_OHLCV_Parquet",
+      "downloads_count": 6567,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "parquet"
+      ],
+      "files_count": 13,
+      "gated": false,
+      "last_modified": "2025-07-25T16:26:17.000Z",
+      "license_is_verified_rights": false,
+      "license_label": "mit",
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 80,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "29f4758ae8968dce79f39315ecb53722dcfd729c",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/mdelcristo/NQ-F_1min_OHLCV_Parquet"
+    },
+    {
+      "classification": "futures_candidate_requires_instrument_verification",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "catalog.csv",
+        "catalog.parquet",
+        "data/daily/part-00000.parquet",
+        "data/minute/part-00000.parquet"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "lynx1231/historical-equity-index-futures-data-sample",
+      "downloads_count": 865,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv",
+        "parquet"
+      ],
+      "files_count": 14,
+      "gated": false,
+      "last_modified": "2026-09-18T06:57:17.000Z",
+      "license_is_verified_rights": false,
+      "license_label": "other",
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 45,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "1e10ad1f78044d494fe00e0b252fad6cbc097e98",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/lynx1231/historical-equity-index-futures-data-sample"
+    },
+    {
+      "classification": "futures_candidate_requires_instrument_verification",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "01_stocks_options_main/MANIFEST.csv",
+        "02_batch2/MANIFEST.csv",
+        "03_batch3/MANIFEST.csv",
+        "08_batch8/MANIFEST.csv",
+        "09_options_index_and_sectors/manifest_all.csv",
+        "09_options_index_and_sectors/manifest_top30.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "syncster-data/us-market-1m-data",
+      "downloads_count": 2364,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 37,
+      "gated": "auto",
+      "last_modified": "2026-10-25T20:42:06.000Z",
+      "license_is_verified_rights": false,
+      "license_label": "other",
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 40,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "f6fe94fcfba9d011fa4f6c361e99ef5732ee70fc",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/syncster-data/us-market-1m-data"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "financial_news_title_desc_sentiment.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "amansharma2910/nasdaq_news_sentiment",
+      "downloads_count": 44,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 5,
+      "gated": false,
+      "last_modified": "2024-06-08T19:37:55.000Z",
+      "license_is_verified_rights": false,
+      "license_label": "mit",
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "852b5f70b0208ee8b96c2bedd7cc19f14d16ebd5",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/amansharma2910/nasdaq_news_sentiment"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "USATECH.IDXUSD_Candlestick_15_M_BID_01.01.2023-18.01.2025.csv",
+        "USATECH.IDXUSD_Candlestick_5_M_BID_01.01.2023-18.01.2025.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "athapong/NASDAQ",
+      "downloads_count": 7,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 3,
+      "gated": false,
+      "last_modified": "2025-01-21T09:14:46.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "06e66291636d637f5d06a64077df16a6acf53a02",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/athapong/NASDAQ"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "data/train-00000-of-00002.parquet",
+        "data/train-00001-of-00002.parquet"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "benstaf/FNSPID-filtered-nasdaq-100",
+      "downloads_count": 252,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "parquet"
+      ],
+      "files_count": 4,
+      "gated": false,
+      "last_modified": "2024-12-24T16:38:44.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "c5cebb37e76d64d27d79ca72ede8f93b84e1a8aa",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/benstaf/FNSPID-filtered-nasdaq-100"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "data/train-00000-of-00002.parquet",
+        "data/train-00001-of-00002.parquet"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "benstaf/FNSPID-nasdaq-100-1news-per-row-random",
+      "downloads_count": 26,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "parquet"
+      ],
+      "files_count": 4,
+      "gated": false,
+      "last_modified": "2025-01-08T09:50:45.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "d221047e6a9254717e6cf5986f0a7ed0296abd77",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/benstaf/FNSPID-nasdaq-100-1news-per-row-random"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "data/train-00000-of-00001.parquet"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "benstaf/FNSPID-nasdaq-100-post2019-1news-per-row-random",
+      "downloads_count": 19,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "parquet"
+      ],
+      "files_count": 3,
+      "gated": false,
+      "last_modified": "2024-12-26T12:31:33.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "7404fb7765dd203e6a2892ed5df008005a5b7830",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/benstaf/FNSPID-nasdaq-100-post2019-1news-per-row-random"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "data/train-00000-of-00001.parquet"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "benstaf/FNSPID-nasdaq-100-post2019-1newsperrow",
+      "downloads_count": 110,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "parquet"
+      ],
+      "files_count": 3,
+      "gated": false,
+      "last_modified": "2024-12-25T12:06:52.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "fd457e063a9476cd2f8d5469d5e519f8ba6334ce",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/benstaf/FNSPID-nasdaq-100-post2019-1newsperrow"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "trade_data_2019_2023.csv",
+        "trade_data_deepseek_risk_2019_2023.csv",
+        "trade_data_deepseek_sentiment_2019_2023.csv",
+        "trade_data_llama_risk_2019_2023.csv",
+        "trade_data_llama_sentiment_2019_2023.csv",
+        "train_data_2013_2018.csv",
+        "train_data_deepseek_risk_2013_2018.csv",
+        "train_data_deepseek_sentiment_2013_2018.csv",
+        "train_data_llama_risk_2013_2018.csv",
+        "train_data_llama_sentiment_2013_2018.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "benstaf/nasdaq_2013_2023",
+      "downloads_count": 479,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 12,
+      "gated": false,
+      "last_modified": "2025-03-22T14:30:01.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "b80bc15e4320eac68f53cfdd2fff3365e55dfedd",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/benstaf/nasdaq_2013_2023"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "data/train-00000-of-00001.parquet"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "benstaf/nasdaq_news",
+      "downloads_count": 32,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "parquet"
+      ],
+      "files_count": 3,
+      "gated": false,
+      "last_modified": "2025-01-14T12:25:24.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "9f629506d0cde013723e450c957aebf86b80fb2e",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/benstaf/nasdaq_news"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "sentiment_deepseek_new_cleaned_nasdaq_news_full.csv",
+        "sentiment_llama_cleaned_nasdaq_news_full.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "benstaf/nasdaq_news_sentiment",
+      "downloads_count": 46,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 3,
+      "gated": false,
+      "last_modified": "2025-01-28T20:34:59.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "04532f608f416991dea9b9952775102f8e2216e5",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/benstaf/nasdaq_news_sentiment"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "data/train-00000-of-00001.parquet"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "benstaf/risk_Llama-3.3-70B-Instruct_nasdaq_news",
+      "downloads_count": 13,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "parquet"
+      ],
+      "files_count": 3,
+      "gated": false,
+      "last_modified": "2025-01-14T12:25:44.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "f63c6b795763a6f1ed69f16dc51fd6915207d6ef",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/benstaf/risk_Llama-3.3-70B-Instruct_nasdaq_news"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "risk_deepseek_cleaned_nasdaq_news_full.csv",
+        "risk_llama_cleaned_nasdaq_news_full.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "benstaf/risk_nasdaq",
+      "downloads_count": 35,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 3,
+      "gated": false,
+      "last_modified": "2025-01-30T22:46:44.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "1c46dd45482f681e41e3e70a3a353eb6d165e845",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/benstaf/risk_nasdaq"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "sentiment_nasdaq_news.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "benstaf/sentiment_nasdaq_news.csv",
+      "downloads_count": 11,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 3,
+      "gated": false,
+      "last_modified": "2024-12-26T22:13:04.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "b30ee99de25a7eb8b4f899251643f0bb574f0603",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/benstaf/sentiment_nasdaq_news.csv"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "data/inference-00000-of-00001.parquet",
+        "data/test-00000-of-00001.parquet",
+        "data/train-00000-of-00001.parquet"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "firobeid/SP_DOW_NASDAQ_stocks__News_Headlines_labeled",
+      "downloads_count": 78,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "parquet"
+      ],
+      "files_count": 5,
+      "gated": false,
+      "last_modified": "2025-11-27T17:16:45.000Z",
+      "license_is_verified_rights": false,
+      "license_label": "mit",
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "19bad52f0df775c35568cdefa1075aef6f283c51",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/firobeid/SP_DOW_NASDAQ_stocks__News_Headlines_labeled"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "data/train-00000-of-00001.parquet"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "Q-bert/NASDAQ-Daily-Close-Random-100",
+      "downloads_count": 72,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "parquet"
+      ],
+      "files_count": 3,
+      "gated": false,
+      "last_modified": "2024-08-24T13:03:53.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "ab2e380d96eb2da1848f737bcbae046c29800882",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/Q-bert/NASDAQ-Daily-Close-Random-100"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "data/train-00000-of-00048.parquet",
+        "data/train-00001-of-00048.parquet",
+        "data/train-00002-of-00048.parquet",
+        "data/train-00003-of-00048.parquet",
+        "data/train-00004-of-00048.parquet",
+        "data/train-00005-of-00048.parquet",
+        "data/train-00006-of-00048.parquet",
+        "data/train-00007-of-00048.parquet",
+        "data/train-00008-of-00048.parquet",
+        "data/train-00009-of-00048.parquet",
+        "data/train-00010-of-00048.parquet",
+        "data/train-00011-of-00048.parquet",
+        "data/train-00012-of-00048.parquet",
+        "data/train-00013-of-00048.parquet",
+        "data/train-00014-of-00048.parquet",
+        "data/train-00015-of-00048.parquet",
+        "data/train-00016-of-00048.parquet",
+        "data/train-00017-of-00048.parquet",
+        "data/train-00018-of-00048.parquet",
+        "data/train-00019-of-00048.parquet"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "sabareesh88/FNSPID_nasdaq",
+      "downloads_count": 496,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "parquet"
+      ],
+      "files_count": 50,
+      "gated": false,
+      "last_modified": "2024-09-20T18:43:25.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "7551d1738dd42480f8b7284e29b94ca361394f46",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/sabareesh88/FNSPID_nasdaq"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "data/train-00000-of-00044.parquet",
+        "data/train-00001-of-00044.parquet",
+        "data/train-00002-of-00044.parquet",
+        "data/train-00003-of-00044.parquet",
+        "data/train-00004-of-00044.parquet",
+        "data/train-00005-of-00044.parquet",
+        "data/train-00006-of-00044.parquet",
+        "data/train-00007-of-00044.parquet",
+        "data/train-00008-of-00044.parquet",
+        "data/train-00009-of-00044.parquet",
+        "data/train-00010-of-00044.parquet",
+        "data/train-00011-of-00044.parquet",
+        "data/train-00012-of-00044.parquet",
+        "data/train-00013-of-00044.parquet",
+        "data/train-00014-of-00044.parquet",
+        "data/train-00015-of-00044.parquet",
+        "data/train-00016-of-00044.parquet",
+        "data/train-00017-of-00044.parquet",
+        "data/train-00018-of-00044.parquet",
+        "data/train-00019-of-00044.parquet"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "sabareesh88/FNSPID_nasdaq_sorted",
+      "downloads_count": 406,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "parquet"
+      ],
+      "files_count": 46,
+      "gated": false,
+      "last_modified": "2024-10-07T20:54:12.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "4e556f7ca88aaea5c5245293970bcf2449f4c30a",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/sabareesh88/FNSPID_nasdaq_sorted"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "Nasdaq_full_240_min_2007_to_2023.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "Sjdsafari/Nasdaq_240min_2007_to_2023",
+      "downloads_count": 19,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 3,
+      "gated": false,
+      "last_modified": "2023-10-06T22:12:57.000Z",
+      "license_is_verified_rights": false,
+      "license_label": "apache-2.0",
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "4c521a8080ea1ff857f39ead6e424e9f5d31af96",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/Sjdsafari/Nasdaq_240min_2007_to_2023"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "Nasdaq_full_1_day_2007_to_2023.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "Sjdsafari/Nasdaq_full_1_day_2007_to_2023",
+      "downloads_count": 250,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 3,
+      "gated": false,
+      "last_modified": "2023-10-06T22:07:15.000Z",
+      "license_is_verified_rights": false,
+      "license_label": "apache-2.0",
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "01d334aa02d566d491caa24e865f79a117e95a76",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/Sjdsafari/Nasdaq_full_1_day_2007_to_2023"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "Nasdaq_full_1_month_2007_to_2023.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "Sjdsafari/Nasdaq_full_1_month_2007_to_2023",
+      "downloads_count": 36,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 3,
+      "gated": false,
+      "last_modified": "2023-10-06T22:09:55.000Z",
+      "license_is_verified_rights": false,
+      "license_label": "apache-2.0",
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "febc11666ad53972ccede926c9564d010059aae0",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/Sjdsafari/Nasdaq_full_1_month_2007_to_2023"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "Nasdaq_full_1_week_2007_to_2023.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "Sjdsafari/Nasdaq_full_1_week_2007_to_2023",
+      "downloads_count": 5,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 3,
+      "gated": false,
+      "last_modified": "2023-10-06T22:02:48.000Z",
+      "license_is_verified_rights": false,
+      "license_label": "apache-2.0",
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "9c10266f82ca9c583cc843ee73e93862df6f009b",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/Sjdsafari/Nasdaq_full_1_week_2007_to_2023"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "price_movement/A.csv",
+        "price_movement/AA.csv",
+        "price_movement/AAAU.csv",
+        "price_movement/AACG.csv",
+        "price_movement/AADR.csv",
+        "price_movement/AAL.csv",
+        "price_movement/AAMC.csv",
+        "price_movement/AAME.csv",
+        "price_movement/AAN.csv",
+        "price_movement/AAOI.csv",
+        "price_movement/AAON.csv",
+        "price_movement/AAP.csv",
+        "price_movement/AAPL.csv",
+        "price_movement/AAT.csv",
+        "price_movement/AAU.csv",
+        "price_movement/AAXJ.csv",
+        "price_movement/AB.csv",
+        "price_movement/ABBV.csv",
+        "price_movement/ABCB.csv",
+        "price_movement/ABEO.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "zexianli/nasdaq_data",
+      "downloads_count": 416,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 4367,
+      "gated": false,
+      "last_modified": "2024-06-08T16:40:46.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "f1075875030dada925b54d1d04253f4c7dca2c4c",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/zexianli/nasdaq_data"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "A.csv",
+        "AA.csv",
+        "AAAU.csv",
+        "AACG.csv",
+        "AADR.csv",
+        "AAL.csv",
+        "AAMC.csv",
+        "AAME.csv",
+        "AAN.csv",
+        "AAOI.csv",
+        "AAON.csv",
+        "AAP.csv",
+        "AAPL.csv",
+        "AAT.csv",
+        "AAU.csv",
+        "AAXJ.csv",
+        "AB.csv",
+        "ABBV.csv",
+        "ABCB.csv",
+        "ABEO.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "zexianli/nasdaq_data_shifted",
+      "downloads_count": 23,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 4366,
+      "gated": false,
+      "last_modified": "2024-06-08T22:34:51.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "386d67bb68da57f8b41d0680712aaf35b5077ce4",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/zexianli/nasdaq_data_shifted"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "A.csv",
+        "AA.csv",
+        "AAAU.csv",
+        "AACG.csv",
+        "AADR.csv",
+        "AAL.csv",
+        "AAMC.csv",
+        "AAME.csv",
+        "AAN.csv",
+        "AAOI.csv",
+        "AAON.csv",
+        "AAP.csv",
+        "AAPL.csv",
+        "AAT.csv",
+        "AAU.csv",
+        "AAXJ.csv",
+        "AB.csv",
+        "ABBV.csv",
+        "ABCB.csv",
+        "ABEO.csv"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "zexianli/nasdaq_shifted",
+      "downloads_count": 19,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "csv"
+      ],
+      "files_count": 4366,
+      "gated": false,
+      "last_modified": "2024-06-08T23:08:42.000Z",
+      "license_is_verified_rights": false,
+      "license_label": null,
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 25,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "73366cb7d30eff081e7efe26618e34e4dc702454",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/zexianli/nasdaq_shifted"
+    },
+    {
+      "classification": "related_CFD_not_NQ_futures",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [
+        "year=2021/month=05/USTECH-2021-05-part0000.parquet",
+        "year=2021/month=06/USTECH-2021-06-part0000.parquet",
+        "year=2021/month=06/USTECH-2021-06-part0001.parquet",
+        "year=2021/month=06/USTECH-2021-06-part0002.parquet",
+        "year=2021/month=07/USTECH-2021-07-part0000.parquet",
+        "year=2021/month=07/USTECH-2021-07-part0001.parquet",
+        "year=2021/month=07/USTECH-2021-07-part0002.parquet",
+        "year=2021/month=07/USTECH-2021-07-part0003.parquet",
+        "year=2021/month=08/USTECH-2021-08-part0000.parquet",
+        "year=2021/month=08/USTECH-2021-08-part0001.parquet",
+        "year=2021/month=08/USTECH-2021-08-part0002.parquet",
+        "year=2021/month=08/USTECH-2021-08-part0003.parquet",
+        "year=2021/month=09/USTECH-2021-09-part0000.parquet",
+        "year=2021/month=09/USTECH-2021-09-part0001.parquet",
+        "year=2021/month=09/USTECH-2021-09-part0002.parquet",
+        "year=2021/month=10/USTECH-2021-10-part0000.parquet",
+        "year=2021/month=10/USTECH-2021-10-part0001.parquet",
+        "year=2021/month=10/USTECH-2021-10-part0002.parquet",
+        "year=2021/month=10/USTECH-2021-10-part0003.parquet",
+        "year=2021/month=11/USTECH-2021-11-part0000.parquet"
+      ],
+      "data_integrity_proven": false,
+      "dataset_id": "CarlosSilva1/ustech-ticks",
+      "downloads_count": 3053,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [
+        "parquet"
+      ],
+      "files_count": 214,
+      "gated": false,
+      "last_modified": "2026-05-25T01:30:24.000Z",
+      "license_is_verified_rights": false,
+      "license_label": "cc-by-4.0",
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 15,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "30996ad5b0b9e14df51737c3e024374d90b66615",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/CarlosSilva1/ustech-ticks"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [],
+      "data_integrity_proven": false,
+      "dataset_id": "asas4539/nasdaq_2013_2023",
+      "downloads_count": 8,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [],
+      "files_count": 2,
+      "gated": false,
+      "last_modified": "2025-03-17T07:37:35.000Z",
+      "license_is_verified_rights": false,
+      "license_label": "apache-2.0",
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 10,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "be64a3dc5c98ee41a42467ce7de24c58b54f878a",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/asas4539/nasdaq_2013_2023"
+    },
+    {
+      "classification": "broader_financial_data_verify_NQ_presence",
+      "complete_years_coverage_proven": false,
+      "contract_rollover_policy_proven": false,
+      "data_file_paths_sample": [],
+      "data_integrity_proven": false,
+      "dataset_id": "Sjdsafari/Nasdaq_60min_2007_to_2023",
+      "downloads_count": 96,
+      "eligible_for_raw_strategy_backtest": false,
+      "file_types": [],
+      "files_count": 4,
+      "gated": false,
+      "last_modified": "2023-10-06T22:51:20.000Z",
+      "license_is_verified_rights": false,
+      "license_label": "apache-2.0",
+      "limitations": [
+        "HF metadata is only a candidate discovery signal; no rows were downloaded or verified.",
+        "A license label does not establish the publisher's rights to exchange market data.",
+        "Nasdaq index CFDs, QQQ, equities and synthetic data are NOT equivalent to CME NQ/MNQ executed trades.",
+        "OHLCV minute bars cannot reconstruct volume-at-price, trade delta, book depth or absorption."
+      ],
+      "private": false,
+      "ranking_score": 10,
+      "real_CME_NQ_or_MNQ_proven": false,
+      "revision_sha": "e1e58ed289c12d9cb7d71cf1ee7147c9c533ae40",
+      "timestamp_timezone_proven": false,
+      "trades_and_size_at_price_proven": false,
+      "url": "https://huggingface.co/datasets/Sjdsafari/Nasdaq_60min_2007_to_2023"
+    }
+  ],
+  "discarded_unrelated_search_results": 3,
+  "employee": "quant-researcher-001",
+  "excluded_search_ids_without_market_context": 61,
+  "failures": [],
+  "generated_utc": "2026-11-20T22:39:43.737345+00:00",
+  "promotion_gate": [
+    "Verify publisher permission, exchange redistribution rights, and actual license terms.",
+    "Download bounded samples from a pinned revision and hash the bytes.",
+    "Inspect true columns, instrument identity, contract code, timestamp timezone, cadence and coverage.",
+    "Check duplicates, missing periods, order, rollover policy, scale and trade/quote definitions.",
+    "Classify as OHLCV, executed trade prices/sizes, or book updates before selecting research.",
+    "Keep old/hypothesis-seen datasets separate from fresh holdouts."
+  ],
+  "purpose": "Find candidate market datasets; never automatically trust them",
+  "raw_market_data_downloaded": false,
+  "research_edge_validated": false,
+  "search_terms": {
+    "CME": {
+      "endpoint": "https://huggingface.co/api/datasets?search=CME&limit=25",
+      "returned": 25
+    },
+    "MNQ": {
+      "endpoint": "https://huggingface.co/api/datasets?search=MNQ&limit=25",
+      "returned": 5
+    },
+    "NQ": {
+      "endpoint": "https://huggingface.co/api/datasets?search=NQ&limit=25",
+      "returned": 25
+    },
+    "NQ-F": {
+      "endpoint": "https://huggingface.co/api/datasets?search=NQ-F&limit=25",
+      "returned": 9
+    },
+    "Nasdaq": {
+      "endpoint": "https://huggingface.co/api/datasets?search=Nasdaq&limit=25",
+      "returned": 25
+    },
+    "USTECH": {
+      "endpoint": "https://huggingface.co/api/datasets?search=USTECH&limit=25",
+      "returned": 2
+    }
+  },
+  "source": "Hugging Face public dataset metadata API"
+}
