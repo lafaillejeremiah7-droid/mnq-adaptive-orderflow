@@ -20,32 +20,32 @@
       },
       "results": {
         "cpp": {
-          "max_seconds": 0.04830880400001547,
-          "median_seconds": 0.04810341300000687,
-          "min_seconds": 0.04800570000000448,
+          "max_seconds": 0.0394595539999969,
+          "median_seconds": 0.037986324999998544,
+          "min_seconds": 0.03718792800000159,
           "repeated_runs": 5,
-          "speedup_vs_python": 9.63617564932306
+          "speedup_vs_python": 11.19677399695853
         },
         "polars": {
-          "max_seconds": 0.1524017780000122,
-          "median_seconds": 0.14935099499999183,
-          "min_seconds": 0.14838363200001936,
+          "max_seconds": 0.13666091600000385,
+          "median_seconds": 0.133861526000004,
+          "min_seconds": 0.1333596499999956,
           "repeated_runs": 5,
-          "speedup_vs_python": 3.1036481343831817
+          "speedup_vs_python": 3.1773453411847905
         },
         "python": {
-          "max_seconds": 0.46368776700001035,
-          "median_seconds": 0.46353293699999654,
-          "min_seconds": 0.4619907699999999,
+          "max_seconds": 0.43398928999999953,
+          "median_seconds": 0.42532429599999944,
+          "min_seconds": 0.4228764950000041,
           "repeated_runs": 5,
           "speedup_vs_python": 1.0
         },
         "rust": {
-          "max_seconds": 0.0788060070000256,
-          "median_seconds": 0.07868763400000489,
-          "min_seconds": 0.0783407590000138,
+          "max_seconds": 0.06460399200000211,
+          "median_seconds": 0.06415338600000098,
+          "min_seconds": 0.0636576919999996,
           "repeated_runs": 5,
-          "speedup_vs_python": 5.890797745932579
+          "speedup_vs_python": 6.629802766762661
         }
       },
       "rows": 488749,
@@ -73,32 +73,32 @@
       },
       "results": {
         "cpp": {
-          "max_seconds": 0.0266978709999961,
-          "median_seconds": 0.02650078199999939,
-          "min_seconds": 0.026454784999998537,
+          "max_seconds": 0.023638007999998933,
+          "median_seconds": 0.023019049999998487,
+          "min_seconds": 0.022876175000000387,
           "repeated_runs": 5,
-          "speedup_vs_python": 9.804194872437945
+          "speedup_vs_python": 10.49689809092974
         },
         "polars": {
-          "max_seconds": 0.1272482359999998,
-          "median_seconds": 0.12482471100000225,
-          "min_seconds": 0.12456400599999995,
+          "max_seconds": 0.11856553399999825,
+          "median_seconds": 0.11487768299999956,
+          "min_seconds": 0.11335352800000109,
           "repeated_runs": 5,
-          "speedup_vs_python": 2.081469517682161
+          "speedup_vs_python": 2.1033556360986254
         },
         "python": {
-          "max_seconds": 0.2628219200000075,
-          "median_seconds": 0.2598188309999898,
-          "min_seconds": 0.25910205299999234,
+          "max_seconds": 0.24520540600000018,
+          "median_seconds": 0.24162862200000035,
+          "min_seconds": 0.24026907300000033,
           "repeated_runs": 5,
           "speedup_vs_python": 1.0
         },
         "rust": {
-          "max_seconds": 0.042078287000009595,
-          "median_seconds": 0.04195008400000688,
-          "min_seconds": 0.04164771499999631,
+          "max_seconds": 0.03529792400000176,
+          "median_seconds": 0.03449600099999728,
+          "min_seconds": 0.03397064299999997,
           "repeated_runs": 5,
-          "speedup_vs_python": 6.193523498068495
+          "speedup_vs_python": 7.004540091473775
         }
       },
       "rows": 250000
@@ -108,7 +108,7 @@
     "cpp": "g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
     "logical_cpus": 4,
     "machine": "x86_64",
-    "platform": "Linux-7.0.0-1016-aws-x86_64-with-glibc2.43",
+    "platform": "Linux-7.0.0-1020-azure-x86_64-with-glibc2.43",
     "python": "3.11.18",
     "rust": "rustc 1.100.0 (0ef1bc386 2026-11-09)"
   },

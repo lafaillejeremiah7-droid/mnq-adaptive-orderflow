@@ -6,8 +6,8 @@ Order randomized within rounds; CSV disk I/O included, compile time excluded.
 
 | Dataset | Trades | Pure Python | Python+Polars | Rust | C++ | Polars speedup | Rust speedup | C++ speedup |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| synthetic_250k | 250,000 | 0.2598s | 0.1248s | 0.0420s | 0.0265s | 2.08× | 6.19× | 9.80× |
-| historical_vendor | 488,749 | 0.4635s | 0.1494s | 0.0787s | 0.0481s | 3.10× | 5.89× | 9.64× |
+| synthetic_250k | 250,000 | 0.2416s | 0.1149s | 0.0345s | 0.0230s | 2.10× | 7.00× | 10.50× |
+| historical_vendor | 488,749 | 0.4253s | 0.1339s | 0.0642s | 0.0380s | 3.18× | 6.63× | 11.20× |
 
 ## Interpretation
 
