@@ -145,6 +145,15 @@ class InstitutionalLabTests(unittest.TestCase):
             result_path.write_text(json.dumps(altered))
             with self.assertRaisesRegex(ValueError, "result_sha256"):
                 verifier.verify(output, source_path)
+            # An attacker can rehash a forged result. Replay must still fail.
+            receipt_path = output / "pipeline_receipt.json"
+            original_receipt = receipt_path.read_bytes()
+            forged_receipt = json.loads(original_receipt)
+            forged_receipt["result_sha256"] = hashlib.sha256(result_path.read_bytes()).hexdigest()
+            receipt_path.write_text(json.dumps(forged_receipt))
+            with self.assertRaisesRegex(ValueError, "deterministic replay"):
+                verifier.verify(output, source_path)
+            receipt_path.write_bytes(original_receipt)
             result_path.write_bytes(original)
             review_path = output / "adversarial_review.json"
             original_review = review_path.read_bytes()

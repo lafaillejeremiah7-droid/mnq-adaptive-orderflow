@@ -516,8 +516,9 @@ def run(spec_path: Path, trades_path: Path, output_root: Path,
         manifest = json.loads(manifest_bytes)
         if (manifest.get("contract") != spec.get("contract")
                 or manifest.get("session_start") != spec.get("rth_start")
-                or manifest.get("session_end") != spec.get("rth_end")):
-            raise ValueError("admission manifest contract/session must match research protocol")
+                or manifest.get("session_end") != spec.get("rth_end")
+                or manifest.get("source_kind") != spec.get("data_kind")):
+            raise ValueError("admission manifest contract/session/source kind must match research protocol")
         admission = admit_trades(manifest, raw)
         admission["manifest_sha256"] = hash_bytes(manifest_bytes)
     result = research(spec, raw, profile_backend=profile_backend)

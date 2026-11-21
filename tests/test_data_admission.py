@@ -132,6 +132,10 @@ class AdmissionTests(unittest.TestCase):
             manifest_file.write_text(json.dumps(bad_manifest))
             with self.assertRaisesRegex(ValueError, "must match"):
                 mp.run(sp, tp, root / "invalid", admission_manifest=manifest_file)
+            bad_kind = manifest(raw, source_kind="historical", venue="CME_GLOBEX")
+            manifest_file.write_text(json.dumps(bad_kind))
+            with self.assertRaisesRegex(ValueError, "source kind must match"):
+                mp.run(sp, tp, root / "invalid-kind", admission_manifest=manifest_file)
 
     def test_documents_are_declarations_not_license_proof(self):
         raw = sample()
