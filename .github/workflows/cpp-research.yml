@@ -8,6 +8,7 @@ on:
       - company/market_profile.py
       - benchmarks/cpp_profile_bench.py
       - tests/test_cpp_profile.py
+      - tests/test_market_profile_research.py
       - setup.py
       - .github/workflows/cpp-research.yml
   workflow_dispatch:

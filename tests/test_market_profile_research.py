@@ -135,6 +135,32 @@ class ProfileTests(unittest.TestCase):
             cpp_run.pop("requested_aggregation_backend")
             self.assertEqual(cpp_run, py_run)
 
+    def test_cpp_cli_writes_binary_checksum_when_built(self):
+        import importlib.util
+        if importlib.util.find_spec("company._nq_cpp") is None:
+            self.skipTest("native extension optional; C++ workflow compiles it")
+        raw = make_csv([BASE, REJECT])
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp)
+            config = directory / "protocol.json"
+            data = directory / "trades.csv"
+            config.write_text(json.dumps(protocol(raw)))
+            data.write_bytes(raw)
+            cmd = [
+                sys.executable, "-m", "company.market_profile",
+                "--spec", str(config), "--trades", str(data),
+                "--out-root", str(directory / "runs"),
+                "--profile-backend", "cpp",
+            ]
+            run = subprocess.run(cmd, capture_output=True, text=True, cwd=ROOT)
+            self.assertEqual(run.returncode, 0, run.stderr)
+            artifact = json.loads(
+                (directory / "runs" / "nq-profile-study" / "result.json").read_text()
+            )
+            self.assertEqual(artifact["requested_aggregation_backend"], "cpp")
+            self.assertEqual(len(artifact["cpp_binary_sha256"]), 64)
+            self.assertEqual(len(artifact["cpp_source_sha256"]), 64)
+
     def test_profile_backend_validation(self):
         raw = make_csv([BASE, REJECT])
         with self.assertRaises(ValueError):

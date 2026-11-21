@@ -11,7 +11,7 @@ setup(
             "company._nq_cpp",
             ["company/_nq_cpp.cpp"],
             cxx_std=20,
-            extra_compile_args=["-O3"],
+            extra_compile_args=["-O3", "-Wall", "-Wextra", "-Wconversion", "-Wshadow"],
         )
     ],
     cmdclass={"build_ext": build_ext},

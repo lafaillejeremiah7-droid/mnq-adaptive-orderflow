@@ -4,7 +4,7 @@ on:
   push:
     branches: [feature/quant-research-workflow]
     paths:
-      - benchmarks/**
+      - benchmarks/lang_perf/**
       - tests/test_language_benchmark.py
       - .github/workflows/language-benchmark.yml
   workflow_dispatch:

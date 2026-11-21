@@ -400,6 +400,19 @@ def summarize(events: list[dict]) -> dict:
 
 def research(spec: dict, raw: bytes, profile_backend: str = "python") -> dict:
     validate_spec(spec)
+    if profile_backend not in ("python", "cpp", "auto"):
+        raise ValueError("profile backend must be python, cpp or auto")
+    if profile_backend == "cpp":
+        # Fail early even when the sample contains no eligible session pairs.
+        from importlib import import_module
+        try:
+            import_module("company._nq_cpp")
+        except ModuleNotFoundError as exc:
+            if exc.name != "company._nq_cpp":
+                raise
+            raise RuntimeError(
+                "C++ research kernel not built; run python setup.py build_ext --inplace"
+            ) from exc
     if hash_bytes(raw) != spec["data_sha256"]:
         raise ValueError("research input checksum mismatch")
     trades = read_trades(raw, spec["contract"], spec["max_trades"])
