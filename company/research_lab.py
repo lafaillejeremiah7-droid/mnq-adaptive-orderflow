@@ -398,6 +398,15 @@ def experiment(protocol, raw):
         "baseline": "train-only mean target",
         "target": "forward basis-point return over source-declared outcome interval",
         "folds": folds,
+        "evaluation_events": [
+            {
+                "decision_at_utc": r["decision"].isoformat(),
+                "label_end_at_utc": r["end"].isoformat(),
+                "date": r["date"], "actual_bps": r["y"],
+                "model_prediction_bps": r["pred"],
+                "baseline_prediction_bps": r["baseline"],
+            } for r in predictions
+        ],
         "out_of_sample": summary,
         "cost_sensitivity": strategy,
         "point_in_time_guards": {
