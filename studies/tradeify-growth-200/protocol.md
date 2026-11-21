@@ -33,3 +33,5 @@ Account research: 100,000 common-random-number, nonparametric Monte Carlo paths 
 - https://help.tradeify.co/en/articles/10468315-trading-commission-fees
 - https://www.cmegroup.com/markets/equities/nasdaq/micro-e-mini-nasdaq-100.contractSpecs.html
 - https://ir.theice.com/press/news-details/2022/NYSE-Group-Announces-2023-2024-and-2025-Holiday-and-Early-Closings-Calendar/default.aspx
+
+Pre-scoring timestamp clarification from the independent reviewer: minute labels describe timestamp buckets. Treat both same-bucket and adjacent-bucket exits as duration-unknown for the ten-second rule; only an index difference of at least two proves a hold above ten seconds. A move during an unknown hold can contribute negatively to the conservative profit bound. The cash holiday calendar includes January 9, 2025, the NYSE day of mourning.
