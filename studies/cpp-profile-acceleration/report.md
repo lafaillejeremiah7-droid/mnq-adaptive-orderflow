@@ -4,8 +4,8 @@ Complete Python and C++-accelerated profile outputs matched exactly.
 
 | Dataset | Trades | Python median | C++ median | Speedup |
 |---|---:|---:|---:|---:|
-| synthetic_250k | 250,000 | 0.1042s | 0.0487s | 2.14× |
-| historical_vendor_rth | 488,749 | 0.1884s | 0.0934s | 2.02× |
+| synthetic_250k | 250,000 | 0.2113s | 0.0863s | 2.45× |
+| historical_vendor_rth | 488,749 | 0.3970s | 0.1690s | 2.35× |
 
 ## Caveats
 
