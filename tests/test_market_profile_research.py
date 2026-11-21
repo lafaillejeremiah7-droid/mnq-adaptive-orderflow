@@ -121,6 +121,25 @@ class ProfileTests(unittest.TestCase):
         self.assertEqual(first["max_rejection_excursion_ticks"], 2)
         self.assertEqual(first["max_cross_excursion_ticks"], 0)
 
+    def test_native_full_research_matches_python_when_built(self):
+        import importlib.util
+        if importlib.util.find_spec("company._nq_cpp") is None:
+            self.skipTest("optional C++ kernel built by native workflow")
+        for second in (REJECT, CROSS):
+            raw = make_csv([BASE, second])
+            cfg = protocol(raw)
+            py_run = mp.research(cfg, raw, profile_backend="python")
+            cpp_run = mp.research(cfg, raw, profile_backend="cpp")
+            self.assertEqual(cpp_run["requested_aggregation_backend"], "cpp")
+            py_run.pop("requested_aggregation_backend")
+            cpp_run.pop("requested_aggregation_backend")
+            self.assertEqual(cpp_run, py_run)
+
+    def test_profile_backend_validation(self):
+        raw = make_csv([BASE, REJECT])
+        with self.assertRaises(ValueError):
+            mp.research(protocol(raw), raw, profile_backend="invalid")
+
     def test_past_profile_rejection_first(self):
         raw = make_csv([BASE, REJECT])
         r = mp.research(protocol(raw), raw)
