@@ -31,3 +31,4 @@ jobs:
       - run: python -m company.research_verify --help
       - run: python -m company.independent_validation --help
       - run: python -m company.execution_replay --help
+      - run: python -m company.historical_dataset --help
