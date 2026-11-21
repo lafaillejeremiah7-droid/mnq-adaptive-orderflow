@@ -2,6 +2,7 @@
 // This is research-only: NO orders, NO live market connections, NO estimators.
 // Preserve the Python reference's integer semantics. Never silently truncate.
 #include <pybind11/pybind11.h>
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <limits>
