@@ -17,6 +17,7 @@ from pathlib import Path
 from company import research_lab as lab
 from company import research_gate as gate
 from company import research_pipeline as pipeline
+from company import research_verify as verifier
 
 ROOT = Path(__file__).resolve().parents[1]
 TRAIN_DAYS = ("2025-01-06", "2025-01-07", "2025-01-08", "2025-01-09", "2025-01-10")
@@ -113,6 +114,10 @@ class InstitutionalLabTests(unittest.TestCase):
             self.assertFalse(receipt["independent_human_validation_completed"])
             self.assertFalse(receipt["authorization_to_trade"])
             self.assertFalse(receipt["production_ready"])
+            replay = verifier.verify(output, source_path)
+            self.assertTrue(replay["research_replay_matches"])
+            self.assertTrue(replay["adversarial_review_replay_matches"])
+            self.assertFalse(replay["independent_math_validation"])
             with self.assertRaises(FileExistsError):
                 pipeline.run(protocol_path, source_path, root / "studies")
 
@@ -125,6 +130,34 @@ class InstitutionalLabTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "checksum"):
                 pipeline.run(protocol_path, source_path, root / "studies")
             self.assertFalse((root / "studies" / self.protocol["id"] / "pipeline_receipt.json").exists())
+
+    def test_replay_verifier_detects_modified_result_or_review(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            protocol_path, source_path = root / "protocol.json", root / "source.csv"
+            source_path.write_bytes(self.raw)
+            protocol_path.write_text(json.dumps(self.protocol))
+            output = pipeline.run(protocol_path, source_path, root / "studies")
+            result_path = output / "result.json"
+            original = result_path.read_bytes()
+            altered = json.loads(original)
+            altered["out_of_sample"]["model_RMSE_bps"] += 1
+            result_path.write_text(json.dumps(altered))
+            with self.assertRaisesRegex(ValueError, "result_sha256"):
+                verifier.verify(output, source_path)
+            result_path.write_bytes(original)
+            review_path = output / "adversarial_review.json"
+            original_review = review_path.read_bytes()
+            altered_review = json.loads(original_review)
+            altered_review["blockers"] = []
+            review_path.write_text(json.dumps(altered_review))
+            with self.assertRaisesRegex(ValueError, "adversarial_review_sha256"):
+                verifier.verify(output, source_path)
+            review_path.write_bytes(original_review)
+            self.assertTrue(verifier.verify(output, source_path)["hashes_match"])
+            source_path.write_bytes(self.raw + b"TAMPERED")
+            with self.assertRaisesRegex(ValueError, "input_sha256"):
+                verifier.verify(output, source_path)
 
     def test_frozen_out_of_sample_training_is_constant(self):
         folds = self.result["folds"]

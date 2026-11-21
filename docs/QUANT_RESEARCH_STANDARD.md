@@ -94,3 +94,19 @@ to overwrite an experiment ID. The reviewer lists blockers and never signs
 off live trading or scientific independence. No external data ingestion,
 feature provenance verification, actual pre-registration timestamp or
 independent human model approval is implied by this orchestration.
+
+### Exact computational replay verifier
+
+After a pipeline run, use
+
+```sh
+python -m company.research_verify --study research-runs/pipeline/STUDY_ID --source events.csv
+```
+
+This compares receipt/input/protocol/engine/result/review SHA-256 hashes,
+recomputes all model outputs from raw input and the current research engine,
+and reruns the automated adversarial reviewer. A different engine version
+requires checking out the exact original code first. The test is algorithmic
+replay by the same code, **not** independent mathematical reconstruction,
+CME record authentication or third-party model approval. It fails closed on
+tampered study, inputs and reviewer artifacts.

@@ -28,3 +28,4 @@ jobs:
       - run: python -m company.research_gate --help
       - run: python -m company.data_admission --help
       - run: python -m company.research_pipeline --help
+      - run: python -m company.research_verify --help
