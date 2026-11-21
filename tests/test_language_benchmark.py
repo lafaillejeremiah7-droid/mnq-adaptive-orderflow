@@ -36,6 +36,17 @@ class BenchmarkTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     aggregate(path)
 
+    def test_polars_matches_reference_when_installed(self):
+        try:
+            from benchmarks.lang_perf.polars_baseline import aggregate as polar_agg
+        except ImportError:
+            self.skipTest("optional Polars dependency not installed")
+        from benchmarks.lang_perf.reference import aggregate as python_agg
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp)/"polars.csv"
+            synthetic(path, 127)
+            self.assertEqual(polar_agg(path), python_agg(path))
+
     def test_tie_rule_and_contiguous_value_area(self):
         with tempfile.TemporaryDirectory() as tmp:
             path=Path(tmp)/"tie.csv"

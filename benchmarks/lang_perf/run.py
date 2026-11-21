@@ -96,6 +96,7 @@ def measure(path: Path, commands: dict, rounds: int, seed: int):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--polars", action="store_true", help="also test Python with Rust-backed Polars")
     parser.add_argument("--vendor", action="store_true",
                         help="benchmark the SHA-pinned one-day vendor sample too")
     parser.add_argument("--rounds", type=int, default=5)
@@ -117,6 +118,8 @@ def main():
             "rust": [str(rust)],
             "cpp": [str(cpp)],
         }
+        if args.polars:
+            commands["polars"] = [sys.executable, str(ROOT/"polars_baseline.py")]
         fake = root/"synthetic.csv"
         synthetic(fake)
         results = {"synthetic_250k": measure(fake, commands, args.rounds, 20261120)}
@@ -135,6 +138,7 @@ def main():
     result = {
         "scope": "CSV integer-tick price/size/side aggregation plus POC and 70% value-area only",
         "benchmark_type": "new process including CSV parse and I/O, excluding compile time",
+        "polars_available": args.polars,
         "environment": {
             "platform": platform.platform(),
             "machine": platform.machine(),
@@ -145,7 +149,8 @@ def main():
         "datasets": results,
         "limits": [
             "Single shared GitHub runner; no CPU pinning, multiple hosts or capacity testing.",
-            "Python baseline uses Python loops, not optimized NumPy, Polars or Numba.",
+            "Pure Python uses interpreted loops; Polars comparison is opt-in and uses a Rust-backed DataFrame query.",
+            "NumPy and Numba have not been benchmarked; Polars startup/CSV conversion overhead is included.",
             "This compares a narrow profile hot path, NOT the full Python research engine.",
             "Only one vendor-reported trading day is used; exchange origin not authenticated.",
             "Compilers are excluded from elapsed time; no integrated Python-Rust FFI cost.",
@@ -162,16 +167,18 @@ def main():
         "One narrow, deterministic task. **All integer outputs match exactly**.",
         "Timing: five measured subprocess runs per language after one untimed warm-up.",
         "Order randomized within rounds; CSV disk I/O included, compile time excluded.", "",
-        "| Dataset | Trades | Python median | Rust median | C++ median | Rust speedup | C++ speedup |",
-        "|---|---:|---:|---:|---:|---:|---:|",
+        "| Dataset | Trades | Pure Python | Python+Polars | Rust | C++ | Polars speedup | Rust speedup | C++ speedup |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for name, sample in results.items():
         times = sample["results"]
+        polars_median = "{:.4f}s".format(times["polars"]["median_seconds"]) if "polars" in times else "not tested"
+        polars_speedup = "{:.2f}×".format(times["polars"]["speedup_vs_python"]) if "polars" in times else "n/a"
         lines.append(
-            "| {} | {:,} | {:.4f}s | {:.4f}s | {:.4f}s | {:.2f}× | {:.2f}× |".format(
-                name, sample["rows"], times["python"]["median_seconds"],
+            "| {} | {:,} | {:.4f}s | {} | {:.4f}s | {:.4f}s | {} | {:.2f}× | {:.2f}× |".format(
+                name, sample["rows"], times["python"]["median_seconds"], polars_median,
                 times["rust"]["median_seconds"], times["cpp"]["median_seconds"],
-                times["rust"]["speedup_vs_python"], times["cpp"]["speedup_vs_python"]
+                polars_speedup, times["rust"]["speedup_vs_python"], times["cpp"]["speedup_vs_python"]
             )
         )
     lines += ["", "## Interpretation", "",
