@@ -16,6 +16,7 @@ from pathlib import Path
 
 from company import research_lab as lab
 from company import research_gate as gate
+from company import research_pipeline as pipeline
 
 ROOT = Path(__file__).resolve().parents[1]
 TRAIN_DAYS = ("2025-01-06", "2025-01-07", "2025-01-08", "2025-01-09", "2025-01-10")
@@ -93,6 +94,37 @@ class InstitutionalLabTests(unittest.TestCase):
         cls.raw = dataset()
         cls.protocol = registered(cls.raw)
         cls.result = lab.experiment(cls.protocol, cls.raw)
+
+    def test_one_command_pipeline_writes_pinned_review_and_receipt(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            protocol_path, source_path = root / "protocol.json", root / "source.csv"
+            source_path.write_bytes(self.raw)
+            protocol_path.write_text(json.dumps(self.protocol))
+            output = pipeline.run(protocol_path, source_path, root / "studies")
+            self.assertTrue((output / "result.json").exists())
+            self.assertTrue((output / "adversarial_review.json").exists())
+            receipt = json.loads((output / "pipeline_receipt.json").read_text())
+            review = json.loads((output / "adversarial_review.json").read_text())
+            self.assertEqual(receipt["study_id"], self.protocol["id"])
+            self.assertEqual(receipt["input_sha256"], hashlib.sha256(self.raw).hexdigest())
+            self.assertEqual(receipt["blockers"], [b["code"] for b in review["blockers"]])
+            self.assertIn("SYNTHETIC_ONLY", receipt["blockers"])
+            self.assertFalse(receipt["independent_human_validation_completed"])
+            self.assertFalse(receipt["authorization_to_trade"])
+            self.assertFalse(receipt["production_ready"])
+            with self.assertRaises(FileExistsError):
+                pipeline.run(protocol_path, source_path, root / "studies")
+
+    def test_pipeline_refuses_corrupt_input_without_review_receipt(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            protocol_path, source_path = root / "protocol.json", root / "source.csv"
+            source_path.write_bytes(self.raw + b"CORRUPTED")
+            protocol_path.write_text(json.dumps(self.protocol))
+            with self.assertRaisesRegex(ValueError, "checksum"):
+                pipeline.run(protocol_path, source_path, root / "studies")
+            self.assertFalse((root / "studies" / self.protocol["id"] / "pipeline_receipt.json").exists())
 
     def test_frozen_out_of_sample_training_is_constant(self):
         folds = self.result["folds"]

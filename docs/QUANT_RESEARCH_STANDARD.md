@@ -80,3 +80,17 @@ Values are integer gross PnL ticks for one contract, in the order each session's
     python -m company.risk_research --protocol risk-protocol.json --trades trade-outcomes.csv
 
 This is not yet a full institutional risk platform: it omits intratrade excursions, account-specific nuanced rule changes, regime-preserving multiday dependence, market impact, live execution and independently verified trade distribution. A negative or inconclusive finding must be retained. Do not optimize contract count against the same resampled history and label it a valid holdout.
+
+
+## One-command researcher and automated adversarial review
+
+Run `python -m company.research_pipeline --protocol experiment.json --data events.csv --out research-runs/pipeline`.
+The command runs the existing point-in-time experiment, re-reads source and
+research-engine bytes for the automated gate, then emits `protocol.json`,
+`result.json`, `research_note.md`, `adversarial_review.json` and
+`pipeline_receipt.json`. Receipt hashes pin the source, protocol, research
+engine, result and review, and record Python/platform versions. It refuses
+to overwrite an experiment ID. The reviewer lists blockers and never signs
+off live trading or scientific independence. No external data ingestion,
+feature provenance verification, actual pre-registration timestamp or
+independent human model approval is implied by this orchestration.
