@@ -57,7 +57,9 @@ def vendor_sample(path: Path):
 def execute(command):
     before = time.perf_counter()
     run = subprocess.run(command, text=True, capture_output=True,
-                         check=True, timeout=120)
+                         timeout=120)
+    if run.returncode:
+        raise RuntimeError(f"Benchmark command {command[0]} failed: {run.stderr.strip()[:2500]}")
     return time.perf_counter()-before, json.loads(run.stdout)
 
 
@@ -119,7 +121,7 @@ def main():
             "cpp": [str(cpp)],
         }
         if args.polars:
-            commands["polars"] = [sys.executable, str(ROOT/"polars_baseline.py")]
+            commands["polars"] = [sys.executable, "-m", "benchmarks.lang_perf.polars_baseline"]
         fake = root/"synthetic.csv"
         synthetic(fake)
         results = {"synthetic_250k": measure(fake, commands, args.rounds, 20261120)}
