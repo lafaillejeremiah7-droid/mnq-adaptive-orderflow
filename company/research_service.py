@@ -8,6 +8,7 @@ data entitlement, independent model approval or live execution is provided.
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import hashlib
 import json
 import sqlite3
@@ -44,16 +45,22 @@ def digest(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
+@contextmanager
 def open_store(db_path):
+    """Always release SQLite connections, including on failed jobs."""
     db_path = Path(db_path)
     db_path.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(db_path, timeout=30, isolation_level=None)
-    connection.row_factory = sqlite3.Row
-    connection.execute("PRAGMA busy_timeout=30000")
-    connection.execute("PRAGMA journal_mode=WAL")
-    connection.execute("PRAGMA synchronous=FULL")
-    connection.executescript(SCHEMA)
-    return connection
+    try:
+        connection.row_factory = sqlite3.Row
+        connection.execute("PRAGMA busy_timeout=30000")
+        connection.execute("PRAGMA journal_mode=WAL")
+        connection.execute("PRAGMA synchronous=FULL")
+        connection.executescript(SCHEMA)
+        with connection:
+            yield connection
+    finally:
+        connection.close()
 
 
 def enqueue(db_path, protocol_path, data_path, out_root):
@@ -133,11 +140,15 @@ def worker_once(db_path):
             "independent_human_validation": False, "production_ready": False,
         }
         with open_store(db_path) as conn:
-            conn.execute(
+            updated = conn.execute(
                 "UPDATE jobs SET state='completed',updated_utc=?,artifact_path=?,error=NULL "
                 "WHERE id=? AND state='running'",
                 (now(), str(folder), job["id"]),
             )
+            if updated.rowcount != 1:
+                raise RuntimeError(
+                    "job claim changed while executing; preserve artifacts for investigation"
+                )
         return outcome
     except Exception as exc:
         # Never silently overwrite artifacts from an interrupted/failed run.
@@ -150,8 +161,10 @@ def worker_once(db_path):
         return {"id": job["id"], "state": "failed", "error": f"{type(exc).__name__}: {exc}"}
 
 
-def recover_interrupted(db_path):
-    """Mark crashed in-flight work interrupted. Do not requeue without review."""
+def recover_interrupted(db_path, *, confirm_no_active_workers=False):
+    """Only an operator who has stopped all workers may recover running jobs."""
+    if not confirm_no_active_workers:
+        raise ValueError("stop all workers and explicitly confirm no active workers")
     with open_store(db_path) as conn:
         cur = conn.execute(
             "UPDATE jobs SET state='interrupted',updated_utc=?,"
@@ -194,7 +207,8 @@ def main():
                         help="0 = once; positive = continue polling indefinitely")
     jobs = commands.add_parser("status", help="display saved study states")
     jobs.add_argument("--id")
-    commands.add_parser("recover", help="mark interrupted worker jobs for manual review")
+    recover = commands.add_parser("recover", help="recover only after stopping all workers")
+    recover.add_argument("--confirm-no-active-workers", action="store_true")
     redo = commands.add_parser("retry", help="retry a failed job only if no artifacts exist")
     redo.add_argument("--id", required=True)
     args = parser.parse_args()
@@ -215,7 +229,9 @@ def main():
         elif args.command == "status":
             output = {"jobs": get_jobs(args.db, args.id)}
         elif args.command == "recover":
-            output = {"interrupted_jobs": recover_interrupted(args.db)}
+            output = {"interrupted_jobs": recover_interrupted(
+                args.db, confirm_no_active_workers=args.confirm_no_active_workers
+            )}
         else:
             retry(args.db, args.id)
             output = {"queued": args.id}

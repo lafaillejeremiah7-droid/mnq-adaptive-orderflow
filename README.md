@@ -81,3 +81,42 @@ Build on Linux using Python development headers and C++20 compiler:
     python -m company.market_profile --spec protocol.json --trades trades.csv --profile-backend cpp
 
 The default is Python; auto selects C++ only for >=20,000 historical trades when the extension is installed. See [the C++ integration guide](docs/CPP_ACCELERATION.md) and [integrated benchmark](studies/cpp-profile-acceleration/report.md). This is research-only, not an institutional edge or live system.
+
+## Data admission, quote replay, and durable research operations (research-only)
+
+The latest development branch adds four tightly scoped improvements. None
+independently certifies trading alpha, licenses or exchange completeness:
+
+- [Data admission](docs/DATA_ADMISSION.md) validates checksums and declared
+  RTH session coverage. [Multi-year dataset registry](docs/HISTORICAL_DATASET.md)
+  reconciles locally supplied quarterly NQ/MNQ trade files and operator-declared
+  rollover calendars. An operator must still obtain properly licensed data and
+  independent exchange-calendar evidence.
+- [Independent-formula numerical validation](company/independent_validation.py)
+  checks persisted holdout predictions against raw labels and recomputes RMSE,
+  MAE, squared-error improvement and date sign tests. It does not reproduce
+  feature engineering or prove human independent model approval.
+- [Quote-cost scenarios](docs/EXECUTION_REPLAY.md) simulate only latency-delayed
+  top-of-book aggressive order assumptions, with spread, displayed-size,
+  adverse slippage and NQ/MNQ tick values. A separate
+  [Databento MBP-1 offline adapter](docs/DATABENTO_BBO.md) can normalize a
+  legally supplied pretty-priced vendor CSV to the quote format. Actual
+  fills, order queue, impact and exchange permissions remain unverified.
+- [SQLite research service](docs/RESEARCH_SERVICE.md) provides checksummed
+  enqueued jobs, persistent status, error recovery, deterministic replay,
+  automated adversarial review and a separate numeric-check artifact. The
+  polling worker requires a running host/process supervisor and cannot trade.
+
+Example research-only service commands:
+
+```sh
+python -m company.research_service --db research-runs/jobs.sqlite3 enqueue --protocol protocol.json --data events.csv --out research-runs/jobs
+python -m company.research_service --db research-runs/jobs.sqlite3 worker
+python -m company.research_service --db research-runs/jobs.sqlite3 status
+```
+
+**Current release position:** The software components have passing automated
+tests, but the overall Quant Researcher is not institutionally complete.
+Authentic multi-year CME trade/quote/book history, verified data rights and
+rolls, qualified independent scientific review and real execution evidence
+remain missing. Keep the feature PR in draft; do not place live orders.

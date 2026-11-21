@@ -58,7 +58,11 @@ class ResearchServiceTests(unittest.TestCase):
         with service.open_store(self.db) as conn:
             conn.execute("UPDATE jobs SET state='running' WHERE id=?", (study,))
         self.assertIsNone(service.worker_once(self.db))
-        self.assertEqual(service.recover_interrupted(self.db), 1)
+        with self.assertRaisesRegex(ValueError, "no active workers"):
+            service.recover_interrupted(self.db)
+        self.assertEqual(
+            service.recover_interrupted(self.db, confirm_no_active_workers=True), 1
+        )
         self.assertEqual(service.get_jobs(self.db, study)[0]["state"], "interrupted")
         service.retry(self.db, study)
         self.assertEqual(service.worker_once(self.db)["state"], "completed")
